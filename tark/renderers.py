@@ -14,18 +14,18 @@ class renderer():
     @classmethod
     def render(cls, featureset, **kwargs):
         
-        if 'content-type' in kwargs:
-            content_type = kwargs['content-type']
-            if content_type not in ALLOW_CONTENT_TYPE:
-                return HttpResponse(status=500)
-        else:
-            content_type = 'application/json'
+        content_type = kwargs.pop('content-type', 'application/json')
+
+        if content_type not in ALLOW_CONTENT_TYPE:
+            return HttpResponse(status=500)
 
         return getattr(cls, RENDER_FORMAT[content_type])(featureset, **kwargs)
 
     @classmethod
     def json(cls, featureset, **kwargs):
-        data = json.dumps(featureset, indent=4, sort_keys=False, ensure_ascii=False, cls=BioJSONEncoder)
+        features = featureset.to_dict( **kwargs )
+
+        data = json.dumps(features, indent=4, sort_keys=False, ensure_ascii=False, cls=BioJSONEncoder)
         
         return HttpResponse(data, content_type="application/json")
 

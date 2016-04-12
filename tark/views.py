@@ -1,12 +1,8 @@
 from django.http import HttpResponse
 from django.shortcuts import render
-import json
 from django.apps import apps
-from tark.models import FEATURE_TYPES, sequence
+from tark.models import FEATURE_TYPES
 from tark.renderers import renderer
-from django.core.serializers.json import DjangoJSONEncoder
-
-import pprint
 
 def getsequence(request, seqtype, seqid):
     
@@ -14,13 +10,15 @@ def getsequence(request, seqtype, seqid):
         return HttpResponse(status=403)
     
     model = apps.get_model('tark', seqtype)
-    features = model.fetch_feature(fetch_children=True, filter_pk=True, **{'stable_id': seqid } )
+    feature_set = model.objects.filter(stable_id=seqid)
+#    features = feature_set.to_dict()
+#    features = feature_set.to_dict( **{'fetch_children': True, 'filter_pk': True} )
     
-    if not features:
-        return HttpResponse(status=403)
+    if not feature_set:
+        return HttpResponse(status=404)
     
-    return renderer.render(features, **{'content_type': 'application/json'})
+    return renderer.render(feature_set, **{'content_type': 'application/json', 'fetch_children': True, 'filter_pk': True})
     
-    data = json.dumps(features, indent=4, sort_keys=False, ensure_ascii=False, cls=DjangoJSONEncoder)
+#    data = json.dumps(features, indent=4, sort_keys=False, ensure_ascii=False, cls=DjangoJSONEncoder)
     
-    return HttpResponse(data, content_type="application/json")
+#    return HttpResponse(data, content_type="application/json")

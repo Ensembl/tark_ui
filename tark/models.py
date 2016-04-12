@@ -12,50 +12,30 @@ from django.apps import apps
 
 from tark.fields import ChecksumField, SequenceField
 
-import pprint
-
-FEATURE_CHILD = {
-    'gene': 'transcript',
-    'transcript': 'translation'
-}
-
 FEATURE_TYPES = ['gene', 'transcript', 'exon', 'translation']
 
-class feature(models.Model):
-    @classmethod
-    def fetch_feature(cls, fetch_children=False, filter_pk=True, **kwargs):
-        features = cls.objects.filter(**kwargs)
-        
-        if not features:
-            return None
-        
+class FeatureQuerySet(models.query.QuerySet):
+    def to_dict(self, **kwargs):
         features_ary = []
-        
-        for feature in features:
-            feature_obj = feature.to_dict(filter_pk=filter_pk)
-            
-            if fetch_children:
-                child_key, child_features = feature.fetch_children(filter_pk=filter_pk)
-                if child_features:
-                    feature_obj[child_key] = child_features
-                    
-                if cls.__name__ == 'transcript':
-                    exons_ary = []
-                    for exon_transcript in feature.exons.all().order_by('exon_order'):
-                        exon_obj = exon_transcript.exon.to_dict()
-                        exons_ary.append(exon_obj)
-                        
-                    if exons_ary:
-                        feature_obj['exon'] = exons_ary
-                    
-        
-            features_ary.append(feature_obj)
 
+        for feature in self.all():
+            feature_obj = feature.to_dict(**kwargs)
+            
+            features_ary.append(feature_obj)
+            
         return features_ary
     
     
-    def to_dict(self, filter_pk=True):
+class FeatureManager(models.Manager):
+    def get_queryset(self):
+        return FeatureQuerySet(self.model, using=self._db)
+    
+class feature(models.Model):
+    objects = FeatureManager()
+    
+    def to_dict(self, **kwargs):
         feature_obj = {}
+        filter_pk = kwargs.get('filter_pk', True)
         for field in self._meta.fields:
             if field.name == 'session':
                 continue
@@ -72,17 +52,48 @@ class feature(models.Model):
                 feature_obj[field.name] = getattr(self, field.name)
                 
         return feature_obj
-        
-    
-    def fetch_children(self, fetch_children=True, filter_pk=True):
-        if self.__class__.__name__ not in FEATURE_CHILD:
-            return None, None
-        
-        child_name = FEATURE_CHILD[self.__class__.__name__]
-        
-        child_model = apps.get_model('tark', child_name)
-        filter_name = "{}_id".format(self.__class__.__name__)
-        return child_name, child_model.fetch_feature(fetch_children=fetch_children, filter_pk=filter_pk, **{ filter_name: getattr(self, filter_name) })
+
+#     @classmethod
+#     def fetch_feature(cls, fetch_children=False, filter_pk=True, **kwargs):
+#         features = cls.objects.filter(**kwargs)
+#         
+#         if not features:
+#             return None
+#         
+#         features_ary = []
+#         
+#         for feature in features:
+#             print type(features)
+#             feature_obj = feature.to_dict(filter_pk=filter_pk)
+#             
+#             if fetch_children:
+#                 child_key, child_features = feature.fetch_children(filter_pk=filter_pk)
+#                 if child_features:
+#                     feature_obj[child_key] = child_features
+#                     
+#                 if cls.__name__ == 'transcript':
+#                     exons_ary = []
+#                     for exon_transcript in feature.exons.all().order_by('exon_order'):
+#                         exon_obj = exon_transcript.exon.to_dict()
+#                         exons_ary.append(exon_obj)
+#                         
+#                     if exons_ary:
+#                         feature_obj['exon'] = exons_ary
+#                     
+#         
+#             features_ary.append(feature_obj)
+# 
+#         return features_ary
+#
+#     def fetch_children(self, fetch_children=True, filter_pk=True):
+#         if self.__class__.__name__ not in FEATURE_CHILD:
+#             return None, None
+#         
+#         child_name = FEATURE_CHILD[self.__class__.__name__]
+#         
+#         child_model = apps.get_model('tark', child_name)
+#         filter_name = "{}_id".format(self.__class__.__name__)
+#         return child_name, child_model.fetch_feature(fetch_children=fetch_children, filter_pk=filter_pk, **{ filter_name: getattr(self, filter_name) })
 
     def __str__(self):
         return "{}.{}".format(self.stable_id, self.stable_id_version) if self.stable_id_version else "{}".format(self.stable_id)
@@ -154,6 +165,16 @@ class gene(feature):
     loc_region = models.CharField(max_length=42, blank=True, null=True)
     gene_checksum = ChecksumField(unique=True, max_length=20, blank=True, null=True)
     session = models.ForeignKey('session', models.DO_NOTHING, blank=True, null=True)
+
+    def to_dict(self, **kwargs):
+        feature_obj = super(gene, self).to_dict(**kwargs)
+        
+        if kwargs.get('fetch_children', False):
+            children = transcript.objects.filter(gene_id=self.gene_id).to_dict(**kwargs)
+            if children:
+                feature_obj['translation'] = children
+    
+        return feature_obj
 
     class Meta:
         managed = False
@@ -333,19 +354,23 @@ class transcript(feature):
     gene = models.ForeignKey(gene, models.DO_NOTHING, blank=True, null=True, related_name='transcripts')
     session = models.ForeignKey(session, models.DO_NOTHING, blank=True, null=True)
 
-#    def to_dict(self, **kwargs):
-#        feature_obj = super(transcript, self).to_dict(self, **kwargs)
-#        
-#        if kwargs.get('fetch_children', False):
-#            exons_ary = []
-#            for exon_transcript in feature.exons.all().order_by('exon_order'):
-#                exon_obj = exon_transcript.exon.to_dict()
-#                exons_ary.append(exon_obj)
-#                        
-#            if exons_ary:
-#                feature_obj['exon'] = exons_ary
-#    
-#        return feature_obj
+    def to_dict(self, **kwargs):
+        feature_obj = super(transcript, self).to_dict(**kwargs)
+       
+        if kwargs.get('fetch_children', False):
+            children = translation.objects.filter(transcript_id=self.transcript_id).to_dict(**kwargs)
+            if children:
+                feature_obj['translation'] = children
+            
+            exons_ary = []
+            for exon_transcript in self.exons.all().order_by('exon_order'):
+                exon_obj = exon_transcript.exon.to_dict()
+                exons_ary.append(exon_obj)
+                        
+            if exons_ary:
+                feature_obj['exon'] = exons_ary
+    
+        return feature_obj
 
     class Meta:
         managed = False
