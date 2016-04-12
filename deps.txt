@@ -1,0 +1,6 @@
+sudo apt-get install libpython2.7-dev
+sudo apt-get install libffi-dev
+sudo apt-get install libssl-dev
+sudo pip install --upgrade pip
+sudo pip install --upgrade ndg-httpsclient
+sudo pip install virtualenv
