@@ -25,12 +25,12 @@ class ChecksumField(models.CharField):
         return ''.join( [ "%02X" % ord( x ) for x in value ] ).strip()
     
     def value_to_string(self, obj):
-        print "Encoding value!"
         value = self._get_val_from_obj(obj)
         return self.get_prep_value(value)
-#        return models.CharField.value_to_string(self, obj)
 
     def get_prep_value(self, value):
+        if not isinstance(value, str):
+            value = value.seq_checksum
         bytes = []
         for i in range(0, len(value), 2):
             bytes.append( chr( int (value[i:i+2], 16 ) ) )
@@ -72,6 +72,3 @@ class SequenceField(models.TextField):
             return [ self.item_field_type.to_python(x) for x in value ]
         
         return self.item_field_type.to_python(value)
-    
-#        value = self._get_val_from_obj(obj)
-#        return self.get_prep_value(value)
