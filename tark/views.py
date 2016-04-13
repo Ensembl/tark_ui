@@ -4,6 +4,7 @@ from django.apps import apps
 from tark.models import FEATURE_TYPES
 from tark.decorators import render
 
+#@render(default_content_type='text/x-fasta')
 @render
 def getsequence(request, seqtype, seqid):
     
@@ -19,3 +20,6 @@ def getsequence(request, seqtype, seqid):
     return feature_set
 
 #    return renderer.render(feature_set, **render_parameters)
+
+def idlookup(request, seqtype, seqid):
+    pass
