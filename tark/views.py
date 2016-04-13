@@ -1,12 +1,18 @@
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.apps import apps
+from django.views.decorators.csrf import csrf_exempt
+import json
+
 from tark.models import FEATURE_TYPES
-from tark.decorators import render
+from tark.decorators import render, parameter_parser
+
+import pprint
 
 #@render(default_content_type='text/x-fasta')
+@parameter_parser
 @render
-def getsequence(request, seqtype, seqid):
+def getsequence(request, seqtype, seqid, **kwargs):
     
     if seqtype not in FEATURE_TYPES:
         return HttpResponse(status=403)
@@ -21,5 +27,18 @@ def getsequence(request, seqtype, seqid):
 
 #    return renderer.render(feature_set, **render_parameters)
 
-def idlookup(request, seqtype, seqid):
-    pass
+@parameter_parser(allow_methods='GET')
+@csrf_exempt
+def idlookup_GET(request, seqtype, id, **kwargs):
+    
+    pprint.pprint(kwargs)
+
+    return HttpResponse("OK")
+
+@parameter_parser(allow_methods='POST')
+@csrf_exempt
+def idlookup_POST(request, seqtype, **kwargs):
+    
+    pprint.pprint(kwargs)
+
+    return HttpResponse("OK")

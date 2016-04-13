@@ -34,7 +34,7 @@ class renderer():
 
     @classmethod
     def fasta(cls, featureset, **kwargs):
-        kwargs['fetch_children'] = False
+        kwargs['expand'] = False
 
         records = []
 

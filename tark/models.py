@@ -151,8 +151,8 @@ class Gene(Feature):
     def to_dict(self, **kwargs):
         feature_obj = super(Gene, self).to_dict(**kwargs)
         
-        if kwargs.get('fetch_children', False):
-            children = transcript.objects.filter(gene_id=self.gene_id).to_dict(**kwargs)
+        if kwargs.get('expand', False):
+            children = Transcript.objects.filter(gene_id=self.gene_id).to_dict(**kwargs)
             if children:
                 feature_obj['translation'] = children
     
@@ -339,7 +339,7 @@ class Transcript(Feature):
     def to_dict(self, **kwargs):
         feature_obj = super(Transcript, self).to_dict(**kwargs)
        
-        if kwargs.get('fetch_children', False):
+        if kwargs.get('expand', False):
             children = Translation.objects.filter(transcript_id=self.transcript_id).to_dict(**kwargs)
             if children:
                 feature_obj['translation'] = children
