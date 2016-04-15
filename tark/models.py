@@ -11,6 +11,8 @@ from django.db import models
 from django.apps import apps
 
 from tark.fields import ChecksumField, SequenceField
+from tark.tark_exceptions import AssemblyNotFound
+import pprint
 
 FEATURE_TYPES = {'gene': 'Gene', 
                  'transcript': 'Transcript', 
@@ -36,26 +38,6 @@ class FeatureManager(models.Manager):
     
 class Feature(models.Model):
     objects = FeatureManager()
-    
-    def to_dict(self, **kwargs):
-        feature_obj = {}
-        filter_pk = kwargs.get('filter_pk', True)
-        for field in self._meta.fields:
-            if field.name == 'session':
-                continue
-            elif (field.name == self._meta.pk.name) and filter_pk:
-                continue
-            elif field.get_internal_type() == "ForeignKey":
-                feature_obj[field.name] = str(getattr(self, field.name))
-
-                if field.name == 'seq_checksum':
-
-                    seq = Sequence.fetch_sequence(feature_obj[field.name], **{'feature_type': type(self).__name__})
-                    feature_obj['sequence'] = seq.sequence
-            else:
-                feature_obj[field.name] = getattr(self, field.name)
-                
-        return feature_obj
 
     @property
     def location(self):
@@ -77,6 +59,37 @@ class Feature(models.Model):
 
         return seq.sequence
 
+    @classmethod
+    def build_filters(cls, **kwargs):
+        filter = {}
+        
+        if 'assembly' in kwargs:
+            assembly_filter = Assembly.fetch_by_accession(kwargs['assembly'])
+            filter.update(assembly_filter)
+            
+        return filter
+        
+    
+    def to_dict(self, **kwargs):
+        feature_obj = {}
+        filter_pk = kwargs.get('filter_pk', True)
+        for field in self._meta.fields:
+            if field.name == 'session':
+                continue
+            elif (field.name == self._meta.pk.name) and filter_pk:
+                continue
+            elif field.get_internal_type() == "ForeignKey":
+                feature_obj[field.name] = str(getattr(self, field.name))
+
+                if field.name == 'seq_checksum':
+
+                    seq = Sequence.fetch_sequence(feature_obj[field.name], **{'feature_type': type(self).__name__})
+                    feature_obj['sequence'] = seq.sequence
+            else:
+                feature_obj[field.name] = getattr(self, field.name)
+                
+        return feature_obj
+
     def __str__(self):
         return "{}.{}".format(self.stable_id, self.stable_id_version) if self.stable_id_version else "{}".format(self.stable_id)
 
@@ -91,6 +104,22 @@ class Assembly(models.Model):
     assembly_accession = models.CharField(max_length=32, blank=True, null=True)
     assembly_version = models.IntegerField(blank=True, null=True)
     session = models.ForeignKey('Session', models.DO_NOTHING, blank=True, null=True)
+
+    @classmethod
+    def fetch_by_accession(cls, accession):
+        try:
+            assembly = Assembly.objects.filter(assembly_accession=accession)
+            if assembly:
+                return {'assembly_id__in': assembly}
+        
+            split_accession = accession.rsplit('.', 1)
+            if len(split_accession) == 2:
+                assembly = Assembly.objects.get(assembly_accession=split_accession[0], assembly_version=split_accession[1])
+                return {'assembly_id':assembly}
+        except Exception as e:
+            pass
+            
+        raise AssemblyNotFound("Accession " + accession + " not found")
 
     def __str__(self):
         return "{}:{}.{}".format(self.assembly_name, self.assembly_accession, str(self.assembly_version))

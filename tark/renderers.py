@@ -54,6 +54,16 @@ class renderer():
         
         return response
 
+    @classmethod
+    def render_error(cls, error, **kwargs):
+        content_type = kwargs.pop('content-type', 'application/json')
+        
+        if content_type == 'application/json':
+            data = json.dumps({'error': error})
+            return HttpResponse(data, content_type="application/json", status=404)
+        else:
+            return HttpResponse("Error: " + error, content_type='text/plain')
+
 class BioJSONEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, Seq):
