@@ -11,7 +11,7 @@ ALPHABETS = {
 
 class ChecksumField(models.CharField):
     description = "Allow retrieval of binary mysql fields"
-    __metaclass__ = models.SubfieldBase
+#    __metaclass__ = models.SubfieldBase
 
     def __repr__(self):
         return ''.join( [ "%02X" % ord( x ) for x in super(ChecksumField, self).__repr__ ] ).strip()

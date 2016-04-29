@@ -10,8 +10,11 @@ from __future__ import unicode_literals
 from django.db import models
 from django.apps import apps
 
+from Bio.SeqRecord import SeqRecord
+
 from tark.fields import ChecksumField, SequenceField
-from tark.tark_exceptions import AssemblyNotFound
+from tark.tark_exceptions import AssemblyNotFound, ReleaseNotFound
+import hashlib
 import pprint
 
 FEATURE_TYPES = {'gene': 'Gene', 
@@ -20,7 +23,35 @@ FEATURE_TYPES = {'gene': 'Gene',
                  'translation': 'Translation'
                  }
 
+FEATURE_LOOKUP = {'Gene': 1,
+                  'Transcript': 2,
+                  'Exon': 3,
+                  'Translation': 4,
+                  'Operon': 5}
+
 class FeatureQuerySet(models.query.QuerySet):
+    def dict_iterator(self, **kwargs):
+        for feature in self.all():
+            feature_obj = feature.to_dict(**kwargs)
+            
+            yield feature_obj
+    
+    def seq_iterator(self, format=None):
+        format = format
+
+        for feature in self.all():
+            if not feature.has_sequence:
+                continue
+            
+            if format:
+                yield SeqRecord(feature.seq,
+                                id=feature.stable_id_versioned,
+                                description=feature.location).format(format)
+            else:
+                yield SeqRecord(feature.seq,
+                                id=feature.stable_id_versioned,
+                                description=feature.location)
+        
     def to_dict(self, **kwargs):
         features_ary = []
 
@@ -30,12 +61,127 @@ class FeatureQuerySet(models.query.QuerySet):
             features_ary.append(feature_obj)
             
         return features_ary
-    
+
+    def release(self, release_set, exclude=False):
+        feature_id = FEATURE_LOOKUP[self.model.__name__]
+        set_table_name = 'release_tag_' + str(release_set.release_id)
+        
+        if exclude:
+            release_tags = Releasetag.objects.filter(release_id=release_set, feature_type=feature_id)
+            pk_column = self.model._meta.pk.name + '__in'
+            return self.exclude(**{pk_column: release_tags})
+        else:
+            return self.extra( where=[set_table_name + ".feature_type=%s", 
+                                      set_table_name + ".feature_id = " + self.model._meta.db_table + '.' + self.model._meta.pk.name, 
+                                      set_table_name + ".release_id='%s'"], 
+                                params=[feature_id, release_set.release_id], 
+                                tables=['release_tag` as `' + set_table_name])
+
+    def tag(self, tag_set, exclude=False):
+        set_table_name = 'tag_' + str(tag_set.tagset_id)
+        if exclude:
+            settags = Tag.objects.filter(tagset_id=tag_set)
+            return self.exclude(transcript_id__in=settags)
+        else:
+            return self.extra( where=[set_table_name + ".transcript_id = " + self.model._meta.db_table + '.' + self.model._meta.pk.name, 
+                                      set_table_name + ".tagset_id='%s'"], 
+                              params=[tag_set.tagset_id], 
+                              tables=['tag` as `' + set_table_name] )
+
+    def build_filters(self, **kwargs):
+        filter = {}
+        
+        if 'assembly' in kwargs:
+            assembly = Assembly.fetch_by_accession(kwargs['assembly'])
+            filter.update({'assembly_id': assembly})
+
+        if filter:
+            return self.filter(**filter)
+        else:
+            return self
+
+    def by_stable_id(self, stable_id, **kwargs):
+        print "trying {}".format(stable_id)
+        try:
+            split_stable_id = stable_id.split('.')
+            # Will this be a problem for null version stable_ids?
+            if len(split_stable_id) == 2:
+                feature = self.build_filters(**kwargs).filter(stable_id=split_stable_id[0], stable_id_version=split_stable_id[1])
+                
+                if feature:
+                    return feature
+        except Exception as e:
+            print e
+
+        return self.build_filters(**kwargs).filter(stable_id=stable_id)     
+                    
+    def checksum(self):
+        checksums = []
+        checksum_field = self.model._meta.db_table + '_checksum'
+        
+        for feature in self.order_by('pk').all():
+            checksum = getattr(feature, checksum_field)
+            checksums.append(checksum)
+            
+        set_checksum = hashlib.sha1(':'.join(checksums)).hexdigest()
+
+        return set_checksum
     
 class FeatureManager(models.Manager):
     def get_queryset(self):
         return FeatureQuerySet(self.model, using=self._db)
     
+    def release(self, release_set):
+        # Fetch the id of the feature type
+        feature_id = FEATURE_LOOKUP[self.model.__name__]
+        return self.get_queryset().release(release_set)
+#        return self.get_queryset().extra( where=["release_tag.feature_type=%s", 
+#                                                 "release_tag.feature_id = " + self.model._meta.db_table + '.' + self.model._meta.pk.name, 
+#                                                 "release_tag.release_id='%s'"], 
+#                                         params=[feature_id, release_set.release_id], 
+#                                         tables=['release_tag'] )
+
+    def tag(self, tag_set):
+        # Fetch the id of the feature type
+        return self.get_queryset.tag(tag_set)
+#        return self.get_queryset().extra( where=["tag.transcript_id = " + self.model._meta.db_table + '.' + self.model._meta.pk.name, 
+#                                                 "tag.tagset_id='%s'"], 
+#                                         params=[tag_set.tagset_id], 
+#                                         tables=['tag'] )
+
+    def by_stable_id(self, stable_id, **kwargs):
+        return self.get_queryset().by_stable_id(stable_id, **kwargs)
+
+    def dict_iterator(self, **kwargs):
+        for stable_id in self.stable_ids:
+            featureset = self.get_queryset().by_stable_id(stable_id)
+            for feature in featureset.to_dict( **kwargs ):
+                yield feature 
+
+    def seq_iterator(self, format=None, **kwargs):
+        format = format
+
+        for stable_id in self.stable_ids:
+            featureset = self.get_queryset().by_stable_id(stable_id, **kwargs)
+            for feature in featureset.all():
+                if not feature.has_sequence:
+                    continue
+            
+                if format:
+                    yield SeqRecord(feature.seq,
+                                    id=feature.stable_id_versioned,
+                                    description=feature.location).format(format)
+                else:
+                    yield SeqRecord(feature.seq,
+                                    id=feature.stable_id_versioned,
+                                    description=feature.location)
+
+    def by_stable_ids(self, stable_ids, **kwargs):
+        self.stable_ids = stable_ids
+        return self
+#        return self.get_queryset().by_stable_ids(stable_ids, **kwargs)
+
+
 class Feature(models.Model):
     objects = FeatureManager()
 
@@ -64,12 +210,14 @@ class Feature(models.Model):
         filter = {}
         
         if 'assembly' in kwargs:
-            assembly_filter = Assembly.fetch_by_accession(kwargs['assembly'])
-            filter.update(assembly_filter)
+            assembly = Assembly.fetch_by_accession(kwargs['assembly'])
+            filter.update({'assembly_id': assembly})
             
         return filter
-        
-    
+
+    def dict_iterator(self, **kwargs):
+        return self.to_dict(**kwargs)
+            
     def to_dict(self, **kwargs):
         feature_obj = {}
         filter_pk = kwargs.get('filter_pk', True)
@@ -81,7 +229,7 @@ class Feature(models.Model):
             elif field.get_internal_type() == "ForeignKey":
                 feature_obj[field.name] = str(getattr(self, field.name))
 
-                if field.name == 'seq_checksum':
+                if field.name == 'seq_checksum' and not kwargs.get('skip_sequence', False):
 
                     seq = Sequence.fetch_sequence(feature_obj[field.name], **{'feature_type': type(self).__name__})
                     feature_obj['sequence'] = seq.sequence
@@ -107,15 +255,15 @@ class Assembly(models.Model):
 
     @classmethod
     def fetch_by_accession(cls, accession):
-        try:
-            assembly = Assembly.objects.filter(assembly_accession=accession)
-            if assembly:
-                return {'assembly_id__in': assembly}
-        
+        try:            
             split_accession = accession.rsplit('.', 1)
             if len(split_accession) == 2:
                 assembly = Assembly.objects.get(assembly_accession=split_accession[0], assembly_version=split_accession[1])
-                return {'assembly_id':assembly}
+                return assembly
+            
+            assembly = Assembly.objects.get(assembly_accession=accession)
+            if assembly:
+                return assembly
         except Exception as e:
             pass
             
@@ -261,6 +409,26 @@ class Releaseset(models.Model):
     session = models.ForeignKey('Session', models.DO_NOTHING, blank=True, null=True)
     release_checksum = ChecksumField(max_length=20, blank=True, null=True)
 
+    @classmethod
+    def fetch_set(cls, **kwargs):
+        filter = {}
+        if 'assembly' in kwargs:
+            assembly = Assembly.fetch_by_accession(kwargs['assembly'])
+            filter['assembly'] = assembly
+        
+        if 'tag' in kwargs:
+            filter['shortname'] = kwargs['tag']
+            
+        if 'description' in kwargs:
+            filter['description__contains'] = kwargs['description']
+   
+        try:
+            return Releaseset.objects.get(**filter)
+        
+        except Exception as e:
+            raise ReleaseNotFound("Unique release not found, trying specifying one or more of assembly, tag or description")
+        
+
     class Meta:
         managed = False
         db_table = 'release_set'
@@ -268,9 +436,9 @@ class Releaseset(models.Model):
 
 
 class Releasetag(models.Model):
-    feature_id = models.PositiveIntegerField()
-    feature_type = models
-    feature_id = models.IntegerField()
+    feature_id = models.PositiveIntegerField(primary_key=True)
+#    feature_type = models
+#    feature_id = models.IntegerField()
     feature_type = models.IntegerField()
     release = models.ForeignKey(Releaseset, models.DO_NOTHING, related_name='features')
     session = models.ForeignKey('Session', models.DO_NOTHING, blank=True, null=True)
@@ -324,8 +492,8 @@ class Session(models.Model):
 
 
 class Tag(models.Model):
-    transcript = models.ForeignKey('Transcript', models.DO_NOTHING)
-    tagset = models.ForeignKey('Tagset', models.DO_NOTHING)
+    transcript = models.ForeignKey('Transcript', models.DO_NOTHING, primary_key=True)
+    tagset = models.ForeignKey('Tagset', models.DO_NOTHING, related_name='tags')
     session = models.ForeignKey(Session, models.DO_NOTHING, blank=True, null=True)
 
     class Meta:
@@ -342,6 +510,21 @@ class Tagset(models.Model):
     is_current = models.IntegerField(blank=True, null=True)
     session = models.ForeignKey(Session, models.DO_NOTHING, blank=True, null=True)
     tagset_checksum = ChecksumField(max_length=20, blank=True, null=True)
+
+    @classmethod
+    def fetch_set(cls, **kwargs):
+        filter = {}
+                
+        if 'tag' in kwargs:
+            filter['shortname'] = kwargs['tag']
+
+        if 'version' in kwargs:
+            filter['version'] = kwargs['version']
+            
+        if 'description' in kwargs:
+            filter['description__contains'] = kwargs['description']
+   
+        return Tagset.objects.get(**filter)
 
     class Meta:
         managed = False

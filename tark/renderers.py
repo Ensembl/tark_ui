@@ -1,10 +1,11 @@
-from django.http import HttpResponse
+from django.http import HttpResponse, StreamingHttpResponse
 from tark.models import Sequence
+from tark.iterables import iterlist
 import json
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 from Bio import SeqIO
-from django.core.serializers.json import DjangoJSONEncoder
+import pprint
 
 ALLOW_CONTENT_TYPE = ['application/json', 'text/plain', 'text/x-fasta' ]
 
@@ -16,44 +17,31 @@ class renderer():
     
     @classmethod
     def render(cls, featureset, **kwargs):
-        
+
+        pprint.pprint(kwargs)        
         content_type = kwargs.pop('content-type', 'application/json')
 
         if content_type not in ALLOW_CONTENT_TYPE:
+            print "Unknown content-type {}".format(content_type)
             return HttpResponse(status=500)
 
         return getattr(cls, RENDER_FORMAT[content_type])(featureset, **kwargs)
 
     @classmethod
     def json(cls, featureset, **kwargs):
-        features = featureset.to_dict( **kwargs )
-
-        data = json.dumps(features, indent=4, sort_keys=False, ensure_ascii=False, cls=BioJSONEncoder)
+#        features = featureset.to_dict( **kwargs )
+        iterator = BioJSONEncoder().iterencode(iterlist( featureset.dict_iterator( **kwargs ) ))
+#        data = json.dumps(features, indent=4, sort_keys=False, ensure_ascii=False, cls=BioJSONEncoder)
         
-        return HttpResponse(data, content_type="application/json")
+        return StreamingHttpResponse(iterator, content_type="application/json")
 
     @classmethod
     def fasta(cls, featureset, **kwargs):
         kwargs['expand'] = False
 
-        records = []
-
-        for feature in featureset.all():
-            if not feature.has_sequence:
-                continue
-#            print "trying"
-#            seq = sequence.objects.get(pk=feature.seq_checksum)
-#            print "got here!!!!!"
-            rec = SeqRecord(feature.seq,
-                            id=feature.stable_id_versioned,
-                            description=feature.location)
-            records.append(rec)
-        
-        response = HttpResponse(content_type='text/x-fasta')
-        SeqIO.write(records, response, "fasta")
-        
-        return response
-
+        iterator = iterlist(featureset.seq_iterator(format='fasta', **kwargs))
+        return StreamingHttpResponse(iterator, content_type="text/x-fasta")
+    
     @classmethod
     def render_error(cls, error, **kwargs):
         content_type = kwargs.pop('content-type', 'application/json')
