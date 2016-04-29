@@ -36,7 +36,7 @@ class FeatureQuerySet(models.query.QuerySet):
             
             yield feature_obj
     
-    def seq_iterator(self, format=None):
+    def seq_iterator(self, format=None, **kwargs):
         format = format
 
         for feature in self.all():
@@ -343,7 +343,7 @@ class Gene(Feature):
 class Genenames(models.Model):
     gene_names_id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=32, blank=True, null=True)
-    gene = models.ForeignKey(Gene, models.DO_NOTHING, blank=True, null=True, related_name='gene_names')
+    gene = models.ForeignKey(Gene, models.DO_NOTHING, blank=True, null=True, related_name='genenames')
     assembly = models.ForeignKey(Assembly, models.DO_NOTHING, blank=True, null=True)
     source = models.CharField(max_length=32, blank=True, null=True)
     primary_id = models.IntegerField(blank=True, null=True)

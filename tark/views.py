@@ -3,7 +3,7 @@ from django.apps import apps
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models.sql.datastructures import Join
 
-from tark.models import FEATURE_TYPES, Releaseset, Transcript, Releasetag, Assembly, Tagset
+from tark.models import FEATURE_TYPES, Releaseset, Transcript, Releasetag, Assembly, Tagset, Genenames, Gene, Transcript
 from tark.decorators import render, parameter_parser
 
 import pprint
@@ -76,5 +76,28 @@ def checksum_release_type(request, seqtype, tag, **kwargs):
 #    pprint.pprint(feature_set.all())
     return HttpResponse(feature_set.query)
     
+@parameter_parser(allow_methods='GET')
+@render
+def name_lookup_gene(request, **kwargs):    
+
+    if 'name' not in kwargs:
+        return HttpResponse(status=403)
+        
+    name = kwargs['name']
+
+    genes = Gene.objects.filter(genenames__name=name).build_filters(**kwargs)
     
-    
+    return genes.all()
+
+@parameter_parser(allow_methods='GET')
+@render
+def name_lookup_transcript(request, **kwargs):    
+
+    if 'name' not in kwargs:
+        return HttpResponse(status=403)
+        
+    name = kwargs['name']
+
+    transcripts = Transcript.objects.filter(gene__genenames__name=name).build_filters(**kwargs)
+
+    return transcripts.all()
