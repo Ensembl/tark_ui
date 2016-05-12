@@ -5,6 +5,7 @@ from django.db.models.sql.datastructures import Join
 
 from tark.models import FEATURE_TYPES, Releaseset, Transcript, Releasetag, Assembly, Tagset, Genenames, Gene, Transcript
 from tark.decorators import render, parameter_parser
+from tark.lib.hgvsmapper import fetch_by_hgvs
 
 import pprint
 
@@ -23,8 +24,6 @@ def getsequence(request, seqtype, seqid, **kwargs):
     
     return feature_set
 
-#    return renderer.render(feature_set, **render_parameters)
-
 @parameter_parser(allow_methods='GET')
 @render
 def idlookup_GET(request, seqtype, id, **kwargs):
@@ -32,10 +31,7 @@ def idlookup_GET(request, seqtype, id, **kwargs):
     pprint.pprint(kwargs)
 
     model = apps.get_model('tark', FEATURE_TYPES[seqtype])
-#    filters = model.build_filters(**kwargs)        
-#    filters['stable_id'] = id
 
-#    feature_set = model.objects.filter(**filters)
     feature_set = model.objects.by_stable_id(id, **kwargs)
     if not feature_set:
         return HttpResponse(status=404)
@@ -69,10 +65,10 @@ def checksum_release_type(request, seqtype, tag, **kwargs):
         return HttpResponse(status=403)
     
     model = apps.get_model('tark', FEATURE_TYPES[seqtype])
-    feature_set = model.objects.release(release).release(release2, exclude=True).filter(loc_start__lt=10000).checksum()
-    return HttpResponse(feature_set)
+    feature_set = model.objects.release(release).release(release2, exclude=True)#.filter(loc_start__lt=10000).checksum()
+    #return HttpResponse(feature_set)
 
-    return feature_set.all()
+    return feature_set
 #    pprint.pprint(feature_set.all())
     return HttpResponse(feature_set.query)
     
@@ -87,7 +83,7 @@ def name_lookup_gene(request, **kwargs):
 
     genes = Gene.objects.filter(genenames__name=name).build_filters(**kwargs)
     
-    return genes.all()
+    return genes
 
 @parameter_parser(allow_methods='GET')
 @render
@@ -100,4 +96,13 @@ def name_lookup_transcript(request, **kwargs):
 
     transcripts = Transcript.objects.filter(gene__genenames__name=name).build_filters(**kwargs)
 
-    return transcripts.all()
+    return transcripts
+
+@parameter_parser(allow_methods='GET')
+@render
+def hgvs_by_name(request, species, hgvs, **kwargs):
+    match_features = fetch_by_hgvs(hgvs, species, **kwargs)
+    
+    return match_features
+    
+    

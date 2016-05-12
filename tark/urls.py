@@ -10,4 +10,5 @@ urlpatterns = patterns('',
                        url(r'^checksum/release/(?P<seqtype>[\w]+)/(?P<tag>[\w\.]+)$', views.checksum_release_type, name='checksum_release_type'),
                        url(r'^lookup/name/gene$', views.name_lookup_gene, name='name_lookup_gene'),
                        url(r'^lookup/name/transcript$', views.name_lookup_transcript, name='name_lookup_transcript'),
+                       url(r'^lookup/hgvs/(?P<species>[\w]+)/(?P<hgvs>[\w\d+*\:\.\->]+)/', views.hgvs_by_name, name='hgvs_by_name'),
                        )

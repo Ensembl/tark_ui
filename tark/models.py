@@ -11,9 +11,11 @@ from django.db import models
 from django.apps import apps
 
 from Bio.SeqRecord import SeqRecord
+from Bio.SeqFeature import FeatureLocation
 
 from tark.fields import ChecksumField, SequenceField
-from tark.tark_exceptions import AssemblyNotFound, ReleaseNotFound
+from tark.tark_exceptions import AssemblyNotFound, ReleaseNotFound,\
+    FeatureNotFound
 import hashlib
 import pprint
 
@@ -29,9 +31,11 @@ FEATURE_LOOKUP = {'Gene': 1,
                   'Translation': 4,
                   'Operon': 5}
 
+SPECIES_NAMES = {'human': 'GCA_000001405'}
+
 class FeatureQuerySet(models.query.QuerySet):
-    def dict_iterator(self, **kwargs):
-        for feature in self.all():
+    def dict_iterator(self, **kwargs):          
+        for feature in self.iterator():
             feature_obj = feature.to_dict(**kwargs)
             
             yield feature_obj
@@ -92,7 +96,11 @@ class FeatureQuerySet(models.query.QuerySet):
         filter = {}
         
         if 'assembly' in kwargs:
-            assembly = Assembly.fetch_by_accession(kwargs['assembly'])
+            if type(kwargs['assembly']) == Assembly:
+                assembly = kwargs['assembly']
+            else:
+                assembly = Assembly.fetch_by_accession(kwargs['assembly'])
+
             filter.update({'assembly_id': assembly})
 
         if filter:
@@ -111,9 +119,17 @@ class FeatureQuerySet(models.query.QuerySet):
                 if feature:
                     return feature
         except Exception as e:
-            print e
+            print e        
 
         return self.build_filters(**kwargs).filter(stable_id=stable_id)     
+
+    def fetch_by_name(self, name, **kwargs):
+        if self.model.__name__ == 'Gene':
+            return self.filter(genenames__name=name).build_filters(**kwargs)
+        elif self.model.__name__ == 'Transcript':
+            return self.filter(gene__genenames__name=name).build_filters(**kwargs)
+        
+        raise FeatureNotFound("Feature {} not found".format(name))
                     
     def checksum(self):
         checksums = []
@@ -126,7 +142,8 @@ class FeatureQuerySet(models.query.QuerySet):
         set_checksum = hashlib.sha1(':'.join(checksums)).hexdigest()
 
         return set_checksum
-    
+
+
 class FeatureManager(models.Manager):
     def get_queryset(self):
         return FeatureQuerySet(self.model, using=self._db)
@@ -152,29 +169,32 @@ class FeatureManager(models.Manager):
     def by_stable_id(self, stable_id, **kwargs):
         return self.get_queryset().by_stable_id(stable_id, **kwargs)
 
-    def dict_iterator(self, **kwargs):
-        for stable_id in self.stable_ids:
-            featureset = self.get_queryset().by_stable_id(stable_id)
-            for feature in featureset.to_dict( **kwargs ):
-                yield feature 
+    def fetch_by_name(self, name, **kwargs):
+        return self.get_queryset().fetch_by_name(name, **kwargs)
+    
+#    def dict_iterator(self, **kwargs):
+#        for stable_id in self.stable_ids:
+#            featureset = self.get_queryset().by_stable_id(stable_id)
+#            for feature in featureset.to_dict( **kwargs ):
+#                yield feature 
 
-    def seq_iterator(self, format=None, **kwargs):
-        format = format
+#    def seq_iterator(self, format=None, **kwargs):
+#        format = format
 
-        for stable_id in self.stable_ids:
-            featureset = self.get_queryset().by_stable_id(stable_id, **kwargs)
-            for feature in featureset.all():
-                if not feature.has_sequence:
-                    continue
-            
-                if format:
-                    yield SeqRecord(feature.seq,
-                                    id=feature.stable_id_versioned,
-                                    description=feature.location).format(format)
-                else:
-                    yield SeqRecord(feature.seq,
-                                    id=feature.stable_id_versioned,
-                                    description=feature.location)
+#        for stable_id in self.stable_ids:
+#            featureset = self.get_queryset().by_stable_id(stable_id, **kwargs)
+#            for feature in featureset.all():
+#                if not feature.has_sequence:
+#                    continue
+#            
+#                if format:
+#                    yield SeqRecord(feature.seq,
+#                                    id=feature.stable_id_versioned,
+#                                    description=feature.location).format(format)
+#                else:
+#                    yield SeqRecord(feature.seq,
+#                                    id=feature.stable_id_versioned,
+#                                    description=feature.location)
 
     def by_stable_ids(self, stable_ids, **kwargs):
         self.stable_ids = stable_ids
@@ -210,7 +230,10 @@ class Feature(models.Model):
         filter = {}
         
         if 'assembly' in kwargs:
-            assembly = Assembly.fetch_by_accession(kwargs['assembly'])
+            if type(kwargs['assembly']) == Assembly:
+                assembly = kwargs['assembly']
+            else:
+                assembly = Assembly.fetch_by_accession(kwargs['assembly'])
             filter.update({'assembly_id': assembly})
             
         return filter
@@ -238,12 +261,32 @@ class Feature(models.Model):
                 
         return feature_obj
 
+    def __contains__(self, item):
+        if type(item) == FeatureLocation:
+            if self.loc_strand != item.strand:
+                raise Exception("Stands of feature {} does not match given location {}".format(self, item))
+            
+            # start < end, always, so strand doesn't matter
+            if item.start >= self.loc_start and item.end <= self.loc_end:
+                return True
+            
+        return False
+                     
+
     def __str__(self):
         return "{}.{}".format(self.stable_id, self.stable_id_version) if self.stable_id_version else "{}".format(self.stable_id)
 
     class Meta:
         abstract = True
 
+class VariationFeature():
+    def __init__(self, feature=None, alt_seq=None):
+        if not feature:
+            raise Exception("No feature given")
+        
+        self.feature = feature
+        if alt_seq:
+            self.alt_seq = alt_seq
 
 class Assembly(models.Model):
     assembly_id = models.AutoField(primary_key=True)
@@ -261,13 +304,22 @@ class Assembly(models.Model):
                 assembly = Assembly.objects.get(assembly_accession=split_accession[0], assembly_version=split_accession[1])
                 return assembly
             
-            assembly = Assembly.objects.get(assembly_accession=accession)
+            assembly = Assembly.objects.filter(assembly_accession=accession)
             if assembly:
                 return assembly
         except Exception as e:
             pass
             
         raise AssemblyNotFound("Accession " + accession + " not found")
+
+    @classmethod
+    def fetch_by_name(cls, name):
+        accession = SPECIES_NAMES[name.lower()]
+        
+        if not accession:
+            raise AssemblyNotFound("Assembly for " + name + " not found")
+
+        return cls.fetch_by_accession(accession)
 
     def __str__(self):
         return "{}:{}.{}".format(self.assembly_name, self.assembly_accession, str(self.assembly_version))
@@ -548,6 +600,12 @@ class Transcript(Feature):
     gene = models.ForeignKey(Gene, models.DO_NOTHING, blank=True, null=True, related_name='transcripts')
     session = models.ForeignKey(Session, models.DO_NOTHING, blank=True, null=True)
 
+    def is_coding(self):
+        if self.translations.all():
+            return True
+        
+        return False
+
     def to_dict(self, **kwargs):
         feature_obj = super(Transcript, self).to_dict(**kwargs)
        
@@ -558,6 +616,7 @@ class Transcript(Feature):
             
             exons_ary = []
             for exon_transcript in self.exons.all().order_by('exon_order'):
+#                print exon_transcript.exon.exon_id
                 exon_obj = exon_transcript.exon.to_dict()
                 exons_ary.append(exon_obj)
                         

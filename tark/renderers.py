@@ -1,10 +1,11 @@
 from django.http import HttpResponse, StreamingHttpResponse
-from tark.models import Sequence
-from tark.iterables import iterlist
+from tark.models import Sequence, FeatureQuerySet, Feature, Assembly
+from tark.lib.iterables import iterlist
 import json
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 from Bio import SeqIO
+import types
 import pprint
 
 ALLOW_CONTENT_TYPE = ['application/json', 'text/plain', 'text/x-fasta' ]
@@ -16,7 +17,7 @@ RENDER_FORMAT = {'application/json': 'json',
 class renderer():
     
     @classmethod
-    def render(cls, featureset, **kwargs):
+    def render(cls, resultset, **kwargs):
 
         pprint.pprint(kwargs)        
         content_type = kwargs.pop('content-type', 'application/json')
@@ -25,21 +26,27 @@ class renderer():
             print "Unknown content-type {}".format(content_type)
             return HttpResponse(status=500)
 
-        return getattr(cls, RENDER_FORMAT[content_type])(featureset, **kwargs)
+        return getattr(cls, RENDER_FORMAT[content_type])(resultset, **kwargs)
 
     @classmethod
-    def json(cls, featureset, **kwargs):
-#        features = featureset.to_dict( **kwargs )
-        iterator = BioJSONEncoder().iterencode(iterlist( featureset.dict_iterator( **kwargs ) ))
-#        data = json.dumps(features, indent=4, sort_keys=False, ensure_ascii=False, cls=BioJSONEncoder)
+    def json(cls, resultset, **kwargs):
+        BioJSONEncoder.serializing_parameters(**kwargs)
         
-        return StreamingHttpResponse(iterator, content_type="application/json")
+        if type(resultset) == FeatureQuerySet:
+            iterator = BioJSONEncoder().iterencode(iterlist( resultset.iterator() ))
+            return StreamingHttpResponse(iterator, content_type="application/json")
+        elif hasattr(resultset, '__iter__'):
+            iterator = BioJSONEncoder().iterencode(iterlist( iter(resultset) ) ) 
+            return StreamingHttpResponse(iterator, content_type="application/json")
+        else:
+            data = json.dumps(resultset, indent=4, sort_keys=False, ensure_ascii=False, cls=BioJSONEncoder)
+            return HttpResponse(data, content_type="application/json")
 
     @classmethod
-    def fasta(cls, featureset, **kwargs):
+    def fasta(cls, resultset, **kwargs):
         kwargs['expand'] = False
 
-        iterator = iterlist(featureset.seq_iterator(format='fasta', **kwargs))
+        iterator = iterlist(resultset.seq_iterator(format='fasta', **kwargs))
         return StreamingHttpResponse(iterator, content_type="text/x-fasta")
     
     @classmethod
@@ -53,7 +60,21 @@ class renderer():
             return HttpResponse("Error: " + error, content_type='text/plain')
 
 class BioJSONEncoder(json.JSONEncoder):
+    @classmethod
+    def serializing_parameters(self, **kwargs):
+        self.object_parameters = kwargs
+    
     def default(self, obj):
+        if hasattr(self, 'object_parameters'):
+            kwargs = self.object_parameters
+        else:
+            kwargs = {}
+            pprint.pprint(self.object_parameters)
+
         if isinstance(obj, Seq):
+            return str(obj)
+        if isinstance(obj, Feature):
+            return obj.to_dict(**kwargs)
+        if isinstance(obj, Assembly):
             return str(obj)
         json.JSONEncoder.default(self, obj)
