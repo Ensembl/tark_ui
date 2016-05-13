@@ -1,6 +1,130 @@
 from Bio.SeqFeature import FeatureLocation
-from tark.models import Feature, Transcript
 import pprint
+
+class Mapper():
+    def __init__(self, gene):
+        self._gene = gene
+        print "gene start:end {}:{}".format(gene.loc_start, gene.loc_end)
+
+    
+    def transcript(self, transcript=None):
+        if transcript:
+            self._transcript = transcript
+            return self
+        
+        if not hasattr(self, '_transcript'):
+            raise MissingTranscriptError()
+        
+        return self._transcript
+
+    def is_exonic(self, location):
+        if location.ref_db and location.ref_db != 'genomic':
+            location = self.remap2genomic(location)
+
+        return True if self.fetch_exon(location) else False
+       
+    def fetch_exon(self, location):
+        if location.ref_db and location.ref_db != 'genomic':
+            location = self.remap2genomic(location)
+            
+        pprint.pprint(location)
+        for exon in self.exons:
+            if location in exon:
+                return exon
+            
+        return None
+
+    def find_exon(self, stable_id):
+        for exon in self.exons:
+            if exon.stable_id == stable_id:
+                return exon
+            
+        return None
+
+    def find_translation(self, stable_id):
+        for translation in self.translations:
+            if translation.stable_id == stable_id:
+                return translation
+            
+        return None
+
+    @property
+    def exons(self):
+        if not hasattr(self, '_transcript'):
+            raise MissingTranscriptError()
+        
+        if not hasattr(self, '_exons'):
+            self._exons = []
+            for exon_transcript in self.transcript().exons.all().order_by('exon_order'):
+                exon = exon_transcript.exon
+                self.exons.append(exon)
+
+        return self._exons
+    
+    @property
+    def translations(self):
+        if not hasattr(self, '_transcript'):
+            raise MissingTranscriptError()
+
+        if not hasattr(self, '_translations'):
+            self._translations = []
+            if not self.transcript().is_coding():
+                raise FeatureNonCoding()
+            
+            for translation in self.transcript().translations.all():
+                self._translations.append(translation)
+                
+        return self._translations
+        
+
+    def remap2genomic(self, location):
+        # If no type is given we assume it's already genomic
+        if not location.ref_db:
+            return FeatureLocation(location.start, location.end, strand=location.strand, ref_db='genomic')
+
+        if location.ref_db == 'gene':
+            feature = self._gene
+        elif location.ref_db == 'transcript':
+            feature = self.transcript()
+        elif location.ref_db == 'exon' and location.ref:
+            feature = self.find_exon(location.ref)
+            if not feature:
+                raise FeatureNotFound()
+
+        elif location.ref_db == 'translation' and location.ref:
+            feature = self.find_translation(location.ref)
+            if not feature:
+                raise FeatureNonCoding()
+        else:
+            raise UnknownCoordinateSystem()
+            
+        if location.strand == 1:
+            start = location.start + feature.loc_start
+            end = location.end + feature.loc_start
+        else:
+            start = feature.loc_end - location.start
+            end = feature.loc_end - location.end
+            
+        return FeatureLocation(start, end, strand=location.strand, ref='genomic')
+            
+    def remap2feature(self, location, feature):
+        if location.strand != feature.loc_strand:
+            raise WrongStrandError()
+        
+        if location.ref_db != 'genomic':
+            location = self.remap2genomic(location)
+            
+        print "feature start:end {}:{}".format(feature.loc_start, feature.loc_end)
+        if location.strand == 1:
+            start = location.start - feature.loc_start
+            end = location.end - feature.loc_start
+        else:
+            start = feature.loc_start - location.start
+            end = feature.loc_end - location.end
+            
+        return FeatureLocation(start, end, strand=location.strand, ref=feature.stable_id, ref_db=feature.feature_type)
+
+            
 
 class TranscriptMapper():
     
@@ -74,3 +198,19 @@ class ExonMapper():
             end = self.exon.loc_end - location.end
             
         return FeatureLocation(start, end, strand=location.strand, ref='feature')
+
+class MissingTranscriptError(LookupError):
+    "No transcript has been associated with the mapper"
+
+class FeatureNotFound(LookupError):
+    "The feature was not found"
+    
+class FeatureNonCoding(LookupError):
+    "This transcript doesn't have a translation"
+
+class UnknownCoordinateSystem(ValueError):
+    "The coordinate system isn't known"
+    
+class WrongStrandError(TypeError):
+    "The strand doesn't match between the given features"
+

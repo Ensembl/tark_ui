@@ -18,6 +18,7 @@ from tark.tark_exceptions import AssemblyNotFound, ReleaseNotFound,\
     FeatureNotFound
 import hashlib
 import pprint
+from tark.lib.mapper import Mapper
 
 FEATURE_TYPES = {'gene': 'Gene', 
                  'transcript': 'Transcript', 
@@ -254,12 +255,20 @@ class Feature(models.Model):
 
                 if field.name == 'seq_checksum' and not kwargs.get('skip_sequence', False):
 
+                    feature_obj['seq_checksum'] = str(getattr(self, field.name))
                     seq = Sequence.fetch_sequence(feature_obj[field.name], **{'feature_type': type(self).__name__})
                     feature_obj['sequence'] = seq.sequence
             else:
                 feature_obj[field.name] = getattr(self, field.name)
                 
         return feature_obj
+
+    @property
+    def feature_type(self):
+        return type(self).__name__.lower()
+    
+    def feature_location(self, start, end):
+        return FeatureLocation(start, end, strand=self.loc_strand, ref=self.stable_id, ref_db=self.feature_type)
 
     def __contains__(self, item):
         if type(item) == FeatureLocation:
@@ -386,6 +395,13 @@ class Gene(Feature):
                 feature_obj['translation'] = children
     
         return feature_obj
+
+    @property
+    def mapper(self):
+        if not hasattr(self, '_mapper'):
+            self._mapper = Mapper(self)
+            
+        return self._mapper
 
     class Meta:
         managed = False
@@ -601,10 +617,14 @@ class Transcript(Feature):
     session = models.ForeignKey(Session, models.DO_NOTHING, blank=True, null=True)
 
     def is_coding(self):
-        if self.translations.all():
+        if self.translations.exists():
             return True
         
         return False
+
+    @property
+    def mapper(self):
+        return self.gene.mapper.transcript(self)
 
     def to_dict(self, **kwargs):
         feature_obj = super(Transcript, self).to_dict(**kwargs)
@@ -644,6 +664,10 @@ class Translation(Feature):
     translation_checksum = ChecksumField(unique=True, max_length=20, blank=True, null=True)
     seq_checksum = models.ForeignKey(Sequence, models.DO_NOTHING, db_column='seq_checksum', blank=True, null=True)
     session = models.ForeignKey(Session, models.DO_NOTHING, blank=True, null=True)
+
+    @property
+    def mapper(self):
+        return self.transcript.mapper
 
     class Meta:
         managed = False

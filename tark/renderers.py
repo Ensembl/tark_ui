@@ -32,6 +32,8 @@ class renderer():
     def json(cls, resultset, **kwargs):
         BioJSONEncoder.serializing_parameters(**kwargs)
         
+        data = json.dumps(resultset.to_dict(**kwargs), indent=4, sort_keys=False, ensure_ascii=False, cls=BioJSONEncoder)
+        return HttpResponse(data, content_type="application/json")
         if type(resultset) == FeatureQuerySet:
             iterator = BioJSONEncoder().iterencode(iterlist( resultset.iterator() ))
             return StreamingHttpResponse(iterator, content_type="application/json")
