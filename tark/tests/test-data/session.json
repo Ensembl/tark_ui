@@ -1,0 +1,10 @@
+[
+    {
+	"model": "tark.session",
+	"pk": "1",
+	"fields": {
+	    "client_id": "test session",
+	    "status": "2"
+	}
+    }
+]

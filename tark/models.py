@@ -255,7 +255,7 @@ class Feature(models.Model):
 
                 if field.name == 'seq_checksum' and not kwargs.get('skip_sequence', False):
 
-                    feature_obj['seq_checksum'] = str(getattr(self, field.name))
+#                    feature_obj['seq_checksum'] = str(getattr(self, field.name))
                     seq = Sequence.fetch_sequence(feature_obj[field.name], **{'feature_type': type(self).__name__})
                     feature_obj['sequence'] = seq.sequence
             else:
@@ -392,7 +392,7 @@ class Gene(Feature):
         if kwargs.get('expand', False):
             children = Transcript.objects.filter(gene_id=self.gene_id).to_dict(**kwargs)
             if children:
-                feature_obj['translation'] = children
+                feature_obj['transcript'] = children
     
         return feature_obj
 
@@ -637,7 +637,7 @@ class Transcript(Feature):
             exons_ary = []
             for exon_transcript in self.exons.all().order_by('exon_order'):
 #                print exon_transcript.exon.exon_id
-                exon_obj = exon_transcript.exon.to_dict()
+                exon_obj = exon_transcript.exon.to_dict(**kwargs)
                 exons_ary.append(exon_obj)
                         
             if exons_ary:

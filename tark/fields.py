@@ -29,14 +29,15 @@ class ChecksumField(models.CharField):
         return self.get_prep_value(value)
 
     def get_prep_value(self, value):
-        if not isinstance(value, str):
+        if not isinstance(value, (str, unicode, buffer)):
             value = value.seq_checksum
         bytes = []
+
         for i in range(0, len(value), 2):
             bytes.append( chr( int (value[i:i+2], 16 ) ) )
 
         return ''.join( bytes )
-
+    
 class SequenceField(models.TextField):
     @classmethod
     def alphabet_type(cls, feature_type):

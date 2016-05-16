@@ -1,0 +1,11 @@
+[
+    {
+	"model": "tark.genome",
+	"pk": "1",
+	"fields": {
+	    "name": "homo_sapiens",
+	    "tax_id": "9606",
+	    "session_id": "1"
+	}
+    }
+]

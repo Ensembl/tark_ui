@@ -22,7 +22,7 @@ def render(function=None, default_content_type='application/json'):
                 return response
                         
             render_parameters = { 'expand': kwargs.get('expand', False),
-                                 'filter_pk': False,
+                                 'filter_pk': True,
                                  'skip_sequence': kwargs.get('skip_sequence', False)}
     
             if request.method == 'GET':

@@ -1,0 +1,26 @@
+[
+    {
+	"model": "tark.Genenames",
+	"pk": 1,
+	"fields": {
+	    "name": "IRAK4",
+	    "gene": 36751,
+	    "assembly": 1,
+	    "source": "HGNC",
+	    "primary_id": 1,
+	    "session_id": 1
+	}
+    },
+    {
+	"model": "tark.Genenames",
+	"pk": 2,
+	"fields": {
+	    "name": "IRAK4",
+	    "gene": 119473,
+	    "assembly": 2,
+	    "source": "HGNC",
+	    "primary_id": 1,
+	    "session_id": 1
+	}
+    }
+]
