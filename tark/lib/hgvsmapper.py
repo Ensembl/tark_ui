@@ -19,7 +19,8 @@ def fetch_by_hgvs(hgvs_str, species, **kwargs):
         matched_features = _fetch_by_hgvs_g(variant, assemblies, **kwargs)
 
     return matched_features
-    
+
+
 def _fetch_by_hgvs_g(variant, assemblies, **kwargs):
     print "name: {}".format(variant.ac)
     results = []
