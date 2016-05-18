@@ -18,7 +18,8 @@ from tark.tark_exceptions import AssemblyNotFound, ReleaseNotFound,\
     FeatureNotFound
 import hashlib
 import pprint
-from tark.lib.mapper import Mapper
+from tark.lib.mapper import Mapper, FeatureNonCoding, IncompatibleFeatureType
+from __builtin__ import int, True
 
 FEATURE_TYPES = {'gene': 'Gene', 
                  'transcript': 'Transcript', 
@@ -211,6 +212,10 @@ class Feature(models.Model):
         loc = "{}:{}:{}:{}:{}".format(str(self.assembly), self.loc_region, self.loc_start, self.loc_end, self.loc_strand)
         
         return loc
+    
+    @property
+    def length(self):
+        return abs(self.loc_end - self.loc_start) + 1
 
     @property
     def stable_id_versioned(self):
@@ -268,7 +273,38 @@ class Feature(models.Model):
         return type(self).__name__.lower()
     
     def feature_location(self, start, end):
-        return FeatureLocation(start, end, strand=self.loc_strand, ref=self.stable_id, ref_db=self.feature_type)
+        ref_db = self.feature_type if self.feature_type != 'translation' else 'cdna'
+        return FeatureLocation(start, end, strand=self.loc_strand, ref=self.stable_id, ref_db=ref_db)
+
+    def genomic_location(self, start, end):
+        return FeatureLocation(start, end, strand=self.loc_strand, ref=self.stable_id, ref_db='genomic')
+
+    def remap2feature(self, location, **kwargs):
+        return self.mapper.remap2feature(location, self, **kwargs)
+    
+    def remap2genomic(self, location):
+        return self.mapper.remap2genomic(location)
+
+    def genomic2cdna(self, location):
+        if self.feature_type == 'transcript':
+            return self.mapper.remap2feature(location,
+                                             self.translation)
+        elif self.feature_type == 'translation':
+            return self.mapper.remap2feature(location, self)
+        
+        raise IncompatibleFeatureType()
+    
+    def genomic2cds(self, location):
+        if self.feature_type == 'transcript':
+            return self.mapper.remap2feature(location,
+                                             self.translation,
+                                             coordinates='cds')
+        elif self.feature_type == 'translation':
+            return self.mapper.remap2feature(location, self,
+                                             coordinates='cds')
+        
+        raise IncompatibleFeatureType()
+        
 
     def __contains__(self, item):
         if type(item) == FeatureLocation:
@@ -278,7 +314,10 @@ class Feature(models.Model):
             # start < end, always, so strand doesn't matter
             if item.start >= self.loc_start and item.end <= self.loc_end:
                 return True
-            
+        elif isinstance(item, ( int, long )):
+            if item >= self.loc_start and item <= self.loc_end:
+                return True
+                
         return False
                      
 
@@ -353,6 +392,17 @@ class Exon(Feature):
     seq_checksum = models.ForeignKey('Sequence', models.DO_NOTHING, db_column='seq_checksum', blank=True, null=True)
     session = models.ForeignKey('Session', models.DO_NOTHING, blank=True, null=True)
 
+    @property
+    def gene(self):
+        # This feels a bit fragile, but there's really no other connection
+        # to a gene
+        for exontranscript in self.transcripts.all():
+            return exontranscript.transcript.gene
+    
+    @property
+    def mapper(self):
+        return self.gene.mapper
+
 #    @classmethod
 #    def fetch_set(cls, transcript_id):
 #        exon_transcript.objects.filter(transcript)
@@ -365,7 +415,7 @@ class Exon(Feature):
 class Exontranscript(models.Model):
     exon_transcript_id = models.AutoField(primary_key=True)
     transcript = models.ForeignKey('Transcript', models.DO_NOTHING, blank=True, null=True, related_name='exons')
-    exon = models.ForeignKey(Exon, models.DO_NOTHING, blank=True, null=True, related_name='transcript')
+    exon = models.ForeignKey(Exon, models.DO_NOTHING, blank=True, null=True, related_name='transcripts')
     exon_order = models.SmallIntegerField(blank=True, null=True)
     session = models.ForeignKey('Session', models.DO_NOTHING, blank=True, null=True)
 
@@ -616,6 +666,7 @@ class Transcript(Feature):
     gene = models.ForeignKey(Gene, models.DO_NOTHING, blank=True, null=True, related_name='transcripts')
     session = models.ForeignKey(Session, models.DO_NOTHING, blank=True, null=True)
 
+    @property
     def is_coding(self):
         if self.translations.exists():
             return True
@@ -623,8 +674,40 @@ class Transcript(Feature):
         return False
 
     @property
+    def cdna_coding_start(self):
+        if not hasattr(self, '_cdna_coding_start'):
+            self._cdna_coding_start = self.mapper.cdna_coding_start()
+            
+        return self._cdna_coding_start
+
+    @property
+    def cdna_coding_end(self):
+        if not hasattr(self, '_cdna_coding_end'):
+            self._cdna_coding_end = self.mapper.cdna_coding_end()
+            
+        return self._cdna_coding_end
+
+    # There should only be one translation, if there's more than one
+    # we're in trouble, we're just returning the first
+    @property
+    def translation(self):
+        for translation in self.translations.all():
+            return translation
+        
+        raise FeatureNonCoding()
+
+    @property
     def mapper(self):
         return self.gene.mapper.transcript(self)
+    
+    def genomic2cdna(self, location):
+        return self.mapper.genomic2cdna(location)
+
+    def genomic2cds(self, location):
+        return self.mapper.genomic2cds(location)
+    
+    def genomic2pep(self, location):
+        return self.mapper.genomic2pep(location)
 
     def to_dict(self, **kwargs):
         feature_obj = super(Transcript, self).to_dict(**kwargs)
@@ -668,6 +751,15 @@ class Translation(Feature):
     @property
     def mapper(self):
         return self.transcript.mapper
+
+    def genomic2cdna(self, location):
+        return self.mapper.genomic2cdna(location)
+
+    def genomic2cds(self, location):
+        return self.mapper.genomic2cds(location)
+
+    def genomic2pep(self, location):
+        return self.mapper.genomic2pep(location)
 
     class Meta:
         managed = False

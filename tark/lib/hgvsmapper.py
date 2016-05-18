@@ -2,7 +2,7 @@ import hgvs.parser
 from hgvs.edit import NARefAlt
 from Bio.Seq import Seq
 from tark.models import Transcript, Assembly, VariationFeature
-from tark.lib.mapper import TranscriptMapper, ExonMapper
+from tark.lib.mapper import TranscriptMapper, ExonMapper, Mapper
 from Bio.SeqFeature import FeatureLocation
 from tark.lib.iterables import iterlist
 import pprint

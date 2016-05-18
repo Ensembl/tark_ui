@@ -1,10 +1,204 @@
-from django.test import TestCase
-from tark.models import Feature, Assembly, Sequence
+from django.test import TestCase, RequestFactory, Client
 from django.core.management import call_command
+import json
+import pprint
 
-# Create your tests here.
+gene_ENSG00000198001 = [{u'assembly': u'GRCh38.p5:GCA_000001405.20',
+  u'gene_checksum': u'AD6FD621F5DECB37BD40B0A4A7BFE11923EE71E8',
+  u'loc_end': 43789543,
+  u'loc_region': u'12',
+  u'loc_start': 43758944,
+  u'loc_strand': 1,
+  u'stable_id': u'ENSG00000198001',
+  u'stable_id_version': 13},
+ {u'assembly': u'GRCh37.p13:GCA_000001405.14',
+  u'gene_checksum': u'41190BC099AE1F433D63E6BF816CF6FF44D29A15',
+  u'loc_end': 44183346,
+  u'loc_region': u'12',
+  u'loc_start': 44152747,
+  u'loc_strand': 1,
+  u'stable_id': u'ENSG00000198001',
+  u'stable_id_version': 9}]
+
+transcript_ENST00000431837 = [{u'assembly': u'GRCh38.p5:GCA_000001405.20',
+  u'exon': [{u'assembly': u'GRCh38.p5:GCA_000001405.20',
+             u'exon_checksum': u'5C897AAEE42E4853F85A60EABD32C58B0A7E5DC0',
+             u'loc_checksum': u'3B55D21413FBFA5E81A4CEEE22123A60D157E369',
+             u'loc_end': 43759016,
+             u'loc_region': u'12',
+             u'loc_start': 43758944,
+             u'loc_strand': 1,
+             u'seq_checksum': u'2A52107C4941074D5639704E6F452C140E874FF7',
+             u'stable_id': u'ENSE00001267881',
+             u'stable_id_version': 8},
+            {u'assembly': u'GRCh38.p5:GCA_000001405.20',
+             u'exon_checksum': u'69C44F652B29634DBEA02E0964289353CEF1D521',
+             u'loc_checksum': u'901FFED72733591F0511D8420F304F8569689C6E',
+             u'loc_end': 43768272,
+             u'loc_region': u'12',
+             u'loc_start': 43768103,
+             u'loc_strand': 1,
+             u'seq_checksum': u'A543E16DF0683448DA07DBAE7239B27CE4FBE8CB',
+             u'stable_id': u'ENSE00003678764',
+             u'stable_id_version': 1},
+            {u'assembly': u'GRCh38.p5:GCA_000001405.20',
+             u'exon_checksum': u'DE7748A5E7B1D5E713E0E73924AEFC98A8E272FB',
+             u'loc_checksum': u'0430BE111856552F8A1EAF41EF59EF23DE8215AA',
+             u'loc_end': 43772362,
+             u'loc_region': u'12',
+             u'loc_start': 43772180,
+             u'loc_strand': 1,
+             u'seq_checksum': u'1CDF3CB44B02EDA0B0D9F7BB1406C42E33682F0D',
+             u'stable_id': u'ENSE00003643240',
+             u'stable_id_version': 1},
+            {u'assembly': u'GRCh38.p5:GCA_000001405.20',
+             u'exon_checksum': u'DB4287755FA694FEB589169059083582C0480C4D',
+             u'loc_checksum': u'F30AF9FA96CA7D624633C7CC54902EFB2E450FE8',
+             u'loc_end': 43773072,
+             u'loc_region': u'12',
+             u'loc_start': 43772912,
+             u'loc_strand': 1,
+             u'seq_checksum': u'8F2BA57861763563C49C66D0C4F58EC02D587167',
+             u'stable_id': u'ENSE00003626903',
+             u'stable_id_version': 1},
+            {u'assembly': u'GRCh38.p5:GCA_000001405.20',
+             u'exon_checksum': u'DBE8142EC0BDF8CD01A8F95F69BBE2B8EE5BED13',
+             u'loc_checksum': u'D17DB79E2E58182504AEF032291FE5188751CB2D',
+             u'loc_end': 43774029,
+             u'loc_region': u'12',
+             u'loc_start': 43773965,
+             u'loc_strand': 1,
+             u'seq_checksum': u'02E965CF0B0C6AC2405E9CF35C5BDAF28A38CC34',
+             u'stable_id': u'ENSE00003572936',
+             u'stable_id_version': 1},
+            {u'assembly': u'GRCh38.p5:GCA_000001405.20',
+             u'exon_checksum': u'AAC53ACFFDB50B16EBA1ABD605F9C32F6218A42A',
+             u'loc_checksum': u'9F9B8E247AA2FE21EBCDBA0A7FBAAF8A1E697735',
+             u'loc_end': 43777744,
+             u'loc_region': u'12',
+             u'loc_start': 43777630,
+             u'loc_strand': 1,
+             u'seq_checksum': u'113B37B515761D6BC425DEF872A30320C7D0DC89',
+             u'stable_id': u'ENSE00003499350',
+             u'stable_id_version': 1},
+            {u'assembly': u'GRCh38.p5:GCA_000001405.20',
+             u'exon_checksum': u'5FABDD19E47A24B6491976A508C5B62BAF2F760E',
+             u'loc_checksum': u'9FB08084E5E5CD6523061A1CB059BCD4F711076A',
+             u'loc_end': 43778302,
+             u'loc_region': u'12',
+             u'loc_start': 43778193,
+             u'loc_strand': 1,
+             u'seq_checksum': u'5D93E7207A774D7D029AEA8013AAE08CF3E1A3BE',
+             u'stable_id': u'ENSE00003482972',
+             u'stable_id_version': 1},
+            {u'assembly': u'GRCh38.p5:GCA_000001405.20',
+             u'exon_checksum': u'86FEE90339CC0B58A7318A80C579FDC5C1D5AB97',
+             u'loc_checksum': u'3BFE9CE7D3D404BEBFB11F374836042CA5D6CFD5',
+             u'loc_end': 43782490,
+             u'loc_region': u'12',
+             u'loc_start': 43782307,
+             u'loc_strand': 1,
+             u'seq_checksum': u'C7B657D25A3579EA1CF1C7324FB76CD38F92F171',
+             u'stable_id': u'ENSE00003550861',
+             u'stable_id_version': 1},
+            {u'assembly': u'GRCh38.p5:GCA_000001405.20',
+             u'exon_checksum': u'310198D35CC71C3E0BD733C110A9C76324119D75',
+             u'loc_checksum': u'C07A63E09935691545B5AEBBC9C4E2A3D47460B4',
+             u'loc_end': 43783724,
+             u'loc_region': u'12',
+             u'loc_start': 43783662,
+             u'loc_strand': 1,
+             u'seq_checksum': u'B1D067475174F30827C893679B371DF6A2147392',
+             u'stable_id': u'ENSE00003504750',
+             u'stable_id_version': 1},
+            {u'assembly': u'GRCh38.p5:GCA_000001405.20',
+             u'exon_checksum': u'8731DD27E39EECF41470C98BBB50D8047B6FEAAF',
+             u'loc_checksum': u'6BE1990C7C15AE44DDBF03758C78039E1B166C95',
+             u'loc_end': 43786557,
+             u'loc_region': u'12',
+             u'loc_start': 43786399,
+             u'loc_strand': 1,
+             u'seq_checksum': u'C8265E40FCB76C18149369044417C68DEC45BB6A',
+             u'stable_id': u'ENSE00003594588',
+             u'stable_id_version': 1},
+            {u'assembly': u'GRCh38.p5:GCA_000001405.20',
+             u'exon_checksum': u'280199CF590DEE7E10B94610D3C2F0535C5E5F81',
+             u'loc_checksum': u'4B65877927363D48FA41B5D8DD74C37A76904D15',
+             u'loc_end': 43789543,
+             u'loc_region': u'12',
+             u'loc_start': 43786680,
+             u'loc_strand': 1,
+             u'seq_checksum': u'1906352D49CE52495B9CF7D83DA69A1E9D84CF6A',
+             u'stable_id': u'ENSE00001779696',
+             u'stable_id_version': 1}],
+  u'exon_set_checksum': u'DD49096A286B1804DE15083B745DE17065F9809B',
+  u'gene': u'ENSG00000198001.13',
+  u'loc_checksum': u'99A111EC484FFD4A4AE4B034FB7C2DECC8947DAE',
+  u'loc_end': 43789543,
+  u'loc_region': u'12',
+  u'loc_start': 43758944,
+  u'loc_strand': 1,
+  u'seq_checksum': u'BF6F594F9D4A32A59C63FF60E3C9EC40C9750EE6',
+  u'stable_id': u'ENST00000431837',
+  u'stable_id_version': 5,
+  u'transcript_checksum': u'FDD44D3A5212077CE1E4C571DDFA98278CE8CBFD',
+  u'translation': [{u'assembly': u'GRCh38.p5:GCA_000001405.20',
+                    u'loc_checksum': u'C5D81DFE73A9561786C0DD27B74CC49423314748',
+                    u'loc_end': 43786715,
+                    u'loc_region': u'12',
+                    u'loc_start': 43772245,
+                    u'loc_strand': 1,
+                    u'seq_checksum': u'C8D27DC9787314598C7D367BE326E3835794EFFD',
+                    u'stable_id': u'ENSP00000390327',
+                    u'stable_id_version': 1,
+                    u'transcript': u'ENST00000431837.5',
+                    u'translation_checksum': u'52C6873F57ACB925F515D0C220FE9E58A231B4BB'}]},
+ {u'assembly': u'GRCh37.p13:GCA_000001405.14',
+  u'exon': [{u'assembly': u'GRCh37.p13:GCA_000001405.14',
+             u'exon_checksum': u'163AF629EADEDDA5F3CA49CB07072D363F3EBF61',
+             u'loc_checksum': u'ED39B3567FEF1BC0FC0AB1922BAFAF20FCB80D3D',
+             u'loc_end': 44162075,
+             u'loc_region': u'12',
+             u'loc_start': 44161906,
+             u'loc_strand': 1,
+             u'seq_checksum': u'A543E16DF0683448DA07DBAE7239B27CE4FBE8CB',
+             u'stable_id': u'ENSE00003678764',
+             u'stable_id_version': 1},
+            {u'assembly': u'GRCh37.p13:GCA_000001405.14',
+             u'exon_checksum': u'AE05B25E6FD1F9701D68CCBA028494F716A56C2B',
+             u'loc_checksum': u'20C7B444F6398F1FB852C7BE6CC0AA93AC38B8FC',
+             u'loc_end': 44183346,
+             u'loc_region': u'12',
+             u'loc_start': 44180483,
+             u'loc_strand': 1,
+             u'seq_checksum': u'1906352D49CE52495B9CF7D83DA69A1E9D84CF6A',
+             u'stable_id': u'ENSE00001779696',
+             u'stable_id_version': 1}],
+  u'exon_set_checksum': u'470EF36066035EBD16DFA4ACF693CE46FB367048',
+  u'gene': u'ENSG00000198001.9',
+  u'loc_checksum': u'1C996AA2A9906C9712CF091276B6E7ABB5C67B45',
+  u'loc_end': 44183346,
+  u'loc_region': u'12',
+  u'loc_start': 44152747,
+  u'loc_strand': 1,
+  u'seq_checksum': u'BF6F594F9D4A32A59C63FF60E3C9EC40C9750EE6',
+  u'stable_id': u'ENST00000431837',
+  u'stable_id_version': 1,
+  u'transcript_checksum': u'BE63E2424F665588A4F5B5E6EFE385EE89FCF75D',
+  u'translation': [{u'assembly': u'GRCh37.p13:GCA_000001405.14',
+                    u'loc_checksum': u'04F37F5FB3335E893D2A00B2551094A67398AB65',
+                    u'loc_end': 44180518,
+                    u'loc_region': u'12',
+                    u'loc_start': 44166048,
+                    u'loc_strand': 1,
+                    u'seq_checksum': u'C8D27DC9787314598C7D367BE326E3835794EFFD',
+                    u'stable_id': u'ENSP00000390327',
+                    u'stable_id_version': 1,
+                    u'transcript': u'ENST00000431837.1',
+                    u'translation_checksum': u'7BBE586E24DB185606C8351F123B5CC1B97C93AB'}]}]
+
+
 class LookupTestCase(TestCase):
-#    test_fixtures = ['session.json', 'genome.json', 'assembly.json', 'sequences.json']
     test_fixtures = ['session.json', 'genome.json', 'assembly.json', 'sequences.json', 'features.json', 'gene_names.json']
     
     def setUp(self):
@@ -12,13 +206,18 @@ class LookupTestCase(TestCase):
             full_fixture = 'tark/tests/test-data/' + fixture
             print "Loading fixture {}".format(full_fixture)
             call_command('loaddata', full_fixture, verbosity=1)
-    
+
+        self.factory = RequestFactory()
+
     def testFeatureLookup(self):
-        print "Running test"
-        for a in Assembly.objects.all():
-            print str(a)
-            
-        for s in Sequence.objects.all():
-            print s
-            
-    
+        print "Running feature lookup test"
+
+        c = Client()
+
+        response = c.get('/tark/lookup/gene/ENSG00000198001/')
+        content = json.loads(''.join(response.streaming_content))
+        self.assertEqual(gene_ENSG00000198001, content, "ENSG00000198001 received from server doesn't match")
+        
+        response = c.get('http://localhost:8000/tark/lookup/transcript/ENST00000431837/?expand=1&skip_sequence=1')
+        content = json.loads(''.join(response.streaming_content))
+        self.assertEqual(transcript_ENST00000431837, content, "ENST00000431837 received from server doesn't match")
