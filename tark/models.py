@@ -231,6 +231,13 @@ class Feature(models.Model):
 
         return seq.sequence
 
+    @property
+    def sequence(self, **kwargs):
+        if self.has_sequence:
+            return None
+
+        return self.seq_checksum
+
     @classmethod
     def build_filters(cls, **kwargs):
         filter = {}
@@ -317,9 +324,36 @@ class Feature(models.Model):
         elif isinstance(item, ( int, long )):
             if item >= self.loc_start and item <= self.loc_end:
                 return True
+        elif isinstance(item, slice):
+            if slice[0] and slice[0] not in self:
+                return False
+            if slice[1] and slice[1] not in self:
+                return False
+                
+            return True
                 
         return False
-                     
+
+    def __getitem__(self, val):
+        if not self.has_sequence:
+            return None
+
+        if val not in self:
+            return None
+
+        seq = self.seq
+        offset = self.loc_start
+
+        if isinstance(val, slice):                
+            start = start - offset if val[0] else 0
+            end = end - offset if val[1] else self.length
+            return seq[start:end:val[2]]
+            
+        elif isinstance(val, int):
+            val = val - offset
+            return seq[val]
+
+        return None
 
     def __str__(self):
         return "{}.{}".format(self.stable_id, self.stable_id_version) if self.stable_id_version else "{}".format(self.stable_id)
