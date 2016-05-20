@@ -321,8 +321,8 @@ class Feature(models.Model):
 
     def __contains__(self, item):
         if type(item) == FeatureLocation:
-            if self.loc_strand != item.strand:
-                raise Exception("Strands of feature {} does not match given location {}".format(self, item))
+#            if self.loc_strand != item.strand:
+#                raise Exception("Strands of feature {} does not match given location {}".format(self, item))
             
             # start < end, always, so strand doesn't matter
             if item.start >= self.loc_start and item.end <= self.loc_end:

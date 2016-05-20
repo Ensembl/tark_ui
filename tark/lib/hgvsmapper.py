@@ -12,7 +12,7 @@ def fetch_by_hgvs(hgvs_str, species, **kwargs):
     pprint.pprint(variant)
     
     assemblies = Assembly.fetch_by_name(species)    
-    # Check is assemblies came back
+    # Check if assemblies came back
     
     if variant.type == 'g':
         matched_features = _fetch_by_hgvs_g(variant, assemblies, **kwargs)
@@ -36,7 +36,7 @@ def _fetch_by_hgvs_g(variant, assemblies, **kwargs):
             genes = Gene.objects.fetch_by_name(variant.ac, assembly=assembly, **kwargs)
         if not genes:
             print "we're in real trouble, we found nothing"
-            return results
+#            return results
             
         for gene in genes:
             matched_transcripts = []
@@ -66,20 +66,24 @@ def _fetch_by_hgvs_g(variant, assemblies, **kwargs):
                 # We only support locations that don't span exons for g right now
                 # since we don't have the genomic sequence available, this may change
                 if not transcript.mapper.is_exonic(location):
+                    print "{} at {} is not exonic".format(transcript, location)
+                    matched_transcripts.append({'transcript': transcript, 'info': 'Location does not fall in an exon'})
                     continue
     
                 alt_transcript_seq = _apply_hgvs_g(variant, transcript, location)
                 
                 if alt_transcript_seq:
                     matched_transcripts.append({'transcript': transcript, 'alt_seq': alt_transcript_seq})
+                else:
+                    matched_transcripts.append({'transcript': transcript, 'info': "Transcript was not changed"})
                     
             if matched_transcripts:
                 matched_features.append({'gene': gene, 'transcripts': matched_transcripts})
             
-        if matched_features:
-            results.append({'assembly': assembly, 'genes': matched_features}) 
+#        if matched_features:
+        results.append({'assembly': assembly, 'genes': matched_features}) 
             
-        return results
+    return results
             
 
 def _fetch_by_hgvs_g_old(variant, assemblies, **kwargs):
@@ -94,7 +98,7 @@ def _fetch_by_hgvs_g_old(variant, assemblies, **kwargs):
         for transcript in transcripts: 
             mapper = TranscriptMapper(transcript)
         
-            location = FeatureLocation(variant.posedit.pos.start.base, variant.posedit.pos.end.base, transcript.loc_strand, ref='feature')
+            location = FeatureLocation(variant.posedit.pos.start.base, variant.posedit.pos.end.base, strand=transcript.loc_strand, ref='feature')
 #            if not mapper.is_exonic(variant.posedit.pos.start.base, variant.posedit.pos.end.base, 'feature'):
             if not mapper.is_exonic(location):
 #                matched_features.append(transcript)
