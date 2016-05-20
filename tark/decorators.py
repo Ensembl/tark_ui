@@ -2,7 +2,7 @@ from django.http import HttpResponse, HttpResponseRedirect, StreamingHttpRespons
 import json
 from tark.renderers import renderer
 import pprint
-from tark.tark_exceptions import FilterNotFound, AssemblyNotFound,\
+from tark.exceptions import FilterNotFound, AssemblyNotFound,\
     ReleaseNotFound
 
 def render(function=None, default_content_type='application/json'):
@@ -14,7 +14,8 @@ def render(function=None, default_content_type='application/json'):
             except (FilterNotFound, AssemblyNotFound, ReleaseNotFound) as e:
                 response = renderer.render_error(str(e), **kwargs)
             except Exception as e:
-                print e
+                print "EXCEPTION: {}".format(type(e))
+                print str(e)
                 response = renderer.render_error("Unknown error", **kwargs)
             
             

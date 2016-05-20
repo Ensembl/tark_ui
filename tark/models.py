@@ -12,13 +12,13 @@ from django.apps import apps
 
 from Bio.SeqRecord import SeqRecord
 from Bio.SeqFeature import FeatureLocation
+from Bio.Seq import Seq
 
-from tark.fields import ChecksumField, SequenceField
-from tark.tark_exceptions import AssemblyNotFound, ReleaseNotFound,\
-    FeatureNotFound
+from .fields import ChecksumField, SequenceField
+from .exceptions import FeatureNotFound, IncompatibleFeatureType, AssemblyNotFound, ReleaseNotFound, FeatureNonCoding
 import hashlib
 import pprint
-from tark.lib.mapper import Mapper, FeatureNonCoding, IncompatibleFeatureType
+from .lib.mapper import Mapper
 from __builtin__ import int, True
 
 FEATURE_TYPES = {'gene': 'Gene', 
@@ -132,6 +132,9 @@ class FeatureQuerySet(models.query.QuerySet):
             return self.filter(gene__genenames__name=name).build_filters(**kwargs)
         
         raise FeatureNotFound("Feature {} not found".format(name))
+
+    def fetch_by_location(self, loc_region, location, **kwargs):
+        return self.filter(loc_region=loc_region, loc_start__lte=location.start, loc_end__gte=location.end).build_filters(**kwargs)
                     
     def checksum(self):
         checksums = []
@@ -173,6 +176,9 @@ class FeatureManager(models.Manager):
 
     def fetch_by_name(self, name, **kwargs):
         return self.get_queryset().fetch_by_name(name, **kwargs)
+    
+    def fetch_by_location(self, loc_region, location, **kwargs):
+        return self.get_queryset().fetch_by_location(loc_region, location, **kwargs)
     
 #    def dict_iterator(self, **kwargs):
 #        for stable_id in self.stable_ids:
@@ -233,7 +239,7 @@ class Feature(models.Model):
 
     @property
     def sequence(self, **kwargs):
-        if self.has_sequence:
+        if not self.has_sequence:
             return None
 
         return self.seq_checksum
@@ -316,7 +322,7 @@ class Feature(models.Model):
     def __contains__(self, item):
         if type(item) == FeatureLocation:
             if self.loc_strand != item.strand:
-                raise Exception("Stands of feature {} does not match given location {}".format(self, item))
+                raise Exception("Strands of feature {} does not match given location {}".format(self, item))
             
             # start < end, always, so strand doesn't matter
             if item.start >= self.loc_start and item.end <= self.loc_end:
@@ -325,35 +331,14 @@ class Feature(models.Model):
             if item >= self.loc_start and item <= self.loc_end:
                 return True
         elif isinstance(item, slice):
-            if slice[0] and slice[0] not in self:
+            if item.start and item.start not in self:
                 return False
-            if slice[1] and slice[1] not in self:
+            if item.stop and item.stop not in self:
                 return False
                 
             return True
                 
         return False
-
-    def __getitem__(self, val):
-        if not self.has_sequence:
-            return None
-
-        if val not in self:
-            return None
-
-        seq = self.seq
-        offset = self.loc_start
-
-        if isinstance(val, slice):                
-            start = start - offset if val[0] else 0
-            end = end - offset if val[1] else self.length
-            return seq[start:end:val[2]]
-            
-        elif isinstance(val, int):
-            val = val - offset
-            return seq[val]
-
-        return None
 
     def __str__(self):
         return "{}.{}".format(self.stable_id, self.stable_id_version) if self.stable_id_version else "{}".format(self.stable_id)
@@ -436,6 +421,29 @@ class Exon(Feature):
     @property
     def mapper(self):
         return self.gene.mapper
+
+    # Does not support negative indexes for slicing
+    
+    def __getitem__(self, val):
+        if not self.has_sequence:
+            return Seq('')
+
+        if val not in self:
+            return Seq('')
+
+        seq = self.seq
+        offset = self.loc_start
+
+        if isinstance(val, slice):                
+            start = val.start - offset if val.start else 0
+            end = val.stop - offset + 1 if val.stop else self.length
+            return seq[start:end:val.step]
+            
+        elif isinstance(val, int):
+            val = val - offset
+            return seq[val]
+
+        return Seq('')
 
 #    @classmethod
 #    def fetch_set(cls, transcript_id):
@@ -761,6 +769,27 @@ class Transcript(Feature):
                 feature_obj['exon'] = exons_ary
     
         return feature_obj
+
+    def subseq(self, start, end, introns=False):
+        return self.mapper.transcript_subseq(start, end, introns)
+
+    # Does not support negative indexes for slicing
+    
+    def __getitem__(self, val):
+        if val not in self:
+            return Seq('')
+
+        if isinstance(val, slice):                
+            start = val.start if val.start else self.loc_start
+            end = val.stop if val.stop else self.loc_end
+#            return seq[start:end:val.step]
+            
+        elif isinstance(val, int):
+            start = val
+            end = val
+#            return seq[val]
+
+        return self.subseq(start, end)
 
     class Meta:
         managed = False

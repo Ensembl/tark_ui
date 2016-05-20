@@ -1,4 +1,9 @@
 from Bio.SeqFeature import FeatureLocation
+from Bio.Seq import Seq
+
+#from tark.exceptions import MissingTranscriptError, FeatureNonCoding, UnknownCoordinateSystem, FeatureNotFound,\
+from ..exceptions import MissingTranscriptError, FeatureNonCoding, UnknownCoordinateSystem, FeatureNotFound,\
+WrongStrandError, IncompatibleFeatureType, LocationNotInFeature
 import pprint
 
 class Mapper():
@@ -15,6 +20,7 @@ class Mapper():
     
     def transcript(self, transcript=None):
         if transcript:
+            self.flush_mapper()
             self._transcript = transcript
             return self
         
@@ -28,6 +34,15 @@ class Mapper():
             location = self.remap2genomic(location)
 
         return True if self.fetch_exon(location) else False
+
+    def is_cds(self, location):
+        if not self.is_exonic(location):
+            return False
+        
+        if location in self.transcript().translation:
+            return True
+       
+        return False
        
     def fetch_exon(self, location):
         if location.ref_db and location.ref_db != 'genomic':
@@ -54,6 +69,10 @@ class Mapper():
             
         return None
 
+    def flush_mapper(self):
+        self.flush_exons()
+        self.flush_translations()
+        
     @property
     def exons(self):
         if not hasattr(self, '_transcript'):
@@ -66,6 +85,10 @@ class Mapper():
                 self.exons.append(exon)
 
         return self._exons
+
+    def flush_exons(self):
+        if hasattr(self, '_exons'):
+            del self._exons
     
     @property
     def translations(self):
@@ -81,6 +104,10 @@ class Mapper():
                 self._translations.append(translation)
                 
         return self._translations
+
+    def flush_translations(self):
+        if hasattr(self, '_translations'):
+            del self._translations
         
 
     def remap2genomic(self, location):
@@ -111,6 +138,8 @@ class Mapper():
         else:
             raise UnknownCoordinateSystem()
             
+        print feature
+        print feature.location
         if location.strand == 1:
             start = location.start + feature.loc_start
             end = location.end + feature.loc_start
@@ -172,7 +201,6 @@ class Mapper():
             if not coordinates:
                 if location.start > exon.loc_end:
                     cdna_offset = cdna_offset + exon.length
-                    print "Skipping exon of length {}".format(exon.length)
                     continue
                 elif location.start < exon.loc_start:
                     # We started in a gap
@@ -214,7 +242,7 @@ class Mapper():
                 
             coordinates.append(FeatureLocation(feature_start, feature_end,
                                                strand=location.strand,
-                                               ref_db='cdna'))
+                                               ref_db='cdna', ref=exon.stable_id))
             
             cdna_offset = cdna_offset + exon.length
             
@@ -291,7 +319,7 @@ class Mapper():
                         out.append(end_gap)
                         
         return out
-    
+
     def genomic2pep(self, location):
         if location.start > location.end + 1:
             raise WrongStrandError()
@@ -312,6 +340,24 @@ class Mapper():
             out.append(adjusted_coord)
             
         return out
+
+    def transcript_subseq(self, start, end, introns=False):
+        transcript = self.transcript()
+        location = transcript.genomic_location(start, end)
+        if location not in transcript:
+            return Seq('')
+
+        final_seq = Seq('')
+        seq = transcript.seq
+        coords = self.genomic2cdna(location)
+        
+        for coord in coords:
+            if coord.ref_db == 'gap' and introns:
+                final_seq += Seq('N' * (len(coord)+1))
+            elif coord.ref_db == 'cdna':
+                final_seq += seq[coord.start-1:coord.end]
+
+        return final_seq
         
     def remap2feature(self, location, feature, coordinates='cdna'):
         if location.strand != feature.loc_strand:
@@ -435,25 +481,4 @@ class ExonMapper():
             end = self.exon.loc_end - location.end
             
         return FeatureLocation(start, end, strand=location.strand, ref='feature')
-
-class MissingTranscriptError(LookupError):
-    "No transcript has been associated with the mapper"
-
-class FeatureNotFound(LookupError):
-    "The feature was not found"
-    
-class FeatureNonCoding(LookupError):
-    "This transcript doesn't have a translation"
-
-class IncompatibleFeatureType(LookupError):
-    "This feature isn't compatible with the operation requested"
-    
-class LocationNotInFeature(ValueError):
-    "The location isn't contained in the given feature"
-
-class UnknownCoordinateSystem(ValueError):
-    "The coordinate system isn't known"
-    
-class WrongStrandError(TypeError):
-    "The strand doesn't match between the given features"
 

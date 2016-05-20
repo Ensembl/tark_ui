@@ -1,6 +1,6 @@
 from django.test import TestCase
-from tark.lib.mapper import Mapper, MissingTranscriptError, LocationNotInFeature
-from tark.models import Gene, Transcript, Exon
+from ..lib.mapper import Mapper, MissingTranscriptError, LocationNotInFeature
+from ..models import Gene, Transcript, Exon
 from django.core.management import call_command
 import json
 import pprint

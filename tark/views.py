@@ -2,6 +2,7 @@ from django.http import HttpResponse
 from django.apps import apps
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models.sql.datastructures import Join
+from Bio.SeqFeature import FeatureLocation
 
 from tark.models import FEATURE_TYPES, Releaseset, Transcript, Releasetag, Assembly, Tagset, Genenames, Gene, Transcript
 from tark.decorators import render, parameter_parser
@@ -98,9 +99,40 @@ def name_lookup_transcript(request, **kwargs):
 
     return transcripts
 
+# Need to check the arguments to ensure they're valid (ie positive numbers for start/end)
+@parameter_parser(allow_methods='GET')
+@render
+def location_lookup(request, species, seqtype, **kwargs):
+    
+    pprint.pprint(kwargs)
+
+    print "species: {}".format(species)
+    assemblies = Assembly.fetch_by_name(species)    
+    print "here"
+    model = apps.get_model('tark', FEATURE_TYPES[seqtype])
+    
+    if 'start' not in kwargs or 'end' not in kwargs or 'region' not in kwargs:
+        return HttpResponse(status=403)
+    
+    start = int(kwargs['start'])
+    end = int(kwargs['end'])
+    
+    features = model.objects.fetch_by_location( kwargs['region'], FeatureLocation(start, end, ref_db='genomic' ), assemblies=assemblies, **kwargs )
+
+    return features
+
 @parameter_parser(allow_methods='GET')
 @render
 def hgvs_by_name(request, species, hgvs, **kwargs):
+    # This is a hack for now... we'll add a table of allowed regions by species later
+    # and obviously this doesn't catch X, Y, MT
+    (location, rest) = hgvs.split(':', 1)
+    try:
+        int(location)
+        hgvs = 'chr' + hgvs
+    except:
+        pass
+    
     match_features = fetch_by_hgvs(hgvs, species, **kwargs)
     
     return match_features
