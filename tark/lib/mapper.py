@@ -108,7 +108,6 @@ class Mapper():
     def flush_translations(self):
         if hasattr(self, '_translations'):
             del self._translations
-        
 
     def remap2genomic(self, location):
         # If no type is given we assume it's already genomic
