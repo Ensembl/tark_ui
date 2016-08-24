@@ -19,6 +19,5 @@ addons:
 
 install: 
   - pip install -r requirements.txt
-  - python install django==$DJANGO
 
 script: "mysql -e 'SHOW DATABASES'"
