@@ -47,6 +47,7 @@ class FeatureQuerySet(models.query.QuerySet):
 
         for feature in self.all():
             if not feature.has_sequence:
+                print feature
                 continue
             
             if format:
@@ -69,14 +70,20 @@ class FeatureQuerySet(models.query.QuerySet):
         return features_ary
 
     def release(self, release_set, exclude=False):
+        # Get the class for the release_tag for this particular feature type
+        release_tag = self.model.releasetag()
         feature_id = FEATURE_LOOKUP[self.model.__name__]
         set_table_name = 'release_tag_' + str(release_set.release_id)
         
         if exclude:
-            release_tags = Releasetag.objects.filter(release_id=release_set, feature_type=feature_id)
+            release_tags = release_tag.objects.filter(release_id=release_set)
+#            release_tags = Releasetag.objects.filter(release_id=release_set, feature_type=feature_id)
             pk_column = self.model._meta.pk.name + '__in'
             return self.exclude(**{pk_column: release_tags})
         else:
+            release_tags = release_tag.objects.filter(release_id=release_set)
+            pk_column = self.model._meta.pk.name + '__in'
+            return self.filter(**{pk_column: release_tags})
             return self.extra( where=[set_table_name + ".feature_type=%s", 
                                       set_table_name + ".feature_id = " + self.model._meta.db_table + '.' + self.model._meta.pk.name, 
                                       set_table_name + ".release_id='%s'"], 
@@ -422,6 +429,10 @@ class Exon(Feature):
     def mapper(self):
         return self.gene.mapper
 
+    @classmethod
+    def releasetag(cls):
+        return ExonReleaseTag
+
     # Does not support negative indexes for slicing
     
     def __getitem__(self, val):
@@ -494,6 +505,10 @@ class Gene(Feature):
             self._mapper = Mapper(self)
             
         return self._mapper
+
+    @classmethod
+    def releasetag(cls):
+        return GeneReleaseTag
 
     class Meta:
         managed = False
@@ -593,20 +608,6 @@ class Releaseset(models.Model):
         managed = False
         db_table = 'release_set'
         unique_together = (('shortname', 'assembly'),)
-
-
-class Releasetag(models.Model):
-    feature_id = models.PositiveIntegerField(primary_key=True)
-#    feature_type = models
-#    feature_id = models.IntegerField()
-    feature_type = models.IntegerField()
-    release = models.ForeignKey(Releaseset, models.DO_NOTHING, related_name='features')
-    session = models.ForeignKey('Session', models.DO_NOTHING, blank=True, null=True)
-
-    class Meta:
-        managed = False
-        db_table = 'release_tag'
-        unique_together = (('feature_id', 'feature_type', 'release'),)
 
 
 class Sequence(models.Model):
@@ -773,6 +774,10 @@ class Transcript(Feature):
     def subseq(self, start, end, introns=False):
         return self.mapper.transcript_subseq(start, end, introns)
 
+    @classmethod
+    def releasetag(cls):
+        return TranscriptReleaseTag
+
     # Does not support negative indexes for slicing
     
     def __getitem__(self, val):
@@ -824,6 +829,92 @@ class Translation(Feature):
     def genomic2pep(self, location):
         return self.mapper.genomic2pep(location)
 
+    @classmethod
+    def releasetag(cls):
+        return TranslationReleaseTag
+
     class Meta:
         managed = False
         db_table = 'translation'
+
+class Releasetag(models.Model):
+#    feature_id = models.PositiveIntegerField(primary_key=True)
+#    feature_type = models
+#    feature_id = models.IntegerField()
+    feature_type = models.IntegerField()
+#    release = models.ForeignKey(Releaseset, models.DO_NOTHING, related_name='features')
+    session = models.ForeignKey('Session', models.DO_NOTHING, blank=True, null=True)
+
+    class Meta:
+        managed = False
+#        db_table = 'release_tag'
+        abstract = True
+#        unique_together = (('feature_id', 'feature_type', 'release'),)
+
+class GeneReleaseTagManager(models.Manager):
+    def get_queryset(self):
+        return super(GeneReleaseTagManager, self).get_queryset().filter(feature_type=FEATURE_LOOKUP['Gene'])
+    
+class GeneReleaseTag(Releasetag):
+    objects = GeneReleaseTagManager()
+    feature = models.ForeignKey('Gene', to_field='gene_id', primary_key=True)
+#    feature_type = models.IntegerField()
+    release = models.ForeignKey(Releaseset, models.DO_NOTHING, related_name='gene_features')
+#    session = models.ForeignKey('Session', models.DO_NOTHING, blank=True, null=True)
+    
+    class Meta:
+        managed = False
+        db_table = 'release_tag'
+        unique_together = (('feature', 'feature_type', 'release'),)
+#        proxy = True
+
+class TranscriptReleaseTagManager(models.Manager):
+    def get_queryset(self):
+        return super(TranscriptReleaseTagManager, self).get_queryset().filter(feature_type=FEATURE_LOOKUP['Transcript'])
+    
+class TranscriptReleaseTag(Releasetag):
+    objects = TranscriptReleaseTagManager()
+    feature = models.ForeignKey('Transcript', to_field='transcript_id', primary_key=True)
+#    feature_type = models.IntegerField()
+    release = models.ForeignKey(Releaseset, models.DO_NOTHING, related_name='transcript_features')
+#    session = models.ForeignKey('Session', models.DO_NOTHING, blank=True, null=True)
+    
+    class Meta:
+        managed = False
+        db_table = 'release_tag'
+        unique_together = (('feature', 'feature_type', 'release'),)
+#        proxy = True
+
+class ExonReleaseTagManager(models.Manager):
+    def get_queryset(self):
+        return super(ExonReleaseTagManager, self).get_queryset().filter(feature_type=FEATURE_LOOKUP['Exon'])
+    
+class ExonReleaseTag(Releasetag):
+    objects = ExonReleaseTagManager()
+    feature = models.ForeignKey('Exon', to_field='exon_id', primary_key=True)
+#    feature_type = models.IntegerField()
+    release = models.ForeignKey(Releaseset, models.DO_NOTHING, related_name='exon_features')
+#    session = models.ForeignKey('Session', models.DO_NOTHING, blank=True, null=True)
+    
+    class Meta:
+        managed = False
+        db_table = 'release_tag'
+        unique_together = (('feature', 'feature_type', 'release'),)
+#        proxy = True
+
+class TranslationReleaseTagManager(models.Manager):
+    def get_queryset(self):
+        return super(TranslationReleaseTagManager, self).get_queryset().filter(feature_type=FEATURE_LOOKUP['Translation'])
+    
+class TranslationReleaseTag(Releasetag):
+    objects = TranslationReleaseTagManager()
+    feature = models.ForeignKey('Translation', to_field='translation_id', primary_key=True)
+#    feature_type = models.IntegerField()
+    release = models.ForeignKey(Releaseset, models.DO_NOTHING, related_name='translation_features')
+#    session = models.ForeignKey('Session', models.DO_NOTHING, blank=True, null=True)
+   
+    class Meta:
+        managed = False
+        db_table = 'release_tag'
+        unique_together = (('feature', 'feature_type', 'release'),)
+#        proxy = True

@@ -1,0 +1,283 @@
+[
+    {
+	"fields": {
+	    "transcript_id" : 372211,
+	    "exon_id" : 2170533,
+	    "exon_order" : 1,
+	    "session" : 1
+	},
+	"pk" : 2170533,
+	"model" : "tark.Exontranscript"
+    },
+    {
+	"fields": {
+	    "transcript_id" : 372211,
+	    "exon_id" : 2170534,
+	    "exon_order" : 2,
+	    "session" : 1
+	},
+	"pk" : 2170534,
+	"model" : "tark.Exontranscript"
+    },
+    {
+	"fields": {
+	    "transcript_id" : 372211,
+	    "exon_id" : 2170535,
+	    "exon_order" : 3,
+	    "session" : 1
+	},
+	"pk" : 2170535,
+	"model" : "tark.Exontranscript"
+    },
+    {
+	"fields": {
+	    "transcript_id" : 372211,
+	    "exon_id" : 2170536,
+	    "exon_order" : 4,
+	    "session" : 1
+	},
+	"pk" : 2170536,
+	"model" : "tark.Exontranscript"
+    },
+    {
+	"fields": {
+	    "transcript_id" : 372211,
+	    "exon_id" : 2170537,
+	    "exon_order" : 5,
+	    "session" : 1
+	},
+	"pk" : 2170537,
+	"model" : "tark.Exontranscript"
+    },
+    {
+	"fields": {
+	    "transcript_id" : 372211,
+	    "exon_id" : 2170538,
+	    "exon_order" : 6,
+	    "session" : 1
+	},
+	"pk" : 2170538,
+	"model" : "tark.Exontranscript"
+    },
+    {
+	"fields": {
+	    "transcript_id" : 372211,
+	    "exon_id" : 2170539,
+	    "exon_order" : 7,
+	    "session" : 1
+	},
+	"pk" : 2170539,
+	"model" : "tark.Exontranscript"
+    },
+    {
+	"fields": {
+	    "transcript_id" : 372211,
+	    "exon_id" : 2170540,
+	    "exon_order" : 8,
+	    "session" : 1
+	},
+	"pk" : 2170540,
+	"model" : "tark.Exontranscript"
+    },
+    {
+	"fields": {
+	    "transcript_id" : 372211,
+	    "exon_id" : 2170541,
+	    "exon_order" : 9,
+	    "session" : 1
+	},
+	"pk" : 2170541,
+	"model" : "tark.Exontranscript"
+    },
+    {
+	"fields": {
+	    "transcript_id" : 372211,
+	    "exon_id" : 21705342,
+	    "exon_order" : 10,
+	    "session" : 1
+	},
+	"pk" : 21705342,
+	"model" : "tark.Exontranscript"
+    },
+    {
+	"fields": {
+	    "transcript_id" : 372212,
+	    "exon_id" : 21705343,
+	    "exon_order" : 1,
+	    "session" : 1
+	},
+	"pk" : 21705343,
+	"model" : "tark.Exontranscript"
+    },
+    {
+	"fields": {
+	    "transcript_id" : 372212,
+	    "exon_id" : 21705344,
+	    "exon_order" : 2,
+	    "session" : 1
+	},
+	"pk" : 21705344,
+	"model" : "tark.Exontranscript"
+    },
+    {
+	"fields": {
+	    "transcript_id" : 372212,
+	    "exon_id" : 21705345,
+	    "exon_order" : 3,
+	    "session" : 1
+	},
+	"pk" : 21705345,
+	"model" : "tark.Exontranscript"
+    },
+    {
+	"fields": {
+	    "transcript_id" : 372212,
+	    "exon_id" : 21705346,
+	    "exon_order" : 4,
+	    "session" : 1
+	},
+	"pk" : 21705346,
+	"model" : "tark.Exontranscript"
+    },
+    {
+	"fields": {
+	    "transcript_id" : 372212,
+	    "exon_id" : 21705347,
+	    "exon_order" : 5,
+	    "session" : 1
+	},
+	"pk" : 21705347,
+	"model" : "tark.Exontranscript"
+    },
+    {
+	"fields": {
+	    "transcript_id" : 90119,
+	    "exon_id" : 489350,
+	    "exon_order" : 1,
+	    "session" : 1
+	},
+	"pk" : 489350,
+	"model" : "tark.Exontranscript"
+    },
+    {
+	"fields": {
+	    "transcript_id" : 90119,
+	    "exon_id" : 489351,
+	    "exon_order" : 2,
+	    "session" : 1
+	},
+	"pk" : 489351,
+	"model" : "tark.Exontranscript"
+    },
+    {
+	"fields": {
+	    "transcript_id" : 90119,
+	    "exon_id" : 489352,
+	    "exon_order" : 3,
+	    "session" : 1
+	},
+	"pk" : 489352,
+	"model" : "tark.Exontranscript"
+    },
+    {
+	"fields": {
+	    "transcript_id" : 90119,
+	    "exon_id" : 489353,
+	    "exon_order" : 4,
+	    "session" : 1
+	},
+	"pk" : 489353,
+	"model" : "tark.Exontranscript"
+    },
+    {
+	"fields": {
+	    "transcript_id" : 90119,
+	    "exon_id" : 489354,
+	    "exon_order" : 5,
+	    "session" : 1
+	},
+	"pk" : 489354,
+	"model" : "tark.Exontranscript"
+    },
+    {
+	"fields": {
+	    "transcript_id" : 90119,
+	    "exon_id" : 489355,
+	    "exon_order" : 6,
+	    "session" : 1
+	},
+	"pk" : 489355,
+	"model" : "tark.Exontranscript"
+    },
+    {
+	"fields": {
+	    "transcript_id" : 90119,
+	    "exon_id" : 489356,
+	    "exon_order" : 7,
+	    "session" : 1
+	},
+	"pk" : 489356,
+	"model" : "tark.Exontranscript"
+    },
+    {
+	"fields": {
+	    "transcript_id" : 90119,
+	    "exon_id" : 489357,
+	    "exon_order" : 8,
+	    "session" : 1
+	},
+	"pk" : 489357,
+	"model" : "tark.Exontranscript"
+    },
+    {
+	"fields": {
+	    "transcript_id" : 90119,
+	    "exon_id" : 489358,
+	    "exon_order" : 9,
+	    "session" : 1
+	},
+	"pk" : 489358,
+	"model" : "tark.Exontranscript"
+    },
+    {
+	"fields": {
+	    "transcript_id" : 90119,
+	    "exon_id" : 489359,
+	    "exon_order" : 10,
+	    "session" : 1
+	},
+	"pk" : 489359,
+	"model" : "tark.Exontranscript"
+    },
+    {
+	"fields": {
+	    "transcript_id" : 90119,
+	    "exon_id" : 489360,
+	    "exon_order" : 11,
+	    "session" : 1
+	},
+	"pk" : 489360,
+	"model" : "tark.Exontranscript"
+    },
+    {
+	"fields": {
+	    "transcript_id" : 90119,
+	    "exon_id" : 489361,
+	    "exon_order" : 12,
+	    "session" : 1
+	},
+	"pk" : 489361,
+	"model" : "tark.Exontranscript"
+    },
+    {
+	"fields": {
+	    "transcript_id" : 90119,
+	    "exon_id" : 489362,
+	    "exon_order" : 13,
+	    "session" : 1
+	},
+	"pk" : 489362,
+	"model" : "tark.Exontranscript"
+    },
+
+]

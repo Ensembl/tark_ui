@@ -26,14 +26,19 @@ def render(function=None, default_content_type='application/json'):
                                  'filter_pk': True,
                                  'skip_sequence': kwargs.get('skip_sequence', False)}
     
-            if request.method == 'GET':
-                render_parameters['content-type'] = request.GET.get('content-type', default_content_type)
-            else:
-                render_parameters['content-type'] = request.META.get('HTTP_ACCEPT', request.META.get('CONTENT_TYPE', default_content_type))
+            render_parameters['content-type'] = request.content_type or default_content_type
+#            if request.method == 'GET':
+#                render_parameters['content-type'] = request.GET.get('content-type', default_content_type)
+#            else:
+#                render_parameters['content-type'] = request.META.get('HTTP_ACCEPT', request.META.get('CONTENT_TYPE', default_content_type))
 
             if render_parameters['content-type'] == '*/*':
                 render_parameters['content-type'] = default_content_type
-            
+            elif render_parameters['content-type'] == 'text/plain':
+                render_parameters['content-type'] = default_content_type
+                
+#            render_parameters['content-type'] = 'text/x-fasta'
+
             return renderer.render(response, **render_parameters)
             
         decorated.__name__ = view_func.__name__
@@ -56,10 +61,12 @@ def parameter_parser(function=None, allow_methods=('GET', 'POST')):
                 json_data = json.loads(request.body)
                 kwargs.update(json_data)
             elif request.method == 'GET' and request.method in allow_methods:
-                get_params = request.GET.dict()
-                kwargs.update(get_params)
+                pass
             else:
                 return HttpResponse(status=403)
+
+            get_params = request.GET.dict()
+            kwargs.update(get_params)
                             
             response = view_func(request, *args, **kwargs)
             

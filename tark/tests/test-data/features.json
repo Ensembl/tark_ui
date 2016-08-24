@@ -3520,5 +3520,263 @@
       },
       "pk" : 47213,
       "model" : "tark.Translation"
+   },
+
+   {
+      "fields" : {
+	 "loc_region" : "3",
+	 "assembly" : 2,
+	 "stable_id" : "ENSG00000134070",
+	 "loc_strand" : 1,
+	 "loc_end" : 10243743,
+	 "gene_checksum" : "12AF1EFA6003C11B3BEEBFA8913ADA197F7A84F3",
+	 "loc_start" : 10164865,
+	 "stable_id_version" : 4
+      },
+      "pk" : 32852,
+      "model" : "tark.Gene"
+   },
+   {
+      "fields" : {
+	 "loc_region": "3",
+	 "assembly" : 2,
+	 "exon_set_checksum" : "F7497DAD26E16A03C7ABFDBBAC9CD0D17AF7A04D",
+	 "stable_id" : "ENST00000256458",
+	 "loc_strand" : 1,
+	 "loc_end" : 10243743,
+	 "gene_id" : 32852,
+	 "loc_start" : 10164865,
+	 "stable_id_version" : 4,
+	 "loc_checksum" : "3279AB567AA6B95526D2E3C2F392B394EA43043E",
+	 "seq_checksum" : "173C5C9807FC1D0F0802712F3A7CF78E84B807AC",
+	 "transcript_checksum" : "749ACE43840703227028332983B8A638F5E5259A"
+      },
+      "pk" : 90119,
+      "model" : "tark.Transcript"
+   },
+   {
+      "fields" : {
+	 "loc_region" : "3",
+	 "assembly" : 2,
+	 "loc_checksum" : "F0B736D8E078D5A4EB38B9F2E6950121D3287DCC",
+	 "stable_id" : "ENSP00000256458",
+	 "loc_strand" : 1,
+	 "loc_end" : 10242228,
+	 "translation_checksum" : "1FA6C36627A111E2DE752D991186BF559336D00B",
+	 "loc_start" : 10164955,
+	 "stable_id_version" : 4,
+	 "transcript" : 90119,
+	 "seq_checksum" : "F2C87433633BA7B21D5E819BC5B46C686262FE09"
+      },
+      "pk" : 39647,
+      "model" : "tark.Translation"
+   },
+   {
+      "fields" : {
+	 "loc_region" : "3",
+	 "assembly" : 2,
+	 "stable_id" : "ENSE00001134699",
+	 "loc_strand" : 1,
+	 "loc_end" : 10165048,
+	 "exon_checksum" : "B101492C4C11437783D84398093AA44AAE964101",
+	 "loc_start" : 10164865,
+	 "stable_id_version" : 3,
+	 "loc_checksum" : "EA487DCC8E8ECA31A787C051BA7A4247E6EEC5A8",
+	 "seq_checksum" : "93669AAE0AA40500444A8908660B5E308B038C0A"
+      },
+      "pk" : 489350,
+      "model" : "tark.Exon"
+   },
+   {
+      "fields" : {
+	 "loc_region" : "3",
+	 "assembly" : 2,
+	 "stable_id" : "ENSE00000912613",
+	 "loc_strand" : 1,
+	 "loc_end" : 10178020,
+	 "exon_checksum" : "23D409552361D3E822F15844A31CB236A55B0D68",
+	 "loc_start" : 10177838,
+	 "stable_id_version" : 1,
+	 "loc_checksum" : "7DF1BC527E11B8DEA06F477EC9C496B785AC32D7",
+	 "seq_checksum" : "CB0736FE7E27984DA027238E7B7CF3E09B6FD5EC"
+      },
+      "pk" : 489351,
+      "model" : "tark.Exon"
+   },
+   {
+      "fields" : {
+	 "loc_region" : "3",
+	 "assembly" : 2,
+	 "stable_id" : "ENSE00000912614",
+	 "loc_strand" : 1,
+	 "loc_end" : 10200515,
+	 "exon_checksum" : "2918E428303648748031BCC4AEE51E0A6540020B",
+	 "loc_start" : 10200369,
+	 "stable_id_version" : 1,
+	 "loc_checksum" : "4543FCECB469D6DC3688044557EB3BC3228332DC",
+	 "seq_checksum" : "CA99D6E084E3B9B9418397D2B06CF9AC559FE56C"
+      },
+      "pk" : 489352,
+      "model" : "tark.Exon"
+   },
+   {
+      "fields" : {
+	 "loc_region" : "3",
+	 "assembly" : 2,
+	 "stable_id" : "ENSE00000912615",
+	 "loc_strand" : 1,
+	 "loc_end" : 10209692,
+	 "exon_checksum" : "6118BE772EEEDA3B168E3FDB5629908BCF3EBC2F",
+	 "loc_start" : 10209589,
+	 "stable_id_version" : 1,
+	 "loc_checksum" : "51C05FE7DF582FE5B9F0A407812F0FB64A649F71",
+	 "seq_checksum" : "4ED57B521FD1B18AD6ABC58C4385C095BDF4FD8A"
+      },
+      "pk" : 489353,
+      "model" : "tark.Exon"
+   },
+   {
+      "fields" : {
+	 "loc_region": "3",
+	 "assembly" : 2,
+	 "stable_id" : "ENSE00001163955",
+	 "loc_strand" : 1,
+	 "loc_end" : 10213401,
+	 "exon_checksum" : "DB42E1EDE0CDC25C7D0ACA9DD43A29196178CE6B",
+	 "loc_start" : 10213207,
+	 "stable_id_version" : 1,
+	 "loc_checksum" : "8A1DABB9A6ED3816F9CC4128F2DB48FFC9F17077",
+	 "seq_checksum" : "24C67BAD5A191EE2FA16D18E741ACB1FD0690801"
+      },
+      "pk" : 489354,
+      "model" : "tark.Exon"
+   },
+   {
+      "fields" : {
+	 "loc_region" : "3",
+	 "assembly" : 2,
+	 "stable_id" : "ENSE00001163947",
+	 "loc_strand" : 1,
+	 "loc_end" : 10213548,
+	 "exon_checksum" : "C538839AD41B0ED7118667D36899020DCFA4DC40",
+	 "loc_start" : 10213484,
+	 "stable_id_version" : 1,
+	 "loc_checksum" : "158C8BF5CC1FB48BD819C3917E27C895C8004804",
+	 "seq_checksum" : "E374ECC26C4007C006F469CBB6C76664F5E11030"
+      },
+      "pk" : 489355,
+      "model" : "tark.Exon"
+   },
+   {
+      "fields" : {
+	 "loc_region" : "3",
+	 "assembly" : 2,
+	 "stable_id" : "ENSE00001163939",
+	 "loc_strand" : 1,
+	 "loc_end" : 10217048,
+	 "exon_checksum" : "57EDFA489A1F15423D4D039E09EF4233ED5A820E",
+	 "loc_start" : 10216934,
+	 "stable_id_version" : 1,
+	 "loc_checksum" : "A1748DAAA2A787804EC61AE81544B151683A48B2",
+	 "seq_checksum" : "A63F5361124405E6D231CB757CAA64FCD96ABBC9"
+      },
+      "pk" : 489356,
+      "model" : "tark.Exon"
+   },
+   {
+      "fields" : {
+	 "loc_region" : "3",
+	 "assembly" : 2,
+	 "stable_id" : "ENSE00001163929",
+	 "loc_strand" : 1,
+	 "loc_end" : 10219789,
+	 "exon_checksum" : "64B4D1156601DFF2823A692AB42CD42372E6EA6E",
+	 "loc_start" : 10219680,
+	 "stable_id_version" : 1,
+	 "loc_checksum" : "734337D22B14F761DA93404C12ED5956350DC5C6",
+	 "seq_checksum" : "CEF062FDF51934BEBBA3BCBC4CA352B10CD0C7EA"
+      },
+      "pk" : 489357,
+      "model" : "tark.Exon"
+   },
+   {
+      "fields" : {
+	 "loc_region" : "3",
+	 "assembly" : 2,
+	 "stable_id" : "ENSE00001163918",
+	 "loc_strand" : 1,
+	 "loc_end" : 10222831,
+	 "exon_checksum" : "B5E848D0B3D61DF10BC918D54A592811B64312BC",
+	 "loc_start" : 10222636,
+	 "stable_id_version" : 1,
+	 "loc_checksum" : "CCB4A2CAAAD1B35D132F553BF9E4F5972843B3C2",
+	 "seq_checksum" : "2BD162AA8F7F6BE280DB6C854F170491F488F54A"
+      },
+      "pk" : 489358,
+      "model" : "tark.Exon"
+   },
+   {
+      "fields" : {
+	 "loc_region" : "3",
+	 "assembly" : 2,
+	 "stable_id" : "ENSE00001163909",
+	 "loc_strand" : 1,
+	 "loc_end" : 10226433,
+	 "exon_checksum" : "ED268DE1BF6D1363CD2AB09B226E9DFF72F003D7",
+	 "loc_start" : 10226371,
+	 "stable_id_version" : 1,
+	 "loc_checksum" : "FAB840B675FB74C96F391B4ADEF0DCE40FC28905",
+	 "seq_checksum" : "D50B6339A8257CFA111B1515DC1EECA75D75623B"
+      },
+      "pk" : 489359,
+      "model" : "tark.Exon"
+   },
+   {
+      "fields" : {
+	 "loc_region" : "3",
+	 "assembly" : 2,
+	 "stable_id" : "ENSE00000912621",
+	 "loc_strand" : 1,
+	 "loc_end" : 10234659,
+	 "exon_checksum" : "E0EDA9A5BC1356452A8A9D3DF34FD76F3A37CD51",
+	 "loc_start" : 10234459,
+	 "stable_id_version" : 1,
+	 "loc_checksum" : "2DDDA115A6D65AFA9BA15D7BFCCBDDD421086836",
+	 "seq_checksum" : "D16C311DF660AA0A057ACB7C55D573B2873A1147"
+      },
+      "pk" : 489360,
+      "model" : "tark.Exon"
+   },
+   {
+      "fields" : {
+	 "loc_region" : "3",
+	 "assembly" : 2,
+	 "stable_id" : "ENSE00001217958",
+	 "loc_strand" : 1,
+	 "loc_end" : 10239039,
+	 "exon_checksum" : "E4C620E020113714791DC5069C58A5D6FCF9B2FC",
+	 "loc_start" : 10238748,
+	 "stable_id_version" : 4,
+	 "loc_checksum" : "9665EFDAA6018D9C4B6262C650661B30587DAE89",
+	 "seq_checksum" : "93568B86EFF22CBD0F3BCD855FA53447B1E11960"
+      },
+      "pk" : 489361,
+      "model" : "tark.Exon"
+   },
+   {
+      "fields" : {
+	 "loc_region" : "3",
+	 "assembly" : 2,
+	 "stable_id" : "ENSE00001498749",
+	 "loc_strand" : 1,
+	 "loc_end" : 10243743,
+	 "exon_checksum" : "BA2E36B0FFA3279884321AA3F500CF6FA6DA3D2C",
+	 "loc_start" : 10242116,
+	 "stable_id_version" : 1,
+	 "loc_checksum" : "7CE2C554AD05DB67D7A0B6BB7E882B5567478F1B",
+	 "seq_checksum" : "C93DC01A17E8EEDA800DCCCB2D758BD6B885F378"
+      },
+      "pk" : 489362,
+      "model" : "tark.Exon"
    }
 ]

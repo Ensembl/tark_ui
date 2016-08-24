@@ -9,11 +9,16 @@ class ManagedModelTestRunner(DiscoverRunner):
     to execute the SQL manually to create them.
     """
     def setup_test_environment(self, *args, **kwargs):
+        seen_tables = []
         from django.apps import apps
         self.unmanaged_models = [m for m in apps.get_models()
                                  if not m._meta.managed]
         for m in self.unmanaged_models:
             print "Flipping status of table {}".format(m.__name__)
+            if m._meta.db_table in seen_tables:
+                print "Seen {} already, skipping".format(m._meta.db_table)
+                continue
+            seen_tables.append(m._meta.db_table)
             m._meta.managed = True
         super(ManagedModelTestRunner, self).setup_test_environment(*args,
                                                                    **kwargs)

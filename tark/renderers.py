@@ -7,6 +7,7 @@ from Bio.SeqRecord import SeqRecord
 from Bio import SeqIO
 import types
 import pprint
+import itertools
 
 ALLOW_CONTENT_TYPE = ['application/json', 'text/plain', 'text/x-fasta' ]
 
@@ -19,7 +20,7 @@ class renderer():
     @classmethod
     def render(cls, resultset, **kwargs):
 
-        pprint.pprint(kwargs)        
+        #pprint.pprint(kwargs)        
         content_type = kwargs.pop('content-type', 'application/json')
 
         if content_type not in ALLOW_CONTENT_TYPE:
@@ -30,25 +31,31 @@ class renderer():
 
     @classmethod
     def json(cls, resultset, **kwargs):
+        #pprint.pprint(kwargs)
         BioJSONEncoder.serializing_parameters(**kwargs)
         
 #        data = json.dumps(resultset.to_dict(**kwargs), indent=4, sort_keys=False, ensure_ascii=False, cls=BioJSONEncoder)
 #        return HttpResponse(data, content_type="application/json")
-        if type(resultset) == FeatureQuerySet:
+        if type(resultset) == FeatureQuerySet and resultset:
             iterator = BioJSONEncoder().iterencode(iterlist( resultset.iterator() ))
             return StreamingHttpResponse(iterator, content_type="application/json")
-        elif hasattr(resultset, '__iter__'):
+        elif hasattr(resultset, '__iter__') and resultset:
+            print "Found an __iter__"
             iterator = BioJSONEncoder().iterencode(iterlist( iter(resultset) ) ) 
             return StreamingHttpResponse(iterator, content_type="application/json")
         else:
+            print "HERE"
             data = json.dumps(resultset, indent=4, sort_keys=False, ensure_ascii=False, cls=BioJSONEncoder)
             return HttpResponse(data, content_type="application/json")
 
     @classmethod
     def fasta(cls, resultset, **kwargs):
         kwargs['expand'] = False
-
-        iterator = iterlist(resultset.seq_iterator(format='fasta', **kwargs))
+        
+        if type(resultset) == FeatureQuerySet:
+            iterator = iterlist(resultset.seq_iterator(format='fasta', **kwargs))
+        elif hasattr(resultset, '__iter__'):
+            iterator = itertools.chain.from_iterable([r.seq_iterator(format='fasta', **kwargs) for r in resultset if type(r) == FeatureQuerySet])
         return StreamingHttpResponse(iterator, content_type="text/x-fasta")
     
     @classmethod
@@ -76,6 +83,8 @@ class BioJSONEncoder(json.JSONEncoder):
         if isinstance(obj, Seq):
             return str(obj)
         if isinstance(obj, Feature):
+            return obj.to_dict(**kwargs)
+        if isinstance(obj, FeatureQuerySet):
             return obj.to_dict(**kwargs)
         if isinstance(obj, Assembly):
             return str(obj)
