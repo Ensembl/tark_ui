@@ -11,7 +11,7 @@ Test the /genome/ endpoint, fetching all available genomes
 
 '''
 
-REF_FILE_PATH = os.path.dirname(__file__)
+REF_FILE_PATH = os.path.join(os.path.dirname(__file__), 'references')
 
 class GenomesTestCase(TestCase):
     test_fixtures = ['session.json', 'genome.json', 'assembly.json', 'sequences.json', 'features.json', 'gene_names.json']
