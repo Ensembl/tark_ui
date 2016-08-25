@@ -27,4 +27,4 @@ install:
 before_script:
   - "mysql -e 'CREATE DATABASE travisdb'"
 
-script: "python manage.py test --settings=tark.tests.utils"
+script: "python manage.py test"

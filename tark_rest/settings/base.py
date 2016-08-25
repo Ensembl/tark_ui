@@ -70,6 +70,10 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'tark_rest.wsgi.application'
 
+TEST_RUNNER = 'tark.tests.utils.ManagedModelTestRunner'
+MIGRATION_MODULES = {
+    'tark':'tark.migrations_not_used_in_tests',
+}
 
 # Database
 # https://docs.djangoproject.com/en/1.9/ref/settings/#databases

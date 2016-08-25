@@ -1,6 +1,5 @@
-from tark_rest.settings import *
+from django.conf import settings
 from django.test.runner import DiscoverRunner
-
 
 class ManagedModelTestRunner(DiscoverRunner):
     """
@@ -9,6 +8,7 @@ class ManagedModelTestRunner(DiscoverRunner):
     to execute the SQL manually to create them.
     """
     def setup_test_environment(self, *args, **kwargs):
+        settings.TESTING_MODE = True
         seen_tables = []
         from django.apps import apps
         self.unmanaged_models = [m for m in apps.get_models()
@@ -29,8 +29,3 @@ class ManagedModelTestRunner(DiscoverRunner):
         # reset unmanaged models
         for m in self.unmanaged_models:
             m._meta.managed = False
-
-TEST_RUNNER = 'tark.tests.utils.ManagedModelTestRunner'
-MIGRATION_MODULES = {
-    'tark':'tark.migrations_not_used_in_tests',
-}
