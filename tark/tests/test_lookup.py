@@ -95,10 +95,7 @@ class GenomesTestCase(TestCase):
                 self.assertEquals(refs[feature], content, "Retrieved {} for {} (fasta) don't match".format(feature_type, feature))
 
         if write_ref:
-            outfile_name = os.path.join( REF_FILE_PATH, "{}_fasta_reference.json".format(feature_type) )
-            print "\tWriting reference outfile {}".format(outfile_name)
-            with open(outfile_name, 'w') as outfile:
-                json.dump(refs, outfile, sort_keys=True, indent=4)
+            self.writeRef( "{}_fasta_reference.json".format(feature_type), refs )
 
 
     def doJsonLookupTest(self, feature_type, features, assemblies, write_ref = False):
@@ -155,10 +152,7 @@ class GenomesTestCase(TestCase):
                     self.assertEquals(record, content, "Retrieved {} for {}, assembly {} don't match".format(feature_type, feature, assembly))
 
         if write_ref:
-            outfile_name = os.path.join( REF_FILE_PATH, "{}_json_reference.json".format(feature_type) )
-            print "\tWriting reference outfile {}".format(outfile_name)
-            with open(outfile_name, 'w') as outfile:
-                json.dump(refs, outfile, sort_keys=True, indent=4)
+            self.writeRef( "{}_json_reference.json".format(feature_type), refs )
 
     def doJsonPostTest(self, feature_type, features, write_ref = False):
         print "\tdoJsonPostTest ({})".format(feature_type)
@@ -179,11 +173,7 @@ class GenomesTestCase(TestCase):
         content = json.loads(''.join(self.fetchContent(response)))
 
         if write_ref:
-            outfile_name = os.path.join( REF_FILE_PATH, "{}_post_json_reference.json".format(feature_type) )
-            print "\tWriting reference outfile {}".format(outfile_name)
-            with open(outfile_name, 'w') as outfile:
-                json.dump(content, outfile, sort_keys=True, indent=4)
-        
+            self.writeRef( "{}_post_json_reference.json".format(feature_type), content )
         else:
             self.assertEquals( refs, content, "Retrieved {} via POST don't match".format(feature_type) )
 
@@ -200,3 +190,9 @@ class GenomesTestCase(TestCase):
                 return [rec]
 
         return []
+
+    def writeRef(self, filename, refs):
+        outfile_name = os.path.join( REF_FILE_PATH, filename )
+            print "\tWriting reference outfile {}".format(outfile_name)
+            with open(outfile_name, 'w') as outfile:
+                json.dump(refs, outfile, sort_keys=True, indent=4)
