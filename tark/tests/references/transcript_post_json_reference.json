@@ -47,5 +47,11 @@
             "stable_id_version": 4, 
             "transcript_checksum": "749ACE43840703227028332983B8A638F5E5259A"
         }
+    ], 
+    [
+        {
+            "message": "Not found", 
+            "stable_id": "ENST12345"
+        }
     ]
 ]

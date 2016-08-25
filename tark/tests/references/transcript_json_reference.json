@@ -1,8 +1,6 @@
 {
-    "ENSG00000134070": {}, 
-    "ENSG00000198001": {}, 
     "ENST00000256458": {
-        "ref_transcript": [
+        "ref": [
             {
                 "assembly": "GRCh38.p5:GCA_000001405.20", 
                 "exon_set_checksum": "F7497DAD26E16A03C7ABFDBBAC9CD0D17AF7A04D", 
@@ -19,7 +17,7 @@
                 "transcript_checksum": "749ACE43840703227028332983B8A638F5E5259A"
             }
         ], 
-        "ref_transcript_expanded": [
+        "ref_expanded": [
             {
                 "assembly": "GRCh38.p5:GCA_000001405.20", 
                 "exon_set_checksum": "F7497DAD26E16A03C7ABFDBBAC9CD0D17AF7A04D", 
@@ -52,7 +50,7 @@
                 ]
             }
         ], 
-        "ref_transcript_skip_seq": [
+        "ref_skip_sequence": [
             {
                 "assembly": "GRCh38.p5:GCA_000001405.20", 
                 "exon_set_checksum": "F7497DAD26E16A03C7ABFDBBAC9CD0D17AF7A04D", 
@@ -67,10 +65,41 @@
                 "stable_id_version": 4, 
                 "transcript_checksum": "749ACE43840703227028332983B8A638F5E5259A"
             }
+        ], 
+        "ref_skip_sequence_expanded": [
+            {
+                "assembly": "GRCh38.p5:GCA_000001405.20", 
+                "exon_set_checksum": "F7497DAD26E16A03C7ABFDBBAC9CD0D17AF7A04D", 
+                "gene": "ENSG00000134070.4", 
+                "loc_checksum": "3279AB567AA6B95526D2E3C2F392B394EA43043E", 
+                "loc_end": 10243743, 
+                "loc_region": "3", 
+                "loc_start": 10164865, 
+                "loc_strand": 1, 
+                "seq_checksum": "173C5C9807FC1D0F0802712F3A7CF78E84B807AC", 
+                "stable_id": "ENST00000256458", 
+                "stable_id_version": 4, 
+                "transcript_checksum": "749ACE43840703227028332983B8A638F5E5259A", 
+                "translation": [
+                    {
+                        "assembly": "GRCh38.p5:GCA_000001405.20", 
+                        "loc_checksum": "F0B736D8E078D5A4EB38B9F2E6950121D3287DCC", 
+                        "loc_end": 10242228, 
+                        "loc_region": "3", 
+                        "loc_start": 10164955, 
+                        "loc_strand": 1, 
+                        "seq_checksum": "F2C87433633BA7B21D5E819BC5B46C686262FE09", 
+                        "stable_id": "ENSP00000256458", 
+                        "stable_id_version": 4, 
+                        "transcript": "ENST00000256458.4", 
+                        "translation_checksum": "1FA6C36627A111E2DE752D991186BF559336D00B"
+                    }
+                ]
+            }
         ]
     }, 
     "ENST00000448290": {
-        "ref_transcript": [
+        "ref": [
             {
                 "assembly": "GRCh38.p5:GCA_000001405.20", 
                 "exon_set_checksum": "5E5367FEA69E29D230F389056B533DE547D45BAF", 
@@ -102,7 +131,7 @@
                 "transcript_checksum": "4140F76C211425C2D428654AF24CD2FF18F9C7F0"
             }
         ], 
-        "ref_transcript_expanded": [
+        "ref_expanded": [
             {
                 "assembly": "GRCh38.p5:GCA_000001405.20", 
                 "exon": [
@@ -378,7 +407,7 @@
                 ]
             }
         ], 
-        "ref_transcript_skip_seq": [
+        "ref_skip_sequence": [
             {
                 "assembly": "GRCh38.p5:GCA_000001405.20", 
                 "exon_set_checksum": "5E5367FEA69E29D230F389056B533DE547D45BAF", 
@@ -407,6 +436,268 @@
                 "stable_id_version": 2, 
                 "transcript_checksum": "4140F76C211425C2D428654AF24CD2FF18F9C7F0"
             }
+        ], 
+        "ref_skip_sequence_expanded": [
+            {
+                "assembly": "GRCh38.p5:GCA_000001405.20", 
+                "exon": [
+                    {
+                        "assembly": "GRCh38.p5:GCA_000001405.20", 
+                        "exon_checksum": "2D1F562E1C8BB39E35A6A46B53774F075AE85847", 
+                        "loc_checksum": "65C0E079867FD3AC7251EB1D436B969A68198F05", 
+                        "loc_end": 43768272, 
+                        "loc_region": "12", 
+                        "loc_start": 43768112, 
+                        "loc_strand": 1, 
+                        "seq_checksum": "7976932BF30F2DF418ACB7D73DE038EBCF53460E", 
+                        "stable_id": "ENSE00003773512", 
+                        "stable_id_version": 1
+                    }, 
+                    {
+                        "assembly": "GRCh38.p5:GCA_000001405.20", 
+                        "exon_checksum": "489B24A85C9C89FBA79DC5515EBC6A39A16BEBD3", 
+                        "loc_checksum": "88397A065B80DDDB2A3503618AF79D51BE258659", 
+                        "loc_end": 43771365, 
+                        "loc_region": "12", 
+                        "loc_start": 43771220, 
+                        "loc_strand": 1, 
+                        "seq_checksum": "199B5C3FEF38F713ADDC3F1B214011C8D0D10A24", 
+                        "stable_id": "ENSE00003542427", 
+                        "stable_id_version": 1
+                    }, 
+                    {
+                        "assembly": "GRCh38.p5:GCA_000001405.20", 
+                        "exon_checksum": "AAB387EBDBB7B2DFA27BB1B51352AA702A22E4C9", 
+                        "loc_checksum": "473BFD30FE6B652E23D6F521688ACE450CFBD339", 
+                        "loc_end": 43772362, 
+                        "loc_region": "12", 
+                        "loc_start": 43772180, 
+                        "loc_strand": 1, 
+                        "seq_checksum": "1CDF3CB44B02EDA0B0D9F7BB1406C42E33682F0D", 
+                        "stable_id": "ENSE00003651866", 
+                        "stable_id_version": 1
+                    }, 
+                    {
+                        "assembly": "GRCh38.p5:GCA_000001405.20", 
+                        "exon_checksum": "1712E44B988BE005978913D366F3388A40C4FD81", 
+                        "loc_checksum": "C58DCB6FC614CD80F8B7D812D86D31E8575EECA7", 
+                        "loc_end": 43773042, 
+                        "loc_region": "12", 
+                        "loc_start": 43772912, 
+                        "loc_strand": 1, 
+                        "seq_checksum": "420AAFEC5CCF6C39C9876DBAF66242F7328FCA95", 
+                        "stable_id": "ENSE00003724374", 
+                        "stable_id_version": 1
+                    }, 
+                    {
+                        "assembly": "GRCh38.p5:GCA_000001405.20", 
+                        "exon_checksum": "D2C93CEB98E3B6055383209D8D5D5177FC2AADA7", 
+                        "loc_checksum": "0A7B075BE9ED3D9CFAFCE269D715BF5F470590D7", 
+                        "loc_end": 43773072, 
+                        "loc_region": "12", 
+                        "loc_start": 43773045, 
+                        "loc_strand": 1, 
+                        "seq_checksum": "1BC992A6161C505A44E4A606BF948505BB3E759A", 
+                        "stable_id": "ENSE00003742106", 
+                        "stable_id_version": 1
+                    }, 
+                    {
+                        "assembly": "GRCh38.p5:GCA_000001405.20", 
+                        "exon_checksum": "677EFDA4489D57023BFFA804CBC8B8A1280E4374", 
+                        "loc_checksum": "C6B3FA1499DA0B7C5ECCA9B3AF5DDFFC16CFB736", 
+                        "loc_end": 43774029, 
+                        "loc_region": "12", 
+                        "loc_start": 43773965, 
+                        "loc_strand": 1, 
+                        "seq_checksum": "02E965CF0B0C6AC2405E9CF35C5BDAF28A38CC34", 
+                        "stable_id": "ENSE00003740165", 
+                        "stable_id_version": 1
+                    }, 
+                    {
+                        "assembly": "GRCh38.p5:GCA_000001405.20", 
+                        "exon_checksum": "6CE4397487DA8F670BF6E6471E3154D48FC9C07C", 
+                        "loc_checksum": "039961190A2E98BCCCD7DDE8F786FBD928736388", 
+                        "loc_end": 43777744, 
+                        "loc_region": "12", 
+                        "loc_start": 43777630, 
+                        "loc_strand": 1, 
+                        "seq_checksum": "113B37B515761D6BC425DEF872A30320C7D0DC89", 
+                        "stable_id": "ENSE00003669955", 
+                        "stable_id_version": 1
+                    }, 
+                    {
+                        "assembly": "GRCh38.p5:GCA_000001405.20", 
+                        "exon_checksum": "659CA7A9034019FFA732608E35422AF422D9FD64", 
+                        "loc_checksum": "D4BF9F75FF145BEBC3FC76F3B53C6B683C7CDD28", 
+                        "loc_end": 43778302, 
+                        "loc_region": "12", 
+                        "loc_start": 43778193, 
+                        "loc_strand": 1, 
+                        "seq_checksum": "5D93E7207A774D7D029AEA8013AAE08CF3E1A3BE", 
+                        "stable_id": "ENSE00003560415", 
+                        "stable_id_version": 1
+                    }, 
+                    {
+                        "assembly": "GRCh38.p5:GCA_000001405.20", 
+                        "exon_checksum": "859B3E8E5EC142DD8A4C7DCC15BF715C97D55796", 
+                        "loc_checksum": "F6637D76548665E3532271BB216CE754E52185B9", 
+                        "loc_end": 43782490, 
+                        "loc_region": "12", 
+                        "loc_start": 43782307, 
+                        "loc_strand": 1, 
+                        "seq_checksum": "C7B657D25A3579EA1CF1C7324FB76CD38F92F171", 
+                        "stable_id": "ENSE00003673590", 
+                        "stable_id_version": 1
+                    }, 
+                    {
+                        "assembly": "GRCh38.p5:GCA_000001405.20", 
+                        "exon_checksum": "E244EFA48094EC52B4C96B6A4C5D70B4E83A445B", 
+                        "loc_checksum": "35D33D19CFC838586BF098A500C2FA44383C07FD", 
+                        "loc_end": 43783724, 
+                        "loc_region": "12", 
+                        "loc_start": 43783662, 
+                        "loc_strand": 1, 
+                        "seq_checksum": "B1D067475174F30827C893679B371DF6A2147392", 
+                        "stable_id": "ENSE00003538672", 
+                        "stable_id_version": 1
+                    }, 
+                    {
+                        "assembly": "GRCh38.p5:GCA_000001405.20", 
+                        "exon_checksum": "4D8292EF77E294B8169A0057962A065D3A647249", 
+                        "loc_checksum": "1C008BD52A0CF16E83A0BC2222B1DC94A5CD0882", 
+                        "loc_end": 43786557, 
+                        "loc_region": "12", 
+                        "loc_start": 43786399, 
+                        "loc_strand": 1, 
+                        "seq_checksum": "C8265E40FCB76C18149369044417C68DEC45BB6A", 
+                        "stable_id": "ENSE00003589250", 
+                        "stable_id_version": 1
+                    }, 
+                    {
+                        "assembly": "GRCh38.p5:GCA_000001405.20", 
+                        "exon_checksum": "F473F8E4677C726FA5598693777F40A74DA6646E", 
+                        "loc_checksum": "148614DF76F5EF5E622D14438E6781CB21E72ECB", 
+                        "loc_end": 43786715, 
+                        "loc_region": "12", 
+                        "loc_start": 43786680, 
+                        "loc_strand": 1, 
+                        "seq_checksum": "20CAA3BE99D754C93224FD4DD15621F731BAB100", 
+                        "stable_id": "ENSE00003771831", 
+                        "stable_id_version": 1
+                    }
+                ], 
+                "exon_set_checksum": "5E5367FEA69E29D230F389056B533DE547D45BAF", 
+                "gene": "ENSG00000198001.13", 
+                "loc_checksum": "5920D1708E803D85B2A808FF0A934477353C2D3C", 
+                "loc_end": 43786715, 
+                "loc_region": "12", 
+                "loc_start": 43768112, 
+                "loc_strand": 1, 
+                "seq_checksum": "8D35689961C67A8A374280723D12672E5E74DECB", 
+                "stable_id": "ENST00000448290", 
+                "stable_id_version": 6, 
+                "transcript_checksum": "F96AA098C1D1D3DCFF29509899A2E1191175B304", 
+                "translation": [
+                    {
+                        "assembly": "GRCh38.p5:GCA_000001405.20", 
+                        "loc_checksum": "0640695EB9BE45E0032F26F5A66CACF81282485A", 
+                        "loc_end": 43773972, 
+                        "loc_region": "12", 
+                        "loc_start": 43768112, 
+                        "loc_strand": 1, 
+                        "seq_checksum": "59B86B39DD2AD8F937218A2D705213EC1CA085DE", 
+                        "stable_id": "ENSP00000390651", 
+                        "stable_id_version": 3, 
+                        "transcript": "ENST00000448290.6", 
+                        "translation_checksum": "B7557F185FCF4173D4E892298F4289B56355A1F2"
+                    }
+                ]
+            }, 
+            {
+                "assembly": "GRCh37.p13:GCA_000001405.14", 
+                "exon": [
+                    {
+                        "assembly": "GRCh37.p13:GCA_000001405.14", 
+                        "exon_checksum": "56521D8E3D5A6C5CD21B14A992B97A23DF947CA8", 
+                        "loc_checksum": "1EF5EC23BE19B29E2C2615C8946B02DCC8BE65CC", 
+                        "loc_end": 44152819, 
+                        "loc_region": "12", 
+                        "loc_start": 44152758, 
+                        "loc_strand": 1, 
+                        "seq_checksum": "C6C47D7930F838EEC50738FF9290AC2125894872", 
+                        "stable_id": "ENSE00002390697", 
+                        "stable_id_version": 1
+                    }, 
+                    {
+                        "assembly": "GRCh37.p13:GCA_000001405.14", 
+                        "exon_checksum": "CC9C6CA846F082235F8DF2951261538393ABD9A4", 
+                        "loc_checksum": "C2290958AAC26F19343447C3EF4E4464C69CE0A2", 
+                        "loc_end": 44165168, 
+                        "loc_region": "12", 
+                        "loc_start": 44165023, 
+                        "loc_strand": 1, 
+                        "seq_checksum": "199B5C3FEF38F713ADDC3F1B214011C8D0D10A24", 
+                        "stable_id": "ENSE00003542427", 
+                        "stable_id_version": 1
+                    }, 
+                    {
+                        "assembly": "GRCh37.p13:GCA_000001405.14", 
+                        "exon_checksum": "612D1E4D886B42C06044EFFAA8030CD7053B5938", 
+                        "loc_checksum": "6E2AF97C15540DD54BD57D610CBC72D0247C8738", 
+                        "loc_end": 44166165, 
+                        "loc_region": "12", 
+                        "loc_start": 44165983, 
+                        "loc_strand": 1, 
+                        "seq_checksum": "1CDF3CB44B02EDA0B0D9F7BB1406C42E33682F0D", 
+                        "stable_id": "ENSE00003651866", 
+                        "stable_id_version": 1
+                    }, 
+                    {
+                        "assembly": "GRCh37.p13:GCA_000001405.14", 
+                        "exon_checksum": "CD1829A6CC0E8D5C5974D49ECC769040ED118C0F", 
+                        "loc_checksum": "A05D4EABE70AD2189750FFDF13A6A89BA4F701A2", 
+                        "loc_end": 44181899, 
+                        "loc_region": "12", 
+                        "loc_start": 44180483, 
+                        "loc_strand": 1, 
+                        "seq_checksum": "70FE55C6A7BD119056B761C9139E88BE453583D9", 
+                        "stable_id": "ENSE00002345391", 
+                        "stable_id_version": 1
+                    }
+                ], 
+                "exon_set_checksum": "C08DDEF5B2D5B32603D35193F6C4D3EFA0DB3D5B", 
+                "gene": "ENSG00000198001.9", 
+                "loc_checksum": "E35FD8803FFC5E8469F71D9C4786A3C303B1767B", 
+                "loc_end": 44181899, 
+                "loc_region": "12", 
+                "loc_start": 44152758, 
+                "loc_strand": 1, 
+                "seq_checksum": "E82283BBF74CF045079763BAB31766F30044C5CE", 
+                "stable_id": "ENST00000448290", 
+                "stable_id_version": 2, 
+                "transcript_checksum": "4140F76C211425C2D428654AF24CD2FF18F9C7F0", 
+                "translation": [
+                    {
+                        "assembly": "GRCh37.p13:GCA_000001405.14", 
+                        "loc_checksum": "6355BCF0CD83AA08C52F56B6429DF2699D1E2EC8", 
+                        "loc_end": 44180518, 
+                        "loc_region": "12", 
+                        "loc_start": 44161915, 
+                        "loc_strand": 1, 
+                        "seq_checksum": "FE6F12F6211DF7201A680EDAB32B70F1529B779B", 
+                        "stable_id": "ENSP00000390651", 
+                        "stable_id_version": 2, 
+                        "transcript": "ENST00000448290.2", 
+                        "translation_checksum": "34983B6ABDF5D8D6A21ED8073AB2F46C328A8F74"
+                    }
+                ]
+            }
         ]
+    }, 
+    "ENST12345": {
+        "ref": [], 
+        "ref_expanded": [], 
+        "ref_skip_sequence": [], 
+        "ref_skip_sequence_expanded": []
     }
 }

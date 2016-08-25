@@ -78,7 +78,7 @@ def idlookup_POST(request, seqtype, **kwargs):
             if feature_set:
                 results.append(feature_set)
             else:
-                results.append({'stable_id': id, 'message': 'Not found'})
+                results.append([{'stable_id': id, 'message': 'Not found'}])
         
     except:
         return HttpResponse(status=500)
