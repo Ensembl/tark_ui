@@ -7,7 +7,7 @@ import pprint
 
 '''
 
-Test the /genome/ endpoint, fetching all available genomes
+Test the /lookup/ endpoint
 
 '''
 

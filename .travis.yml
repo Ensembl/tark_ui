@@ -8,20 +8,23 @@ env:
 
 services: mysql
 
+cache:
+  directories:
+    - $HOME/.pip-cache/
+    - /home/travis/virtualenv/python2.7
+
 addons:
   apt:
     packages:
-      - mysql-server-5.5
       - libmysqlclient-dev
       - openssl
       - mysql-client-5.5
       - mysql-client-core-5.5
 
 install: 
-  - pip install -r requirements.txt
+  - pip install -r requirements.txt --download-cache $HOME/.pip-cache
 
 before_script:
   - "mysql -e 'CREATE DATABASE travisdb'"
-  - "mysql -e 'SHOW DATABASES'"
 
-script: "python manage.py test --settings=tark.tests.utils"
+script: "python manage.py test
