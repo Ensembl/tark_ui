@@ -75,6 +75,7 @@ WSGI_APPLICATION = 'tark_rest.wsgi.application'
 # https://docs.djangoproject.com/en/1.9/ref/settings/#databases
 
 if 'TRAVIS' in os.environ:
+    SECRET_KEY = "SecretKeyForUseOnTravis"
     DATABASES = {
         'default': {
             'ENGINE':   'django.db.backends.mysql',
