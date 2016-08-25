@@ -3,15 +3,15 @@ language: python
 python:
   - "2.7"
 
-env:
-  - DJANGO=1.10
-
-services: mysql
-
 cache:
   directories:
     - $HOME/.pip-cache/
     - /home/travis/virtualenv/python2.7
+
+env:
+  - DJANGO=1.10
+
+services: mysql
 
 addons:
   apt:
@@ -27,4 +27,4 @@ install:
 before_script:
   - "mysql -e 'CREATE DATABASE travisdb'"
 
-script: "python manage.py test
+script: "python manage.py test"
