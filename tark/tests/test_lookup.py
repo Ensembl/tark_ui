@@ -193,6 +193,6 @@ class GenomesTestCase(TestCase):
 
     def writeRef(self, filename, refs):
         outfile_name = os.path.join( REF_FILE_PATH, filename )
-            print "\tWriting reference outfile {}".format(outfile_name)
-            with open(outfile_name, 'w') as outfile:
-                json.dump(refs, outfile, sort_keys=True, indent=4)
+        print "\tWriting reference outfile {}".format(outfile_name)
+        with open(outfile_name, 'w') as outfile:
+            json.dump(refs, outfile, sort_keys=True, indent=4)
