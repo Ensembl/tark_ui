@@ -20,7 +20,6 @@ class renderer():
     @classmethod
     def render(cls, resultset, **kwargs):
 
-        #pprint.pprint(kwargs)        
         content_type = kwargs.pop('content-type', 'application/json')
 
         if content_type not in ALLOW_CONTENT_TYPE:
@@ -31,11 +30,8 @@ class renderer():
 
     @classmethod
     def json(cls, resultset, **kwargs):
-        #pprint.pprint(kwargs)
         BioJSONEncoder.serializing_parameters(**kwargs)
         
-#        data = json.dumps(resultset.to_dict(**kwargs), indent=4, sort_keys=False, ensure_ascii=False, cls=BioJSONEncoder)
-#        return HttpResponse(data, content_type="application/json")
         if type(resultset) == FeatureQuerySet and resultset:
             iterator = BioJSONEncoder().iterencode(iterlist( resultset.iterator() ))
             return StreamingHttpResponse(iterator, content_type="application/json")

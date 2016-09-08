@@ -48,6 +48,7 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django_accept_header.middleware.AcceptMiddleware',
 ]
 
 ROOT_URLCONF = 'tark_rest.urls'
@@ -141,3 +142,5 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
 
 STATIC_URL = '/static/'
+
+SEQ_HOST_URI = 'http://localhost/faidx/'

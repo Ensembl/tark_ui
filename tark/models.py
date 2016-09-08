@@ -1,10 +1,3 @@
-# This is an auto-generated Django model module.
-# You'll have to do the following manually to clean this up:
-#   * Rearrange models' order
-#   * Make sure each model has one field with primary_key=True
-#   * Make sure each ForeignKey has `on_delete` set to the desired behavior.
-#   * Remove `managed = False` lines if you wish to allow Django to create, modify, and delete the table
-# Feel free to rename the models, but don't rename db_table values or field names.
 from __future__ import unicode_literals
 
 from django.db import models
@@ -19,6 +12,8 @@ from .exceptions import FeatureNotFound, IncompatibleFeatureType, AssemblyNotFou
 import hashlib
 import pprint
 from .lib.mapper import Mapper
+from .lib.seqfetcher import SeqFetcher
+
 from __builtin__ import int, True
 
 FEATURE_TYPES = {'gene': 'Gene', 
@@ -187,35 +182,10 @@ class FeatureManager(models.Manager):
     def fetch_by_location(self, loc_region, location, **kwargs):
         return self.get_queryset().fetch_by_location(loc_region, location, **kwargs)
     
-#    def dict_iterator(self, **kwargs):
-#        for stable_id in self.stable_ids:
-#            featureset = self.get_queryset().by_stable_id(stable_id)
-#            for feature in featureset.to_dict( **kwargs ):
-#                yield feature 
-
-#    def seq_iterator(self, format=None, **kwargs):
-#        format = format
-
-#        for stable_id in self.stable_ids:
-#            featureset = self.get_queryset().by_stable_id(stable_id, **kwargs)
-#            for feature in featureset.all():
-#                if not feature.has_sequence:
-#                    continue
-#            
-#                if format:
-#                    yield SeqRecord(feature.seq,
-#                                    id=feature.stable_id_versioned,
-#                                    description=feature.location).format(format)
-#                else:
-#                    yield SeqRecord(feature.seq,
-#                                    id=feature.stable_id_versioned,
-#                                    description=feature.location)
-
     def by_stable_ids(self, stable_ids, **kwargs):
         self.stable_ids = stable_ids
         return self
 #        return self.get_queryset().by_stable_ids(stable_ids, **kwargs)
-
 
 class Feature(models.Model):
     objects = FeatureManager()
@@ -491,6 +461,10 @@ class Gene(Feature):
 
     def to_dict(self, **kwargs):
         feature_obj = super(Gene, self).to_dict(**kwargs)
+
+        seq = self.seq
+        if seq:
+            feature_obj['sequence'] = seq
         
         if kwargs.get('expand', False):
             children = Transcript.objects.filter(gene_id=self.gene_id).to_dict(**kwargs)
@@ -498,6 +472,20 @@ class Gene(Feature):
                 feature_obj['transcript'] = children
     
         return feature_obj
+
+    @property
+    def has_sequence(self):
+        SeqFetcher.has_sequence(self.assembly.assembly_name, self.loc_region, self.loc_end)
+
+    @property
+    def seq(self, **kwargs):
+        seq = SeqFetcher.fetch(self.assembly.assembly_name, self.loc_region, self.loc_start, self.loc_end)
+
+        return seq
+
+    @property
+    def sequence(self, **kwargs):
+        return None
 
     @property
     def mapper(self):

@@ -1,6 +1,6 @@
 from django.http import HttpResponse, HttpResponseRedirect, StreamingHttpResponse
 import json
-from tark.renderers import renderer
+from tark.renderers import renderer, ALLOW_CONTENT_TYPE
 import pprint
 from tark.exceptions import FilterNotFound, AssemblyNotFound,\
     ReleaseNotFound
@@ -26,18 +26,12 @@ def render(function=None, default_content_type='application/json'):
                                  'filter_pk': True,
                                  'skip_sequence': kwargs.get('skip_sequence', False)}
     
-            render_parameters['content-type'] = request.content_type or default_content_type
-#            if request.method == 'GET':
-#                render_parameters['content-type'] = request.GET.get('content-type', default_content_type)
-#            else:
-#                render_parameters['content-type'] = request.META.get('HTTP_ACCEPT', request.META.get('CONTENT_TYPE', default_content_type))
+            for media_type in request.accepted_types:
+                if media_type.mimetype in ALLOW_CONTENT_TYPE:
+                    render_parameters['content-type'] = media_type.mimetype
 
-            if render_parameters['content-type'] == '*/*':
+            if getattr(render_parameters, 'content-type', None):
                 render_parameters['content-type'] = default_content_type
-            elif render_parameters['content-type'] == 'text/plain':
-                render_parameters['content-type'] = default_content_type
-                
-#            render_parameters['content-type'] = 'text/x-fasta'
 
             return renderer.render(response, **render_parameters)
             
