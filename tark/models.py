@@ -2,6 +2,8 @@ from __future__ import unicode_literals
 
 from django.db import models
 from django.apps import apps
+from django.db.models import Q
+import operator
 
 from Bio.SeqRecord import SeqRecord
 from Bio.SeqFeature import FeatureLocation
@@ -136,7 +138,10 @@ class FeatureQuerySet(models.query.QuerySet):
         raise FeatureNotFound("Feature {} not found".format(name))
 
     def fetch_by_location(self, loc_region, location, **kwargs):
-        return self.filter(loc_region=loc_region, loc_start__lte=location.start, loc_end__gte=location.end).build_filters(**kwargs)
+#        return self.filter(loc_region=loc_region, loc_start__lte=location.start, loc_end__gte=location.end).build_filters(**kwargs)
+        return self.filter(Q(loc_region=loc_region) & 
+                           ((Q(loc_start__lte=location.start) & Q(loc_end__gte=location.start)) |
+                           (Q(loc_start__lte=location.end) & Q(loc_end__gte=location.end)))).build_filters(**kwargs)
                     
     def checksum(self):
         checksums = []
