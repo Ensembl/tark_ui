@@ -8,11 +8,15 @@ from Bio.SeqFeature import FeatureLocation
 from tark.models import FEATURE_TYPES, Releaseset, Transcript, Releasetag, Assembly, Tagset, Genenames, Gene, Transcript,\
     TranscriptReleaseTag, Genome
 from tark.decorators import render, parameter_parser
+from django.shortcuts import render as render_html
 from tark.lib.hgvsmapper import fetch_by_hgvs
 
 import pprint
 from itertools import groupby
 import json
+
+def index(request):
+        return render_html(request, 'index.html')
 
 @render(default_content_type='application/json')
 def getgenomes(request, **kwargs):
