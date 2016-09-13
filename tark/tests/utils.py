@@ -9,6 +9,7 @@ class ManagedModelTestRunner(DiscoverRunner):
     """
     def setup_test_environment(self, *args, **kwargs):
         settings.TESTING_MODE = True
+        settings.SEQ_HOST_URI = None
         seen_tables = []
         from django.apps import apps
         self.unmanaged_models = [m for m in apps.get_models()

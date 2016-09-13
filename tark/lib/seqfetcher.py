@@ -22,6 +22,9 @@ class SeqFetcher():
     
     @classmethod
     def has_sequence(cls, assembly, region, end):
+        if not cls.has_archives():
+            return None
+
         regions = cls.available_locations(assembly)
         
         return regions and region in regions and end < regions[region]
@@ -76,7 +79,7 @@ class SeqFetcher():
     
     @classmethod
     def has_archives(cls):
-        return hasattr(settings, 'SEQ_HOST_URI')
+        return hasattr(settings, 'SEQ_HOST_URI') and settings.SEQ_HOST_URI
     
     @classmethod
     def seq_url(cls, verb=None):

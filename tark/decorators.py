@@ -30,7 +30,7 @@ def render(function=None, default_content_type='application/json'):
                 if media_type.mimetype in ALLOW_CONTENT_TYPE:
                     render_parameters['content-type'] = media_type.mimetype
 
-            if getattr(render_parameters, 'content-type', None):
+            if 'content-type' not in render_parameters:
                 render_parameters['content-type'] = default_content_type
 
             return renderer.render(response, **render_parameters)

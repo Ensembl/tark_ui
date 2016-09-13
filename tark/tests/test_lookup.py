@@ -87,7 +87,7 @@ class GenomesTestCase(TestCase):
 
             url = base_url.format(feature_type, feature)
 
-            response = c.get(url, CONTENT_TYPE='text/x-fasta')
+            response = c.get(url, {}, HTTP_ACCEPT='text/x-fasta')
             content = ''.join(self.fetchContent(response))
             if write_ref:
                 refs[feature] = content

@@ -1,7 +1,7 @@
 from django.http import HttpResponse
 from django.apps import apps
 from django.views.decorators.csrf import csrf_exempt
-from django.db.models.sql.datastructures import Join
+#from django.db.models.sql.datastructures import Join
 from django.db.models import Q
 from Bio.SeqFeature import FeatureLocation
 
@@ -13,7 +13,6 @@ from tark.lib.hgvsmapper import fetch_by_hgvs
 
 import pprint
 from itertools import groupby
-import json
 
 def index(request):
         return render_html(request, 'index.html')
