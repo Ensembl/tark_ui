@@ -73,3 +73,15 @@ class SequenceField(models.TextField):
             return [ self.item_field_type.to_python(x) for x in value ]
         
         return self.item_field_type.to_python(value)
+    
+class HGNCField(models.ForeignKey):
+    """
+    Derived class from ForeignKey, adding the restriction when following the
+    froreign key to HGNC names, we only want the primary name from source type
+    HGNC. Overloading get_extra_descriptor_filter just returns extra join
+    conditions when looking up in the gene_names table.
+    """
+    requires_unique_target = False
+    
+    def get_extra_descriptor_filter(self, instance):
+        return {'primary_id': 1, 'source': 'HGNC'}

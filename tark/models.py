@@ -9,7 +9,7 @@ from Bio.SeqRecord import SeqRecord
 from Bio.SeqFeature import FeatureLocation
 from Bio.Seq import Seq
 
-from .fields import ChecksumField, SequenceField
+from .fields import ChecksumField, SequenceField, HGNCField
 from .exceptions import FeatureNotFound, IncompatibleFeatureType, AssemblyNotFound, ReleaseNotFound, FeatureNonCoding
 import hashlib
 import pprint
@@ -17,6 +17,7 @@ from .lib.mapper import Mapper
 from .lib.seqfetcher import SeqFetcher
 
 from __builtin__ import int, True
+from django.db.models.fields.related import ForeignKey
 
 FEATURE_TYPES = {'gene': 'Gene', 
                  'transcript': 'Transcript', 
@@ -130,10 +131,11 @@ class FeatureQuerySet(models.query.QuerySet):
         return self.build_filters(**kwargs).filter(stable_id=stable_id)     
 
     def fetch_by_name(self, name, **kwargs):
+        hgnc = Genenames.objects.get(name=name)
         if self.model.__name__ == 'Gene':
-            return self.filter(genenames__name=name).build_filters(**kwargs)
+            return self.filter(hgnc_id=hgnc.external_id).build_filters(**kwargs)
         elif self.model.__name__ == 'Transcript':
-            return self.filter(gene__genenames__name=name).build_filters(**kwargs)
+            return self.filter(gene__hgnc_id=hgnc.external_id).build_filters(**kwargs)
         
         raise FeatureNotFound("Feature {} not found".format(name))
 
@@ -258,7 +260,10 @@ class Feature(models.Model):
 #                    feature_obj['seq_checksum'] = str(getattr(self, field.name))
                     seq = Sequence.fetch_sequence(feature_obj[field.name], **{'feature_type': type(self).__name__})
                     feature_obj['sequence'] = seq.sequence
-            else:
+            elif getattr(self, field.name, None):
+                '''
+                We're looking if the object's value is not-None, not if it has one or not.
+                '''
                 feature_obj[field.name] = getattr(self, field.name)
                 
         return feature_obj
@@ -341,19 +346,12 @@ class Assembly(models.Model):
     assembly_id = models.AutoField(primary_key=True)
     genome = models.ForeignKey('Genome', models.DO_NOTHING, blank=True, null=True)
     assembly_name = models.CharField(max_length=128, blank=True, null=True)
-    assembly_accession = models.CharField(max_length=32, blank=True, null=True)
-    assembly_version = models.IntegerField(blank=True, null=True)
     session = models.ForeignKey('Session', models.DO_NOTHING, blank=True, null=True)
 
     @classmethod
     def fetch_by_accession(cls, accession):
         try:            
-            split_accession = accession.rsplit('.', 1)
-            if len(split_accession) == 2:
-                assembly = Assembly.objects.get(assembly_accession=split_accession[0], assembly_version=split_accession[1])
-                return assembly
-            
-            assembly = Assembly.objects.filter(assembly_accession=accession)
+            assembly = AssemblyAlias.objects.get(alias=accession).assembly
             if assembly:
                 return assembly
         except Exception as e:
@@ -376,7 +374,19 @@ class Assembly(models.Model):
     class Meta:
         managed = False
         db_table = 'assembly'
-        unique_together = (('assembly_name', 'assembly_version'),)
+        unique_together = (('assembly_name', 'genome'),)
+
+class AssemblyAlias(models.Model):
+    assembly_alias_id = models.AutoField(primary_key=True)
+    alias = models.CharField(max_length=64, blank=True, null=True)
+    genome = models.ForeignKey('Genome', models.DO_NOTHING, blank=True, null=True)
+    assembly = models.ForeignKey(Assembly, models.DO_NOTHING, blank=True, null=True)
+    session = models.ForeignKey('Session', models.DO_NOTHING, blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'assembly_alias'
+        unique_together = (('genome', 'assembly'),)
 
 
 class Exon(Feature):
@@ -461,6 +471,8 @@ class Gene(Feature):
     loc_end = models.IntegerField(blank=True, null=True)
     loc_strand = models.IntegerField(blank=True, null=True)
     loc_region = models.CharField(max_length=42, blank=True, null=True)
+#    hgnc_id = HGNCField(blank=True, null=True)
+    hgnc = HGNCField('Genenames', models.DO_NOTHING, to_field='external_id', blank=True, null=True)
     gene_checksum = ChecksumField(unique=True, max_length=20, blank=True, null=True)
     session = models.ForeignKey('Session', models.DO_NOTHING, blank=True, null=True)
 
@@ -507,15 +519,16 @@ class Gene(Feature):
         managed = False
         db_table = 'gene'
 
-
 class Genenames(models.Model):
     gene_names_id = models.AutoField(primary_key=True)
+    external_id = models.IntegerField(max_length=32, blank=True, null=True)
     name = models.CharField(max_length=32, blank=True, null=True)
-    gene = models.ForeignKey(Gene, models.DO_NOTHING, blank=True, null=True, related_name='genenames')
-    assembly = models.ForeignKey(Assembly, models.DO_NOTHING, blank=True, null=True)
     source = models.CharField(max_length=32, blank=True, null=True)
     primary_id = models.IntegerField(blank=True, null=True)
     session = models.ForeignKey('Session', models.DO_NOTHING, blank=True, null=True)
+
+    def __str__(self):
+        return "{}".format(self.name)
 
     class Meta:
         managed = False

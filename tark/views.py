@@ -128,7 +128,8 @@ def name_lookup_gene(request, **kwargs):
         
     name = kwargs['name']
 
-    genes = Gene.objects.filter(genenames__name=name).build_filters(**kwargs)
+    genes = Gene.objects.fetch_by_name(name).build_filters(**kwargs)
+#    genes = Gene.objects.filter(genenames__name=name).build_filters(**kwargs)
     
     return genes
 
@@ -141,7 +142,7 @@ def name_lookup_transcript(request, **kwargs):
         
     name = kwargs['name']
 
-    transcripts = Transcript.objects.filter(gene__genenames__name=name).build_filters(**kwargs)
+    transcripts = Transcript.objects.fetch_by_name(name).build_filters(**kwargs)
 
     return transcripts
 

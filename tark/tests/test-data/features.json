@@ -9,7 +9,8 @@
          "session" : 1,
          "loc_end" : 44183346,
          "stable_id_version" : 9,
-         "assembly" : 1
+         "assembly" : 1,
+	 "hgnc_id" : 123
       },
       "pk" : 119473,
       "model" : "tark.Gene"
@@ -1684,7 +1685,8 @@
          "session" : 1,
          "loc_end" : 43789543,
          "stable_id_version" : 13,
-         "assembly" : 2
+         "assembly" : 2,
+	 "hgnc_id" : 123
       },
       "pk" : 36751,
       "model" : "tark.Gene"
@@ -3531,7 +3533,8 @@
 	 "loc_end" : 10243743,
 	 "gene_checksum" : "12AF1EFA6003C11B3BEEBFA8913ADA197F7A84F3",
 	 "loc_start" : 10164865,
-	 "stable_id_version" : 4
+	 "stable_id_version" : 4,
+	 "hgnc_id" : 123
       },
       "pk" : 32852,
       "model" : "tark.Gene"

@@ -1,5 +1,5 @@
 from django.http import HttpResponse, StreamingHttpResponse
-from tark.models import Sequence, FeatureQuerySet, Feature, Assembly
+from tark.models import Sequence, FeatureQuerySet, Feature, Assembly, Genenames
 from tark.lib.iterables import iterlist
 import json
 from Bio.Seq import Seq
@@ -83,5 +83,7 @@ class BioJSONEncoder(json.JSONEncoder):
         if isinstance(obj, FeatureQuerySet):
             return obj.to_dict(**kwargs)
         if isinstance(obj, Assembly):
+            return str(obj)
+        if isinstance(obj, Genenames):
             return str(obj)
         json.JSONEncoder.default(self, obj)
