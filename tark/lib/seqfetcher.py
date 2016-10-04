@@ -14,8 +14,6 @@ class SeqFetcher():
         
             # If it's not found, an empty string will be returned
             return result[location] if result[location] else None
-        else:
-            print "false?"
             
         return None
 

@@ -4,9 +4,7 @@
 	"pk": 1,
 	"fields": {
 	    "genome_id": 1,
-	    "assembly_name": "GRCh37.p13",
-	    "assembly_accession": "GCA_000001405",
-	    "assembly_version": "14",
+	    "assembly_name": "GRCh37",
 	    "session_id": "1"
 	}
     },
@@ -15,10 +13,28 @@
 	"pk": 2,
 	"fields": {
 	    "genome_id": 1,
-	    "assembly_name": "GRCh38.p5",
-	    "assembly_accession": "GCA_000001405",
-	    "assembly_version": "20",
+	    "assembly_name": "GRCh38",
 	    "session_id": "1"
+	}
+    },
+    {
+	"model": "tark.assemblyalias",
+	"pk": 1,
+	"fields": {
+	    "alias": "GCA_000001405.14",
+	    "genome": 1,
+	    "assembly_id": 1,
+	    "session": 1
+	}
+    },
+    {
+	"model": "tark.assemblyalias",
+	"pk": 2,
+	"fields": {
+	    "alias": "GCA_000001405.22",
+	    "genome": 1,
+	    "assembly_id": 2,
+	    "session": 1
 	}
     }
 ]

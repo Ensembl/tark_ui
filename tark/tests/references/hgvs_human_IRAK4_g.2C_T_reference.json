@@ -1,11 +1,12 @@
 [
     {
-        "assembly": "GRCh37.p13:GCA_000001405.14", 
+        "assembly": "GRCh37", 
         "genes": [
             {
                 "gene": {
-                    "assembly": "GRCh37.p13:GCA_000001405.14", 
+                    "assembly": "GRCh37", 
                     "gene_checksum": "41190BC099AE1F433D63E6BF816CF6FF44D29A15", 
+                    "hgnc": "IRAK4", 
                     "loc_end": 44183346, 
                     "loc_region": "12", 
                     "loc_start": 44152747, 
@@ -17,7 +18,7 @@
                     {
                         "alt_seq": "CCTGCCCCTTCGCGGCGCTTCCTAGTTCGGCTGGTTCTTCTGTCGCCGGCTTCAGCAGCCCGCGCCCGGGCAGATGCTGTTCCCAAAACTGCTAATACACTACCTTCTAAAGAAGCTATAACAGTTCAGCAAAAACAGATGCCTTTCTGTGACAAAGACAGGACATTGATGACACCTGTGCAGAATCTTGAACAAAGCTATATGCCACCTGACTCCTCAAGTCCAGAAAATAAAAGTTTAGAAGTTAGTGATACACGTTTTCACAGTTTTTCATTTTATGAATTGAAGAATGTCACAAATAACTTTGATGAACGACCCATTTCTGTTGGTGGTAATAAAATGGGAGAGGGAGGATTTGGAGTTGTATATAAAGGCTACGTAAATAACACAACTGTGGCAGTGAAGAAGCTTGCAGCAATGGTTGACATTACTACTGAAGAACTGAAACAGCAGTTTGATCAAGAAATAAAAGTAATGGCAAAGTGTCAACATGAAAACTTAGTAGAACTACTTGGTTTCTCAAGTGATGGAGATGACCTCTGCTTAGTATATGTTTACATGCCTAATGGTTCATTGCTAGACAGACTCTCTTGCTTGGATGGTACTCCACCACTTTCTTGGCACATGAGATGCAAGATTGCTCAGGGTGCAGCTAATGGCATCAATTTTCTACATGAAAATCATCATATTCATAGAGATATTAAAAGTGCAAATATCTTACTGGATGAAGCTTTTACTGCTAAAATATCTGACTTTGGCCTTGCACGGGCTTCTGAGAAGTTTGCCCAGACAGTCATGACTAGCAGAATTGTGGGAACAACAGCTTATATGGCACCAGAAGCTTTGCGTGGAGAAATAACACCCAAATCTGATATTTACAGCTTTGGTGTGGTTTTACTAGAAATAATAACTGGACTTCCAGCTGTGGATGAACACCGTGAACCTCAGTTATTGCTAGATATTAAAGAAGAAATTGAAGATGAAGAAAAGACAATTGAAGATTATATTGATAAAAAGATGAATGATGCTGATTCCACTTCAGTTGAAGCTATGTACTCTGTTGCTAGTCAATGTCTGCATGAAAAGAAAAATAAGAGACCAGACATTAAGAAGGTTCAACAGCTGCTGCAAGAGATGACAGCTTCTTAAAACTTTATTGGAAAAGACTCTTGACTTTTTATATACACCTATCTCAACCATTTTTTTAACTGATTTTTTTCCTAAATATTCTTCTTTACCTTTAACAAGGCATAGGCTGTTGCAGGACAGTGGTTATTAAAGCATGGGTTGAACTTCCAAAATATAAAAATAGAGCCACCATATCAACACTTAGCCCTACCCATTAGTATCACCCCCAGTTCTTACAGTAATCCCTGAGAAATCTCCTTCAAGCATCACCAAACACAGTT", 
                         "transcript": {
-                            "assembly": "GRCh37.p13:GCA_000001405.14", 
+                            "assembly": "GRCh37", 
                             "exon_set_checksum": "5BA2D72B186B68FF49532D5E11E41185FC83D559", 
                             "gene": "ENSG00000198001.9", 
                             "loc_checksum": "2130589018243C2C2A173BB008492147EB1A26DC", 
@@ -35,7 +36,7 @@
                     {
                         "info": "Location does not fall in an exon", 
                         "transcript": {
-                            "assembly": "GRCh37.p13:GCA_000001405.14", 
+                            "assembly": "GRCh37", 
                             "exon_set_checksum": "B62056A00C775DD73623317C409327B2465632F9", 
                             "gene": "ENSG00000198001.9", 
                             "loc_checksum": "1E0F21E8A26E09E343907384C9644850DE3B0AF8", 
@@ -53,7 +54,7 @@
                     {
                         "info": "Location does not fall in an exon", 
                         "transcript": {
-                            "assembly": "GRCh37.p13:GCA_000001405.14", 
+                            "assembly": "GRCh37", 
                             "exon_set_checksum": "6B1A2F696703BADC8F589F5EFCD1A6F6FE301E24", 
                             "gene": "ENSG00000198001.9", 
                             "loc_checksum": "B55D0AA6D51F9A35364C9166BE1B03D4FFE27296", 
@@ -71,7 +72,7 @@
                     {
                         "info": "Location does not fall in an exon", 
                         "transcript": {
-                            "assembly": "GRCh37.p13:GCA_000001405.14", 
+                            "assembly": "GRCh37", 
                             "exon_set_checksum": "F2C00759EDAF6BE553270C1CC1E1FFBDCC6A76CC", 
                             "gene": "ENSG00000198001.9", 
                             "loc_checksum": "2FD1902E53FCF15A8ABAB03A56CE01BFCBC049E0", 
@@ -89,7 +90,7 @@
                     {
                         "info": "Location does not fall in an exon", 
                         "transcript": {
-                            "assembly": "GRCh37.p13:GCA_000001405.14", 
+                            "assembly": "GRCh37", 
                             "exon_set_checksum": "C08DDEF5B2D5B32603D35193F6C4D3EFA0DB3D5B", 
                             "gene": "ENSG00000198001.9", 
                             "loc_checksum": "E35FD8803FFC5E8469F71D9C4786A3C303B1767B", 
@@ -107,7 +108,7 @@
                     {
                         "info": "Location does not fall in an exon", 
                         "transcript": {
-                            "assembly": "GRCh37.p13:GCA_000001405.14", 
+                            "assembly": "GRCh37", 
                             "exon_set_checksum": "36CAE04180BA5B2A30CC884FF041D62D59D56315", 
                             "gene": "ENSG00000198001.9", 
                             "loc_checksum": "9BE9E43B44A5F1D2908E7172F214BED99F46CC82", 
@@ -125,7 +126,7 @@
                     {
                         "info": "Location does not fall in an exon", 
                         "transcript": {
-                            "assembly": "GRCh37.p13:GCA_000001405.14", 
+                            "assembly": "GRCh37", 
                             "exon_set_checksum": "9BC4A678E8E249351EABC3027D1F5BA77A6D610E", 
                             "gene": "ENSG00000198001.9", 
                             "loc_checksum": "B6B7B6AF6E191FC7539078A4A7524A6B88E80388", 
@@ -143,7 +144,7 @@
                     {
                         "info": "Location does not fall in an exon", 
                         "transcript": {
-                            "assembly": "GRCh37.p13:GCA_000001405.14", 
+                            "assembly": "GRCh37", 
                             "exon_set_checksum": "38818A0D20ACF496D127742E0E809488FF763EE3", 
                             "gene": "ENSG00000198001.9", 
                             "loc_checksum": "89FDD69FD6CAEADAEEC3F6D645EFF2C03ADD0189", 
@@ -161,7 +162,7 @@
                     {
                         "info": "Location does not fall in an exon", 
                         "transcript": {
-                            "assembly": "GRCh37.p13:GCA_000001405.14", 
+                            "assembly": "GRCh37", 
                             "exon_set_checksum": "395B14F78BF894FFE0DB9832D8255E462A7BCABD", 
                             "gene": "ENSG00000198001.9", 
                             "loc_checksum": "928368AAE0A7126F6D203615B06AB96E0024C3FF", 
@@ -179,7 +180,7 @@
                     {
                         "info": "Location does not fall in an exon", 
                         "transcript": {
-                            "assembly": "GRCh37.p13:GCA_000001405.14", 
+                            "assembly": "GRCh37", 
                             "exon_set_checksum": "366B4657E3D2D33A2D46F5A10D26AE9BC510A1B2", 
                             "gene": "ENSG00000198001.9", 
                             "loc_checksum": "F631A545216D6B8CE3F9DAC89539E3A7E01AC331", 
@@ -197,7 +198,7 @@
                     {
                         "info": "Location does not fall in an exon", 
                         "transcript": {
-                            "assembly": "GRCh37.p13:GCA_000001405.14", 
+                            "assembly": "GRCh37", 
                             "exon_set_checksum": "FA48E1B7D9C67DDF4D11CBF7BD56B1BE7CB286DA", 
                             "gene": "ENSG00000198001.9", 
                             "loc_checksum": "087200637926E8E19B901CADB44E7BA4FC1A19C9", 
@@ -215,7 +216,7 @@
                     {
                         "info": "Location does not fall in an exon", 
                         "transcript": {
-                            "assembly": "GRCh37.p13:GCA_000001405.14", 
+                            "assembly": "GRCh37", 
                             "exon_set_checksum": "D6B12A4FC699594C3742F9FE51B13238DA1AC9BE", 
                             "gene": "ENSG00000198001.9", 
                             "loc_checksum": "09DE043148361DEB14AAAF36C6B97191CDC882A6", 
@@ -233,7 +234,7 @@
                     {
                         "info": "Location does not fall in an exon", 
                         "transcript": {
-                            "assembly": "GRCh37.p13:GCA_000001405.14", 
+                            "assembly": "GRCh37", 
                             "exon_set_checksum": "470EF36066035EBD16DFA4ACF693CE46FB367048", 
                             "gene": "ENSG00000198001.9", 
                             "loc_checksum": "1C996AA2A9906C9712CF091276B6E7ABB5C67B45", 
@@ -253,12 +254,13 @@
         ]
     }, 
     {
-        "assembly": "GRCh38.p5:GCA_000001405.20", 
+        "assembly": "GRCh38", 
         "genes": [
             {
                 "gene": {
-                    "assembly": "GRCh38.p5:GCA_000001405.20", 
+                    "assembly": "GRCh38", 
                     "gene_checksum": "AD6FD621F5DECB37BD40B0A4A7BFE11923EE71E8", 
+                    "hgnc": "IRAK4", 
                     "loc_end": 43789543, 
                     "loc_region": "12", 
                     "loc_start": 43758944, 
@@ -270,7 +272,7 @@
                     {
                         "info": "Location does not fall in an exon", 
                         "transcript": {
-                            "assembly": "GRCh38.p5:GCA_000001405.20", 
+                            "assembly": "GRCh38", 
                             "exon_set_checksum": "5E5367FEA69E29D230F389056B533DE547D45BAF", 
                             "gene": "ENSG00000198001.13", 
                             "loc_checksum": "5920D1708E803D85B2A808FF0A934477353C2D3C", 
@@ -288,7 +290,7 @@
                     {
                         "alt_seq": "CCTGCCCCTTCGCGGCGCTTCCTAGTTCGGCTGGTTCTTCTGTCGCCGGCTTCAGCAGCCCGCGCCCGGGCAGGAATAGAAGATGAACAAACCCATAACACCATCAACATATGTGCGCTGCCTCAATGTTGGACTAATTAGGAAGCTGTCAGATTTTATTGATCCTCAAGAAGGATGGAAGAAGTTAGCTGTAGCTATTAAAAAACCATCTGGTGATGATAGATACAATCAGTTTCACATAAGATGCTGTTCCCAAAACTGCTAATACACTACCTTCTAAAGAAGCTATAACAGTTCAGCAAAAACAGATGCCTTTCTGTGACAAAGACAGGACATTGATGACACCTGTGCAGAATCTTGAACAAAGCTATATGCCACCTGACTCCTCAAGTCCAGAAAATAAAAGTTTAGAAGTTAGTGATACACGTTTTCACAGTTTTTCATTTTATGAATTGAAGAATGTCACAAATAACTTTGATGAACGACCCATTTCTGTTGGTGGTAATAAAATGGGAGAGGGAGGATTTGGAGTTGTATATAAAGGCTACGTAAATAACACAACTGTGGCAGTGAAGAAGCTTGCAGCAATGGTTGACATTACTACTGAAGAACTGAAACAGCAGTTTGATCAAGAAATAAAAGTAATGGCAAAGTGTCAACATGAAAACTTAGTAGAACTACTTGGTTTCTCAAGTGATGGAGATGACCTCTGCTTAGTATATGTTTACATGCCTAATGGTTCATTGCTAGACAGACTCTCTTGCTTGGATGGTACTCCACCACTTTCTTGGCACATGAGATGCAAGATTGCTCAGGGTGCAGCTAATGGCATCAATTTTCTACATGAAAATCATCATATTCATAGAGATATTAAAAGTGCAAATATCTTACTGGATGAAGCTTTTACTGCTAAAATATCTGACTTTGGCCTTGCACGGGCTTCTGAGAAGTTTGCCCAGACAGTCATGACTAGCAGAATTGTGGGAACAACAGCTTATATGGCACCAGAAGCTTTGCGTGGAGAAATAACACCCAAATCTGATATTTACAGCTTTGGTGTGGTTTTACTAGAAATAATAACTGGACTTCCAGCTGTGGATGAACACCGTGAACCTCAGTTATTGCTAGATATTAAAGAAGAAATTGAAGATGAAGAAAAGACAATTGAAGATTATATTGATAAAAAGATGAATGATGCTGATTCCACTTCAGTTGAAGCTATGTACTCTGTTGCTAGTCAATGTCTGCATGAAAAGAAAAATAAGAGACCAGACATTAAGAAGGTTCAACAGCTGCTGCAAGAGATGACAGCTTCTTAAAACTTTATTGGAAAAGACTCTTGACTTTTTATATACACCTATCTCAACCATTTTTTTAACTGATTTTTTTCCTAAATATTCTTCTTTACCTTTAACAAGGCATAGGCTGTTGCAGGACAGTGGTTATTAAAGCATGGGTTGAACTTCCAAAATATAAAAATAGAGCCACCATATCAACACTTAGCCCTACCCATTAGTATCACCCCCAGTTCTTACAGTAATCCCTGAGAAATCTCCTTCAAGCATCACCAAACACAGTTTGAAAATTACAGGGTTAGCAAAAAGAGCCTGGGCTGTATGTAGGGTGGAAACACTCTGATCTGAAGCCCAGCTGACTCCACTACTAATTTGCTGTAAAGCTTTGGACATACACTTAGCTGCTGTGAGCCACTAATAACATTGGGCTAATATCTGCTGTGCTTCTCTGACAGGTAGTCATGAAAATCAAATGATGCAAAATATATACAAGCACTTTGTAAATTGTAAAATGATACAAAATTTAAAGTTTATAGAGCCAGTTACAAAATCCTATTAGTCATATATTTATAGATTGTGTTCACAGCAATCATTTAACCACAAATAAAATATCCCTTGATGATACTGCCATAATGATATGTCCATTATTAGATTATGTTACATGACAAAGTTGAAGGAATTTGGCAGATGCAGTTAAGGTTCCTAAACAACTCACTTTGAGACTGTTGAAAGGGCCTGACCTAATCAAGTGAACCCTTGCAAGAAGAATTCTCCTTGTAAGCCTTGAAGAAGTATGTGAGAGGGCCACATTGGCTAAAACCTAAAGGTGGCCTCTAGGAGATGAGACCTACCTTCCAGTTGTCAGCAAGCAGGAAAAAAAAATTGGGACCTCAGTTGCAACCACAAGGAACTGAATTCTGCCAAAAATCTGAGTCAGCTTAGAAGAGTACTCCAAGCTTCAGATGATAACCACAGCCTGGGCTGACACCTGGATTTCAGCTTTGCATGATCCTCAGTATGAGAATCTATCTGTTCTGTGCTGGACTTCTAATATATAGAACTGTGAGATAATGGGTCACATTGGCTGGATGTGGTGGCTCATACCTGTAAATCCCAGCACTTTGGGAGGCCGAGGCAGGCAGATCACCTGAGGTCAAGAGTTCAAGACCGGCCTGGCCAACATGGTGAAACCCCGTCTCTACTAAAAATACAAAAATTAGACGAGCGTGGTGGTGGACACCTGTAGTCCCAGCTACTTGGGAGGCTGAGGCAGGAGACTAGCTGGAACCAGGGAGGTAGAGGTTGCAGTGAGCTGAGATCGTGCCACTGCACTCCAGCCTGGGTGACAGAGTGAGACTCCATCATAAATAAATAAATAAATAAATGGGTCACATTAAGCCTTTAAGTTTGTGGTAATTTATTATTCAGTAATAGAAAACAAATACAGATACTCTCCCATGATGTTTTTCCCATGATGATTTCCCATGATATTTACAGGTTTTGCCCACATTTGAGGGGTATGTGGAAATTATACAGAGCATGTACAGCGGGAGGCTTATAGTGTACGTACTGAAATGTGGGGTTGGAGCCCCAACACAGAGACCCCAGCAGGACACTGCCTAGTAGAGCTATGGGAAGGGTGCTGCCACCCTCCAGACTTGAGAATTGTAGAGCCACCAGCAGCTTGCACTCTGAGCTTGGAAAAGCCACAGGCACTCAACTTCAACCATGAGGGAAGCCACGCACCCTGCAAAGCCACAGGAGTGGAGCTGCCCACGGCCTCGAGGGCCCACCCCTTGCACCAGTGTGCCAGGATGTGGGACATGGAATCAAGGAATATGTTAGGGCTTTTTTTTTTTTTTTTTTGAGACGGAGTCTTGCTCTGTTGCCCAGGCTGGAGTGCAGTGGCACGATCTCGGCTCACTGCAAGCTCTGCCTCCCAGGTTCACGCCATTCCCCTGCCTCAGCCTCCCCAGTAGCTGGGACTACAGGTGCCCGCCACCATGCCCAGCTAATTTTTTTTGTATTTTTAGTAGAGATGGGGTTTCACTGTGTTAGCCAGGATGGTCTTGATCTCCTGACCTCGTGATCACCCGCCTCGGCCTCCCAAAGTGCCAGTATTTAAAGTTTAATGTCTTCCCAGCTGGGTTTCAGACTTGCCAGGATCCTGTTGCCCCTTTCTTTAGCCAATTTCTCCCTTTTGGGACAAGAATGTTTTACTTATTGCCTGTACCACCAACTGTATCTTGGAAATAAATAACTTATATTTTATTTCAGAGGCTCATAGGCGGCAGGAACTTACCTTGAGTCTCAAATGAGACTTAGGACTTTTGAGTGATGCTAGAATGAGTTAAGACTTTGGGAAGGGATGATTATATTTTGCAATGTGAGAAAGACATTAGATTTGGGGGGCTGGGGGTAGAATGACATTGTTTAGATGTTTGTCTCCTTCAAATTTCATGTTTAAATGTAATCCCCAGTGTTGGGGGTGGAGGTGGGGCCTGATGGGAAGTGTTTGGGTCATGGTGGATGATCCCTCATGAATGGCTTAGAGCCACTGGTGATGAGTGAGTTCTCACTCAGTTCGTGTGAGATCTGGTGGCTTAAAAGAGTCTGCTCCCCCTTTGCCTTCCATTGTGATTGTAACCTTCCTGGGGCCTTCATCAAAGGCCAGGCAAATATTGGTGCCGTGCTAGTATGGCCTGCAGAACCGTAAGCCAAAACAAACCTTTTTTCTTTATAAATTACCCAGCCTCAGTTATTCCTTTATAGTGATGCAAAACGGGCTAACTATATAAATTTGTAATTTTTAAGTTATAGATTGTTTTTATTAAACACTTATGAATACTGTT", 
                         "transcript": {
-                            "assembly": "GRCh38.p5:GCA_000001405.20", 
+                            "assembly": "GRCh38", 
                             "exon_set_checksum": "DD49096A286B1804DE15083B745DE17065F9809B", 
                             "gene": "ENSG00000198001.13", 
                             "loc_checksum": "99A111EC484FFD4A4AE4B034FB7C2DECC8947DAE", 
@@ -306,7 +308,7 @@
                     {
                         "info": "Location does not fall in an exon", 
                         "transcript": {
-                            "assembly": "GRCh38.p5:GCA_000001405.20", 
+                            "assembly": "GRCh38", 
                             "exon_set_checksum": "5D1A4370F7073EF07FA363DDBC8E7A646D3187EC", 
                             "gene": "ENSG00000198001.13", 
                             "loc_checksum": "D6C4EF9B26DBDC1F7985498AF35D4822DD3B9144", 
@@ -324,7 +326,7 @@
                     {
                         "info": "Location does not fall in an exon", 
                         "transcript": {
-                            "assembly": "GRCh38.p5:GCA_000001405.20", 
+                            "assembly": "GRCh38", 
                             "exon_set_checksum": "38D1F4FB7530662B4CA3676C30B3FB5A97A03E74", 
                             "gene": "ENSG00000198001.13", 
                             "loc_checksum": "E1575AF0DDABDC60650C384E8AECA3E9B42B3C2F", 
@@ -342,7 +344,7 @@
                     {
                         "info": "Location does not fall in an exon", 
                         "transcript": {
-                            "assembly": "GRCh38.p5:GCA_000001405.20", 
+                            "assembly": "GRCh38", 
                             "exon_set_checksum": "EA9CE377ED8B4C09F3DDCFA229866BE5462BDDA1", 
                             "gene": "ENSG00000198001.13", 
                             "loc_checksum": "E9F6CF51B2CD0C5E0E3F4B0D13A0FC9440FFEF7E", 
@@ -360,7 +362,7 @@
                     {
                         "info": "Location does not fall in an exon", 
                         "transcript": {
-                            "assembly": "GRCh38.p5:GCA_000001405.20", 
+                            "assembly": "GRCh38", 
                             "exon_set_checksum": "D0662413F728B1728AD273F9C04FD6647A6BAB70", 
                             "gene": "ENSG00000198001.13", 
                             "loc_checksum": "3A4C7AE30C797E4B445FBA2AA87BCAE3E85F21CC", 
@@ -378,7 +380,7 @@
                     {
                         "info": "Location does not fall in an exon", 
                         "transcript": {
-                            "assembly": "GRCh38.p5:GCA_000001405.20", 
+                            "assembly": "GRCh38", 
                             "exon_set_checksum": "2ACE9AED7F140577589578A1C436172FDC902D59", 
                             "gene": "ENSG00000198001.13", 
                             "loc_checksum": "C06F64102280C2520E4CEC99A16B05C5ED2BBD53", 
@@ -396,7 +398,7 @@
                     {
                         "info": "Location does not fall in an exon", 
                         "transcript": {
-                            "assembly": "GRCh38.p5:GCA_000001405.20", 
+                            "assembly": "GRCh38", 
                             "exon_set_checksum": "2F8D58F43DCC5833F9D92622102801DA583E62BB", 
                             "gene": "ENSG00000198001.13", 
                             "loc_checksum": "025D18AC53CDA3DF6732E85FBFAE5BCE464F817C", 
@@ -414,7 +416,7 @@
                     {
                         "info": "Location does not fall in an exon", 
                         "transcript": {
-                            "assembly": "GRCh38.p5:GCA_000001405.20", 
+                            "assembly": "GRCh38", 
                             "exon_set_checksum": "E6CA6B400E7614D8BED1389E45B917421F7D2A6E", 
                             "gene": "ENSG00000198001.13", 
                             "loc_checksum": "86FD53593B2186E3713A3418FF4346A5BAAC1D25", 
@@ -432,7 +434,7 @@
                     {
                         "info": "Location does not fall in an exon", 
                         "transcript": {
-                            "assembly": "GRCh38.p5:GCA_000001405.20", 
+                            "assembly": "GRCh38", 
                             "exon_set_checksum": "19F94B090314EF2187AE5186134660A09A8A9660", 
                             "gene": "ENSG00000198001.13", 
                             "loc_checksum": "703E0A4A12C8C232FFDD1FB21A99579C81284F43", 
@@ -450,7 +452,7 @@
                     {
                         "info": "Location does not fall in an exon", 
                         "transcript": {
-                            "assembly": "GRCh38.p5:GCA_000001405.20", 
+                            "assembly": "GRCh38", 
                             "exon_set_checksum": "442CE3A25F628825D31361938694376037BC8D2D", 
                             "gene": "ENSG00000198001.13", 
                             "loc_checksum": "3229096D3BEA874917C94869CE1932CAE1D082BA", 
@@ -468,7 +470,7 @@
                     {
                         "info": "Location does not fall in an exon", 
                         "transcript": {
-                            "assembly": "GRCh38.p5:GCA_000001405.20", 
+                            "assembly": "GRCh38", 
                             "exon_set_checksum": "25D384874AD86480F785A1D5727CB4C9C9D23453", 
                             "gene": "ENSG00000198001.13", 
                             "loc_checksum": "B73ECC168E7025B72CB29D415A8781A0EF2393C2", 
@@ -486,7 +488,7 @@
                     {
                         "info": "Location does not fall in an exon", 
                         "transcript": {
-                            "assembly": "GRCh38.p5:GCA_000001405.20", 
+                            "assembly": "GRCh38", 
                             "exon_set_checksum": "8F6C223F08A17229A4B867467B620939CA5A509E", 
                             "gene": "ENSG00000198001.13", 
                             "loc_checksum": "DBB3698790B2AFBE01F6736E47147A832150719F", 
@@ -504,7 +506,7 @@
                     {
                         "info": "Location does not fall in an exon", 
                         "transcript": {
-                            "assembly": "GRCh38.p5:GCA_000001405.20", 
+                            "assembly": "GRCh38", 
                             "exon_set_checksum": "5C170416899A1230924E4FF9A4028BF7A43E0950", 
                             "gene": "ENSG00000198001.13", 
                             "loc_checksum": "F3FE0B7FE3D61D2DEFB7689B1433B2B5787779C1", 

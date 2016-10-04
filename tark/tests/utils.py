@@ -16,6 +16,12 @@ class ManagedModelTestRunner(DiscoverRunner):
                                  if not m._meta.managed]
         for m in self.unmanaged_models:
             print "Flipping status of table {}".format(m.__name__)
+
+            if m.__name__ == 'Genenames':
+                print "Setting unique=True for Genenames.external_id"
+                field = m._meta.get_field('external_id')
+                setattr(field, '_unique', True)
+
             if m._meta.db_table in seen_tables:
                 print "Seen {} already, skipping".format(m._meta.db_table)
                 continue

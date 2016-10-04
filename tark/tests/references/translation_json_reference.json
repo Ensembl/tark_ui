@@ -2,7 +2,7 @@
     "ENSP00000256458": {
         "ref": [
             {
-                "assembly": "GRCh38.p5:GCA_000001405.20", 
+                "assembly": "GRCh38", 
                 "loc_checksum": "F0B736D8E078D5A4EB38B9F2E6950121D3287DCC", 
                 "loc_end": 10242228, 
                 "loc_region": "3", 
@@ -18,7 +18,7 @@
         ], 
         "ref_expanded": [
             {
-                "assembly": "GRCh38.p5:GCA_000001405.20", 
+                "assembly": "GRCh38", 
                 "loc_checksum": "F0B736D8E078D5A4EB38B9F2E6950121D3287DCC", 
                 "loc_end": 10242228, 
                 "loc_region": "3", 
@@ -34,7 +34,7 @@
         ], 
         "ref_skip_sequence": [
             {
-                "assembly": "GRCh38.p5:GCA_000001405.20", 
+                "assembly": "GRCh38", 
                 "loc_checksum": "F0B736D8E078D5A4EB38B9F2E6950121D3287DCC", 
                 "loc_end": 10242228, 
                 "loc_region": "3", 
@@ -49,7 +49,7 @@
         ], 
         "ref_skip_sequence_expanded": [
             {
-                "assembly": "GRCh38.p5:GCA_000001405.20", 
+                "assembly": "GRCh38", 
                 "loc_checksum": "F0B736D8E078D5A4EB38B9F2E6950121D3287DCC", 
                 "loc_end": 10242228, 
                 "loc_region": "3", 
@@ -66,7 +66,7 @@
     "ENSP00000390651": {
         "ref": [
             {
-                "assembly": "GRCh38.p5:GCA_000001405.20", 
+                "assembly": "GRCh38", 
                 "loc_checksum": "0640695EB9BE45E0032F26F5A66CACF81282485A", 
                 "loc_end": 43773972, 
                 "loc_region": "12", 
@@ -80,7 +80,7 @@
                 "translation_checksum": "B7557F185FCF4173D4E892298F4289B56355A1F2"
             }, 
             {
-                "assembly": "GRCh37.p13:GCA_000001405.14", 
+                "assembly": "GRCh37", 
                 "loc_checksum": "6355BCF0CD83AA08C52F56B6429DF2699D1E2EC8", 
                 "loc_end": 44180518, 
                 "loc_region": "12", 
@@ -96,7 +96,7 @@
         ], 
         "ref_expanded": [
             {
-                "assembly": "GRCh38.p5:GCA_000001405.20", 
+                "assembly": "GRCh38", 
                 "loc_checksum": "0640695EB9BE45E0032F26F5A66CACF81282485A", 
                 "loc_end": 43773972, 
                 "loc_region": "12", 
@@ -110,7 +110,7 @@
                 "translation_checksum": "B7557F185FCF4173D4E892298F4289B56355A1F2"
             }, 
             {
-                "assembly": "GRCh37.p13:GCA_000001405.14", 
+                "assembly": "GRCh37", 
                 "loc_checksum": "6355BCF0CD83AA08C52F56B6429DF2699D1E2EC8", 
                 "loc_end": 44180518, 
                 "loc_region": "12", 
@@ -126,7 +126,7 @@
         ], 
         "ref_skip_sequence": [
             {
-                "assembly": "GRCh38.p5:GCA_000001405.20", 
+                "assembly": "GRCh38", 
                 "loc_checksum": "0640695EB9BE45E0032F26F5A66CACF81282485A", 
                 "loc_end": 43773972, 
                 "loc_region": "12", 
@@ -139,7 +139,7 @@
                 "translation_checksum": "B7557F185FCF4173D4E892298F4289B56355A1F2"
             }, 
             {
-                "assembly": "GRCh37.p13:GCA_000001405.14", 
+                "assembly": "GRCh37", 
                 "loc_checksum": "6355BCF0CD83AA08C52F56B6429DF2699D1E2EC8", 
                 "loc_end": 44180518, 
                 "loc_region": "12", 
@@ -154,7 +154,7 @@
         ], 
         "ref_skip_sequence_expanded": [
             {
-                "assembly": "GRCh38.p5:GCA_000001405.20", 
+                "assembly": "GRCh38", 
                 "loc_checksum": "0640695EB9BE45E0032F26F5A66CACF81282485A", 
                 "loc_end": 43773972, 
                 "loc_region": "12", 
@@ -167,7 +167,7 @@
                 "translation_checksum": "B7557F185FCF4173D4E892298F4289B56355A1F2"
             }, 
             {
-                "assembly": "GRCh37.p13:GCA_000001405.14", 
+                "assembly": "GRCh37", 
                 "loc_checksum": "6355BCF0CD83AA08C52F56B6429DF2699D1E2EC8", 
                 "loc_end": 44180518, 
                 "loc_region": "12", 

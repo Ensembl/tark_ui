@@ -1,6 +1,7 @@
 from django.http import HttpResponse
 from django.apps import apps
 from django.views.decorators.csrf import csrf_exempt
+from django.conf import settings
 #from django.db.models.sql.datastructures import Join
 from django.db.models import Q
 from Bio.SeqFeature import FeatureLocation
@@ -19,32 +20,40 @@ def index(request):
 
 @render(default_content_type='application/json')
 def getgenomes(request, **kwargs):
-    """Return all available genomes"""
+    """Return all available genomes
+       url: /genomes/
+    """
     
     genomes_obj = []
     
     genomes = Genome.objects.all()
     for genome in genomes:
         genomes_obj.append({'name': genome.name, 'taxonomy': genome.tax_id})
-
-    pprint.pprint(genomes_obj)
-        
+       
     return genomes_obj
 
 @render(default_content_type='application/json')
 def getassembly(request, species, **kwargs):
-    """Return all assemblies available for a given species"""
+    """Return all assemblies available for a given species
+       url: /assembly/{species}/
+    """
     
     assemblies_obj = []
     
     try:
         assemblies = Assembly.fetch_by_name(species)
         for assembly in assemblies:
+            aliases = []
+            for alias in assembly.aliases.all():
+                aliases.append(alias.alias)
+
             assemblies_obj.append({'genome': str(assembly.genome),
                                    'name': assembly.assembly_name,
-                                   'accession': assembly.assembly_accession,
-                                   'version': assembly.assembly_version })
-    except:
+                                   'aliases': aliases })
+
+    except Exception as e:
+        if settings.DEBUG:
+            print str(e)
         pass
     
     return assemblies_obj
@@ -52,6 +61,10 @@ def getassembly(request, species, **kwargs):
 @parameter_parser(allow_methods='GET')
 @render
 def idlookup_GET(request, seqtype, id, **kwargs):
+    """ Lookup a gene, transcript, exon, or translation by stable id
+        url: /lookup/{feature_type}/
+        method: GET
+    """
 
     pprint.pprint(kwargs)
 
@@ -65,6 +78,11 @@ def idlookup_GET(request, seqtype, id, **kwargs):
 @parameter_parser(allow_methods='POST')
 @render
 def idlookup_POST(request, seqtype, **kwargs):
+    """ Lookup one or more  genes, transcripts, exons, or translations by stable id
+        url: /lookup/{feature_type}/
+        method: POST
+    """
+
     results = []
     print "kwargs"
     pprint.pprint(kwargs)

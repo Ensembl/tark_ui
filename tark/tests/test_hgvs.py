@@ -3,7 +3,8 @@ from django.core.management import call_command
 from django.http import HttpResponse, StreamingHttpResponse
 import json
 import os
-import pprint
+
+from . import test_fixtures_set
 
 '''
 
@@ -15,7 +16,7 @@ REF_FILE_PATH = os.path.join(os.path.dirname(__file__), 'references')
 WRITE_REFS = False
 
 class HGVSTestCase(TestCase):
-    test_fixtures = ['session.json', 'genome.json', 'assembly.json', 'sequences.json', 'features.json', 'gene_names.json']
+    test_fixtures = test_fixtures_set
     
     def setUp(self):
         for fixture in self.test_fixtures:

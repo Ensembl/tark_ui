@@ -5,6 +5,8 @@ import json
 import os
 import pprint
 
+from . import test_fixtures_set
+
 '''
 
 Test the /lookup/ endpoint
@@ -15,7 +17,7 @@ REF_FILE_PATH = os.path.join(os.path.dirname(__file__), 'references')
 WRITE_REFS = False
 
 class GenomesTestCase(TestCase):
-    test_fixtures = ['session.json', 'genome.json', 'assembly.json', 'sequences.json', 'features.json', 'gene_names.json']
+    test_fixtures = test_fixtures_set
 
     def setUp(self):
         for fixture in self.test_fixtures:
@@ -29,7 +31,7 @@ class GenomesTestCase(TestCase):
         print "Testing Lookup Gene"
 
         genes = ['ENSG00000198001', 'ENSG00000134070']
-        assemblies = {'GCA_000001405.20':'GRCh38.p5:GCA_000001405.20', 'GCA_000001405.14':'GRCh37.p13:GCA_000001405.14'}
+        assemblies = {'GCA_000001405.22':'GRCh38', 'GCA_000001405.14':'GRCh37'}
 
         self.doJsonLookupTest('gene', genes, assemblies, WRITE_REFS)
 

@@ -31,7 +31,7 @@ FEATURE_LOOKUP = {'Gene': 1,
                   'Translation': 4,
                   'Operon': 5}
 
-SPECIES_NAMES = {'human': 'GCA_000001405'}
+SPECIES_NAMES = {'human': 'homo_sapiens'}
 
 class FeatureQuerySet(models.query.QuerySet):
     def dict_iterator(self, **kwargs):          
@@ -361,15 +361,15 @@ class Assembly(models.Model):
 
     @classmethod
     def fetch_by_name(cls, name):
-        accession = SPECIES_NAMES[name.lower()]
+        full_name = SPECIES_NAMES[name.lower()]
         
-        if not accession:
+        if not full_name:
             raise AssemblyNotFound("Assembly for " + name + " not found")
 
-        return cls.fetch_by_accession(accession)
+        return cls.objects.filter(genome__name=full_name)
 
     def __str__(self):
-        return "{}:{}.{}".format(self.assembly_name, self.assembly_accession, str(self.assembly_version))
+        return "{}".format(self.assembly_name)
 
     class Meta:
         managed = False
@@ -380,8 +380,24 @@ class AssemblyAlias(models.Model):
     assembly_alias_id = models.AutoField(primary_key=True)
     alias = models.CharField(max_length=64, blank=True, null=True)
     genome = models.ForeignKey('Genome', models.DO_NOTHING, blank=True, null=True)
-    assembly = models.ForeignKey(Assembly, models.DO_NOTHING, blank=True, null=True)
+    assembly = models.ForeignKey(Assembly, models.DO_NOTHING, blank=True, null=True, related_name='aliases')
     session = models.ForeignKey('Session', models.DO_NOTHING, blank=True, null=True)
+
+    @classmethod
+    def fetch_by_accession(cls, accession):
+        try:            
+            split_accession = accession.rsplit('.', 1)
+            if len(split_accession) == 2:
+                assemblyalias = AssemblyAlias.objects.get(assembly_accession=split_accession[0], assembly_version=split_accession[1])
+                return assemblyalias
+            
+            assemblyalias = AssemblyAlias.objects.filter(assembly_accession=accession)
+            if assemblyalias:
+                return assemblyalias
+        except Exception as e:
+            pass
+            
+        raise AssemblyNotFound("Accession " + accession + " not found")
 
     class Meta:
         managed = False

@@ -1,7 +1,7 @@
 [
     [
         {
-            "assembly": "GRCh38.p5:GCA_000001405.20", 
+            "assembly": "GRCh38", 
             "exon_set_checksum": "5E5367FEA69E29D230F389056B533DE547D45BAF", 
             "gene": "ENSG00000198001.13", 
             "loc_checksum": "5920D1708E803D85B2A808FF0A934477353C2D3C", 
@@ -16,7 +16,7 @@
             "transcript_checksum": "F96AA098C1D1D3DCFF29509899A2E1191175B304"
         }, 
         {
-            "assembly": "GRCh37.p13:GCA_000001405.14", 
+            "assembly": "GRCh37", 
             "exon_set_checksum": "C08DDEF5B2D5B32603D35193F6C4D3EFA0DB3D5B", 
             "gene": "ENSG00000198001.9", 
             "loc_checksum": "E35FD8803FFC5E8469F71D9C4786A3C303B1767B", 
@@ -33,7 +33,7 @@
     ], 
     [
         {
-            "assembly": "GRCh38.p5:GCA_000001405.20", 
+            "assembly": "GRCh38", 
             "exon_set_checksum": "F7497DAD26E16A03C7ABFDBBAC9CD0D17AF7A04D", 
             "gene": "ENSG00000134070.4", 
             "loc_checksum": "3279AB567AA6B95526D2E3C2F392B394EA43043E", 

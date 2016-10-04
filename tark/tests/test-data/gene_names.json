@@ -14,8 +14,8 @@
 	"model": "tark.Genenames",
 	"pk": 2,
 	"fields": {
-	    "name": "IRAK4",
-	    "external_id": 123,
+	    "name": "IRAK2",
+	    "external_id": 124,
 	    "source": "HGNC",
 	    "primary_id": 1,
 	    "session_id": 1

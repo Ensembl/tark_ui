@@ -36,7 +36,6 @@ class renderer():
             iterator = BioJSONEncoder().iterencode(iterlist( resultset.iterator() ))
             return StreamingHttpResponse(iterator, content_type="application/json")
         elif hasattr(resultset, '__iter__') and resultset:
-            print "Found an __iter__"
             iterator = BioJSONEncoder().iterencode(iterlist( iter(resultset) ) ) 
             return StreamingHttpResponse(iterator, content_type="application/json")
         else:

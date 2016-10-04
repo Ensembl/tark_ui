@@ -1,7 +1,7 @@
 [
     [
         {
-            "assembly": "GRCh37.p13:GCA_000001405.14", 
+            "assembly": "GRCh37", 
             "exon_checksum": "CD1829A6CC0E8D5C5974D49ECC769040ED118C0F", 
             "loc_checksum": "A05D4EABE70AD2189750FFDF13A6A89BA4F701A2", 
             "loc_end": 44181899, 
@@ -16,7 +16,7 @@
     ], 
     [
         {
-            "assembly": "GRCh38.p5:GCA_000001405.20", 
+            "assembly": "GRCh38", 
             "exon_checksum": "489B24A85C9C89FBA79DC5515EBC6A39A16BEBD3", 
             "loc_checksum": "88397A065B80DDDB2A3503618AF79D51BE258659", 
             "loc_end": 43771365, 
@@ -29,7 +29,7 @@
             "stable_id_version": 1
         }, 
         {
-            "assembly": "GRCh37.p13:GCA_000001405.14", 
+            "assembly": "GRCh37", 
             "exon_checksum": "CC9C6CA846F082235F8DF2951261538393ABD9A4", 
             "loc_checksum": "C2290958AAC26F19343447C3EF4E4464C69CE0A2", 
             "loc_end": 44165168, 

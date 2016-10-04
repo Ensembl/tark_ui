@@ -3534,7 +3534,7 @@
 	 "gene_checksum" : "12AF1EFA6003C11B3BEEBFA8913ADA197F7A84F3",
 	 "loc_start" : 10164865,
 	 "stable_id_version" : 4,
-	 "hgnc_id" : 123
+	 "hgnc_id" : 124
       },
       "pk" : 32852,
       "model" : "tark.Gene"

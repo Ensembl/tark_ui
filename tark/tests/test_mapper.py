@@ -5,8 +5,10 @@ from django.core.management import call_command
 import json
 import pprint
 
+from . import test_fixtures_set
+
 class MapperTestCase(TestCase):
-    test_fixtures = ['session.json', 'genome.json', 'assembly.json', 'sequences.json', 'features.json', 'gene_names.json']
+    test_fixtures = test_fixtures_set
     
     def setUp(self):
         for fixture in self.test_fixtures:
