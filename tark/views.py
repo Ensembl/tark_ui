@@ -84,8 +84,6 @@ def idlookup_POST(request, seqtype, **kwargs):
     """
 
     results = []
-    print "kwargs"
-    pprint.pprint(kwargs)
 
     model = apps.get_model('tark', FEATURE_TYPES[seqtype])
 
@@ -101,11 +99,72 @@ def idlookup_POST(request, seqtype, **kwargs):
             else:
                 results.append([{'stable_id': id, 'message': 'Not found'}])
         
-    except:
+    except Exception as e:
+        if settings.DEBUG:
+            print str(e)
         return HttpResponse(status=500)
     
 
     return results
+
+@parameter_parser(allow_methods='GET')
+@render
+def name_lookup_gene_GET(request, **kwargs):
+    """ Lookup a gene by HGNC name or alias (ie. IRAK4)
+        url: /lookup/name/gene/
+        method: GET
+    """
+
+    if 'name' not in kwargs:
+        return HttpResponse(status=403)
+        
+    name = kwargs['name']
+
+    genes = Gene.objects.fetch_by_name(name).build_filters(**kwargs)
+#    genes = Gene.objects.filter(genenames__name=name).build_filters(**kwargs)
+    
+    return genes
+
+@parameter_parser(allow_methods='POST')
+@render
+def name_lookup_gene_POST(request, **kwargs):
+    """ Lookup one or more genes by HGNC name or alias (ie. IRAK4)
+        url: /lookup/name/gene/
+        method: POST
+    """
+
+    results = []
+    
+    try:
+        names = kwargs.pop('name', [])
+        if not isinstance(names, (list, tuple)):
+            names = [names]
+        for name in names:
+            feature_set = Gene.objects.fetch_by_name(name, **kwargs)
+            
+            if feature_set:
+                results.append(feature_set)
+            else:
+                results.append([{'name': name, 'message': 'Not found'}])
+    except Exception as e:
+        if settings.DEBUG:
+            print str(e)
+        return HttpResponse(status=500)
+
+    return results
+
+@parameter_parser(allow_methods='GET')
+@render
+def name_lookup_transcript(request, **kwargs):    
+
+    if 'name' not in kwargs:
+        return HttpResponse(status=403)
+        
+    name = kwargs['name']
+
+    transcripts = Transcript.objects.fetch_by_name(name).build_filters(**kwargs)
+
+    return transcripts
 
 # Needs species restriction
 @parameter_parser(allow_methods='GET')
@@ -137,33 +196,6 @@ def checksum_release_type(request, seqtype, tag, **kwargs):
 #    pprint.pprint(feature_set.all())
     return HttpResponse(feature_set.query)
     
-@parameter_parser(allow_methods='GET')
-@render
-def name_lookup_gene(request, **kwargs):    
-
-    if 'name' not in kwargs:
-        return HttpResponse(status=403)
-        
-    name = kwargs['name']
-
-    genes = Gene.objects.fetch_by_name(name).build_filters(**kwargs)
-#    genes = Gene.objects.filter(genenames__name=name).build_filters(**kwargs)
-    
-    return genes
-
-@parameter_parser(allow_methods='GET')
-@render
-def name_lookup_transcript(request, **kwargs):    
-
-    if 'name' not in kwargs:
-        return HttpResponse(status=403)
-        
-    name = kwargs['name']
-
-    transcripts = Transcript.objects.fetch_by_name(name).build_filters(**kwargs)
-
-    return transcripts
-
 # Need to check the arguments to ensure they're valid (ie positive numbers for start/end)
 @parameter_parser(allow_methods='GET')
 @render

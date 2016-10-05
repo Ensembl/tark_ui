@@ -45,7 +45,7 @@ class SequenceField(models.TextField):
     
     def from_db_value(self, value, expression, connection, context):
         if value is None:
-            return Seq()
+            return Seq('')
         
         return Seq(value)
     

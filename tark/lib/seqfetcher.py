@@ -24,7 +24,7 @@ class SeqFetcher():
             return None
 
         regions = cls.available_locations(assembly)
-        
+
         return regions and region in regions and end < regions[region]
     
     @classmethod

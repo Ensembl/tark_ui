@@ -46,7 +46,7 @@ class renderer():
     @classmethod
     def fasta(cls, resultset, **kwargs):
         kwargs['expand'] = False
-        
+                
         if type(resultset) == FeatureQuerySet:
             iterator = iterlist(resultset.seq_iterator(format='fasta', **kwargs))
         elif hasattr(resultset, '__iter__'):

@@ -4,6 +4,7 @@ from django.db import models
 from django.apps import apps
 from django.db.models import Q
 import operator
+from django.conf import settings
 
 from Bio.SeqRecord import SeqRecord
 from Bio.SeqFeature import FeatureLocation
@@ -45,7 +46,8 @@ class FeatureQuerySet(models.query.QuerySet):
 
         for feature in self.all():
             if not feature.has_sequence:
-                print feature
+                if settings.DEBUG:
+                    print "no sequence: {}".format(feature)
                 continue
             
             if format:
@@ -131,7 +133,13 @@ class FeatureQuerySet(models.query.QuerySet):
         return self.build_filters(**kwargs).filter(stable_id=stable_id)     
 
     def fetch_by_name(self, name, **kwargs):
-        hgnc = Genenames.objects.get(name=name)
+        try:
+            hgnc = Genenames.objects.get(name=name)
+        except Exception as e:
+            if settings.DEBUG:
+                print str(e)
+            return None
+            
         if self.model.__name__ == 'Gene':
             return self.filter(hgnc_id=hgnc.external_id).build_filters(**kwargs)
         elif self.model.__name__ == 'Transcript':
@@ -350,6 +358,9 @@ class Assembly(models.Model):
 
     @classmethod
     def fetch_by_accession(cls, accession):
+        """ Fetch a single assembly by accession (ie. GCA_000001405.14)
+            Lookup values stored in the AssemblyAlias table/model
+        """
         try:            
             assembly = AssemblyAlias.objects.get(alias=accession).assembly
             if assembly:
@@ -495,7 +506,7 @@ class Gene(Feature):
     def to_dict(self, **kwargs):
         feature_obj = super(Gene, self).to_dict(**kwargs)
 
-        seq = self.seq
+        seq = self.seq if not kwargs.get('skip_sequence', False) else None
         if seq:
             feature_obj['sequence'] = seq
         
@@ -508,13 +519,13 @@ class Gene(Feature):
 
     @property
     def has_sequence(self):
-        SeqFetcher.has_sequence(self.assembly.assembly_name, self.loc_region, self.loc_end)
+        return SeqFetcher.has_sequence(self.assembly.assembly_name, self.loc_region, self.loc_end)
 
     @property
     def seq(self, **kwargs):
         seq = SeqFetcher.fetch(self.assembly.assembly_name, self.loc_region, self.loc_start, self.loc_end)
 
-        return seq
+        return Seq(seq) if seq else Seq('')
 
     @property
     def sequence(self, **kwargs):
