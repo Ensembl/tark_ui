@@ -25,7 +25,7 @@ def _fetch_by_hgvs_c(variant, assemblies, **kwargs):
     for assembly in assemblies.all():
         matched_genes = []
         
-        genes = Gene.objects.fetch_by_name(variant.ac, assembly=assembly, **kwargs)
+        genes = Gene.objects.by_name(variant.ac, assembly=assembly, **kwargs)
         if not genes:
             print "we're in real trouble, we found no genes for assembly {}".format(assembly)
             
@@ -51,7 +51,7 @@ def _fetch_by_hgvs_g(variant, assemblies, **kwargs):
             location = FeatureLocation(variant.posedit.pos.start.base, variant.posedit.pos.end.base, strand=1, ref='genomic')
             genes = Gene.objects.fetch_by_location(region, location, assembly=assembly, **kwargs)
         else:
-            genes = Gene.objects.fetch_by_name(variant.ac, assembly=assembly, **kwargs)
+            genes = Gene.objects.by_name(variant.ac, assembly=assembly, **kwargs)
         if not genes:
             print "we're in real trouble, we found nothing for assembly {}".format(assembly)
 #            return results
