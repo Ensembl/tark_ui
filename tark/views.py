@@ -115,12 +115,11 @@ def name_lookup_gene_GET(request, **kwargs):
         method: GET
     """
 
-    if 'name' not in kwargs:
+    name = kwargs.pop('name', None)
+    if not name:
         return HttpResponse(status=403)
-        
-    name = kwargs['name']
 
-    genes = Gene.objects.fetch_by_name(name).build_filters(**kwargs)
+    genes = Gene.objects.by_name(name, **kwargs)
 #    genes = Gene.objects.filter(genenames__name=name).build_filters(**kwargs)
     
     return genes
@@ -140,7 +139,7 @@ def name_lookup_gene_POST(request, **kwargs):
         if not isinstance(names, (list, tuple)):
             names = [names]
         for name in names:
-            feature_set = Gene.objects.fetch_by_name(name, **kwargs)
+            feature_set = Gene.objects.by_name(name, **kwargs)
             
             if feature_set:
                 results.append(feature_set)
@@ -155,16 +154,47 @@ def name_lookup_gene_POST(request, **kwargs):
 
 @parameter_parser(allow_methods='GET')
 @render
-def name_lookup_transcript(request, **kwargs):    
+def name_lookup_transcript_GET(request, **kwargs):    
+    """ Lookup a transcript by HGNC name or alias (ie. IRAK4)
+        url: /lookup/name/transcript/
+        method: GET
+    """
 
-    if 'name' not in kwargs:
+    name = kwargs.pop('name', None)
+    if not name:
         return HttpResponse(status=403)
-        
-    name = kwargs['name']
 
-    transcripts = Transcript.objects.fetch_by_name(name).build_filters(**kwargs)
+    transcripts = Transcript.objects.by_name(name, **kwargs)
 
     return transcripts
+
+@parameter_parser(allow_methods='POST')
+@render
+def name_lookup_transcript_POST(request, **kwargs):
+    """ Lookup one or more transcripts by HGNC name or alias (ie. IRAK4)
+        url: /lookup/name/transcript/
+        method: POST
+    """
+
+    results = []
+    
+    try:
+        names = kwargs.pop('name', [])
+        if not isinstance(names, (list, tuple)):
+            names = [names]
+        for name in names:
+            feature_set = Transcript.objects.by_name(name, **kwargs)
+            
+            if feature_set:
+                results.append(feature_set)
+            else:
+                results.append([{'name': name, 'message': 'Not found'}])
+    except Exception as e:
+        if settings.DEBUG:
+            print str(e)
+        return HttpResponse(status=500)
+
+    return results
 
 # Needs species restriction
 @parameter_parser(allow_methods='GET')

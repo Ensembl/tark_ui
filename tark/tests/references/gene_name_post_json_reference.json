@@ -1,0 +1,39 @@
+[
+    [
+        {
+            "assembly": "GRCh38", 
+            "gene_checksum": "AD6FD621F5DECB37BD40B0A4A7BFE11923EE71E8", 
+            "hgnc": "IRAK4", 
+            "loc_end": 43789543, 
+            "loc_region": "12", 
+            "loc_start": 43758944, 
+            "loc_strand": 1, 
+            "stable_id": "ENSG00000198001", 
+            "stable_id_version": 13
+        }, 
+        {
+            "assembly": "GRCh37", 
+            "gene_checksum": "41190BC099AE1F433D63E6BF816CF6FF44D29A15", 
+            "hgnc": "IRAK4", 
+            "loc_end": 44183346, 
+            "loc_region": "12", 
+            "loc_start": 44152747, 
+            "loc_strand": 1, 
+            "stable_id": "ENSG00000198001", 
+            "stable_id_version": 9
+        }
+    ], 
+    [
+        {
+            "assembly": "GRCh38", 
+            "gene_checksum": "12AF1EFA6003C11B3BEEBFA8913ADA197F7A84F3", 
+            "hgnc": "IRAK2", 
+            "loc_end": 10243743, 
+            "loc_region": "3", 
+            "loc_start": 10164865, 
+            "loc_strand": 1, 
+            "stable_id": "ENSG00000134070", 
+            "stable_id_version": 4
+        }
+    ]
+]

@@ -103,7 +103,7 @@ class FeatureQuerySet(models.query.QuerySet):
 
     def build_filters(self, **kwargs):
         filter = {}
-        
+
         if 'assembly' in kwargs:
             if type(kwargs['assembly']) == Assembly:
                 assembly = kwargs['assembly']
@@ -132,18 +132,18 @@ class FeatureQuerySet(models.query.QuerySet):
 
         return self.build_filters(**kwargs).filter(stable_id=stable_id)     
 
-    def fetch_by_name(self, name, **kwargs):
+    def by_name(self, name, **kwargs):
         try:
             hgnc = Genenames.objects.get(name=name)
         except Exception as e:
             if settings.DEBUG:
                 print str(e)
-            return None
+            return []
             
         if self.model.__name__ == 'Gene':
-            return self.filter(hgnc_id=hgnc.external_id).build_filters(**kwargs)
+            return self.build_filters(**kwargs).filter(hgnc_id=hgnc.external_id).build_filters(**kwargs)
         elif self.model.__name__ == 'Transcript':
-            return self.filter(gene__hgnc_id=hgnc.external_id).build_filters(**kwargs)
+            return self.build_filters(**kwargs).filter(gene__hgnc_id=hgnc.external_id).build_filters(**kwargs)
         
         raise FeatureNotFound("Feature {} not found".format(name))
 
@@ -191,8 +191,8 @@ class FeatureManager(models.Manager):
     def by_stable_id(self, stable_id, **kwargs):
         return self.get_queryset().by_stable_id(stable_id, **kwargs)
 
-    def fetch_by_name(self, name, **kwargs):
-        return self.get_queryset().fetch_by_name(name, **kwargs)
+    def by_name(self, name, **kwargs):
+        return self.get_queryset().by_name(name, **kwargs)
     
     def fetch_by_location(self, loc_region, location, **kwargs):
         return self.get_queryset().fetch_by_location(loc_region, location, **kwargs)
