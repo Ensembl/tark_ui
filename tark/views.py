@@ -7,7 +7,8 @@ from django.db.models import Q
 from Bio.SeqFeature import FeatureLocation
 
 from tark.models import FEATURE_TYPES, Releaseset, Transcript, Releasetag, Assembly, Tagset, Genenames, Gene, Transcript,\
-    TranscriptReleaseTag, Genome
+    TranscriptReleaseTag, Genome, FeatureQuerySet
+from .exceptions import BadLocationCoordinates
 from tark.decorators import render, parameter_parser
 from django.shortcuts import render as render_html
 from tark.lib.hgvsmapper import fetch_by_hgvs
@@ -117,7 +118,7 @@ def name_lookup_gene_GET(request, **kwargs):
 
     name = kwargs.pop('name', None)
     if not name:
-        return HttpResponse(status=403)
+        return HttpResponse(status=400)
 
     genes = Gene.objects.by_name(name, **kwargs)
 #    genes = Gene.objects.filter(genenames__name=name).build_filters(**kwargs)
@@ -162,7 +163,7 @@ def name_lookup_transcript_GET(request, **kwargs):
 
     name = kwargs.pop('name', None)
     if not name:
-        return HttpResponse(status=403)
+        return HttpResponse(status=400)
 
     transcripts = Transcript.objects.by_name(name, **kwargs)
 
@@ -196,13 +197,88 @@ def name_lookup_transcript_POST(request, **kwargs):
 
     return results
 
+# Need to check the arguments to ensure they're valid (ie positive numbers for start/end)
+@parameter_parser(allow_methods='GET')
+@render
+def location_lookup_GET(request, species, seqtype, **kwargs):
+    """ Lookup all features of a given type (gene, transcript, exon, translation) in
+        a particular region.
+        url: /location/{species}/{feature_type}/
+        method: GET
+    """
+    return location_lookup(request, species, seqtype, **kwargs)
+    
+def location_lookup(request, species, seqtype, **kwargs):
+    """ Location lookup helper functions to do the main work.
+    
+    """
+
+    assemblies = Assembly.fetch_by_name(species)    
+    model = apps.get_model('tark', FEATURE_TYPES[seqtype])
+    
+    if 'start' not in kwargs or 'end' not in kwargs or 'region' not in kwargs:
+        return HttpResponse(status=400)
+    
+    try:
+        start = int(kwargs['start'])
+        end = int(kwargs['end'])
+
+        if start < 0 or end < 0 or end < start:
+            raise BadLocationCoordinates()
+
+        features = model.objects.by_location( kwargs['region'], FeatureLocation(start, end, ref_db='genomic' ), assemblies=assemblies, **kwargs )
+
+    except Exception as e:
+        if settings.DEBUG:
+            print str(e)
+        return HttpResponse(status=400)
+
+    return features
+
+@parameter_parser(allow_methods='POST')
+@render
+def location_lookup_POST(request, species, seqtype, **kwargs):
+
+    results = []
+
+    try:
+        locations = kwargs.pop('location', [])
+        if not isinstance(locations, (list, tuple)):
+            locations = [locations]
+        for location in locations:
+            try:
+                if 'start' not in location or 'end' not in location or 'region' not in location:
+                    raise BadLocationCoordinates()
+                
+                feature_set = location_lookup(request, species, seqtype, 
+                                              start=location['start'],
+                                              end=location['end'],
+                                              region=location['region'],
+                                              **kwargs)
+                
+                if feature_set and isinstance(feature_set, FeatureQuerySet):
+                    results.append(feature_set)
+                else:
+                    results.append([])
+
+            except Exception as e:
+                if settings.DEBUG:
+                    print str(e)
+                results.append([])
+    except Exception as e:
+        if settings.DEBUG:
+            print str(e)
+        return HttpResponse(status=500)
+
+    return results
+
 # Needs species restriction
 @parameter_parser(allow_methods='GET')
 @render
 def checksum_release_type(request, seqtype, tag, **kwargs):
 
     if seqtype not in FEATURE_TYPES:
-        return HttpResponse(status=403)
+        return HttpResponse(status=400)
     
     model = apps.get_model('tark', FEATURE_TYPES[seqtype])
 
@@ -216,7 +292,7 @@ def checksum_release_type(request, seqtype, tag, **kwargs):
 #    release = Releaseset.objects.filter(shortname=tag).all()[0]
 
     if seqtype not in FEATURE_TYPES:
-        return HttpResponse(status=403)
+        return HttpResponse(status=400)
     
     model = apps.get_model('tark', FEATURE_TYPES[seqtype])
     feature_set = model.objects.release(release).release(release2, exclude=True)#.checksum()#.filter(loc_start__lt=10000).checksum()
@@ -225,28 +301,6 @@ def checksum_release_type(request, seqtype, tag, **kwargs):
     return feature_set
 #    pprint.pprint(feature_set.all())
     return HttpResponse(feature_set.query)
-    
-# Need to check the arguments to ensure they're valid (ie positive numbers for start/end)
-@parameter_parser(allow_methods='GET')
-@render
-def location_lookup(request, species, seqtype, **kwargs):
-    
-    pprint.pprint(kwargs)
-
-    print "species: {}".format(species)
-    assemblies = Assembly.fetch_by_name(species)    
-    print "here"
-    model = apps.get_model('tark', FEATURE_TYPES[seqtype])
-    
-    if 'start' not in kwargs or 'end' not in kwargs or 'region' not in kwargs:
-        return HttpResponse(status=403)
-    
-    start = int(kwargs['start'])
-    end = int(kwargs['end'])
-    
-    features = model.objects.fetch_by_location( kwargs['region'], FeatureLocation(start, end, ref_db='genomic' ), assemblies=assemblies, **kwargs )
-
-    return features
 
 # A testing function for finding the difference between transcript
 # sets, not meant for production

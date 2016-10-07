@@ -1,0 +1,30 @@
+[
+    [
+        {
+            "assembly": "GRCh38", 
+            "gene_checksum": "AD6FD621F5DECB37BD40B0A4A7BFE11923EE71E8", 
+            "hgnc": "IRAK4", 
+            "loc_end": 43789543, 
+            "loc_region": "12", 
+            "loc_start": 43758944, 
+            "loc_strand": 1, 
+            "stable_id": "ENSG00000198001", 
+            "stable_id_version": 13
+        }
+    ], 
+    [
+        {
+            "assembly": "GRCh38", 
+            "gene_checksum": "AD6FD621F5DECB37BD40B0A4A7BFE11923EE71E8", 
+            "hgnc": "IRAK4", 
+            "loc_end": 43789543, 
+            "loc_region": "12", 
+            "loc_start": 43758944, 
+            "loc_strand": 1, 
+            "stable_id": "ENSG00000198001", 
+            "stable_id_version": 13
+        }
+    ], 
+    [], 
+    []
+]

@@ -39,7 +39,6 @@ class renderer():
             iterator = BioJSONEncoder().iterencode(iterlist( iter(resultset) ) ) 
             return StreamingHttpResponse(iterator, content_type="application/json")
         else:
-            print "HERE"
             data = json.dumps(resultset, indent=4, sort_keys=False, ensure_ascii=False, cls=BioJSONEncoder)
             return HttpResponse(data, content_type="application/json")
 

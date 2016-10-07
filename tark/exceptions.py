@@ -39,6 +39,9 @@ class IncompatibleFeatureType(LookupError):
     
 class LocationNotInFeature(ValueError):
     "The location isn't contained in the given feature"
+    
+class BadLocationCoordinates(ValueError):
+    "The location coordinates are either incorrectly formatted or otherwise invalid"
 
 class UnknownCoordinateSystem(ValueError):
     "The coordinate system isn't known"

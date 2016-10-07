@@ -147,11 +147,12 @@ class FeatureQuerySet(models.query.QuerySet):
         
         raise FeatureNotFound("Feature {} not found".format(name))
 
-    def fetch_by_location(self, loc_region, location, **kwargs):
+    def by_location(self, loc_region, location, **kwargs):
 #        return self.filter(loc_region=loc_region, loc_start__lte=location.start, loc_end__gte=location.end).build_filters(**kwargs)
         return self.filter(Q(loc_region=loc_region) & 
                            ((Q(loc_start__lte=location.start) & Q(loc_end__gte=location.start)) |
-                           (Q(loc_start__lte=location.end) & Q(loc_end__gte=location.end)))).build_filters(**kwargs)
+                           (Q(loc_start__lte=location.end) & Q(loc_end__gte=location.end)) |
+                           (Q(loc_start__gte=location.start) & Q(loc_end__lte=location.end)) )).build_filters(**kwargs)
                     
     def checksum(self):
         checksums = []
@@ -194,8 +195,8 @@ class FeatureManager(models.Manager):
     def by_name(self, name, **kwargs):
         return self.get_queryset().by_name(name, **kwargs)
     
-    def fetch_by_location(self, loc_region, location, **kwargs):
-        return self.get_queryset().fetch_by_location(loc_region, location, **kwargs)
+    def by_location(self, loc_region, location, **kwargs):
+        return self.get_queryset().by_location(loc_region, location, **kwargs)
     
     def by_stable_ids(self, stable_ids, **kwargs):
         self.stable_ids = stable_ids
