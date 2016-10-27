@@ -10,7 +10,7 @@ from Bio.SeqRecord import SeqRecord
 from Bio.SeqFeature import FeatureLocation
 from Bio.Seq import Seq
 
-from .fields import ChecksumField, SequenceField, HGNCField
+from .fields import ChecksumField, SequenceField, HGNCField, GeneSetField
 from .exceptions import FeatureNotFound, IncompatibleFeatureType, AssemblyNotFound, ReleaseNotFound, FeatureNonCoding
 import hashlib
 import pprint
@@ -111,6 +111,9 @@ class FeatureQuerySet(models.query.QuerySet):
                 assembly = Assembly.fetch_by_accession(kwargs['assembly'])
 
             filter.update({'assembly_id': assembly})
+
+        elif 'assembly_id' in kwargs:
+            filter.update({'assembly_id': kwargs['assembly_id']})
 
         if filter:
             return self.filter(**filter)
@@ -357,6 +360,17 @@ class Assembly(models.Model):
     assembly_name = models.CharField(max_length=128, blank=True, null=True)
     session = models.ForeignKey('Session', models.DO_NOTHING, blank=True, null=True)
 
+    @property
+    def assembly_str(self):
+        """ Fetch a definitive name for this assembly, for use in lookups like
+            mod_faidx.
+            ** For now we're just using assembly_name, we'll have to switch to
+               something involving species name once we have more species
+        """
+        return self.assembly_name
+    
+#        return "{}_{}".format(self.genome.name, self.assembly_name)
+
     @classmethod
     def fetch_by_accession(cls, accession):
         """ Fetch a single assembly by accession (ie. GCA_000001405.14)
@@ -372,12 +386,16 @@ class Assembly(models.Model):
         raise AssemblyNotFound("Accession " + accession + " not found")
 
     @classmethod
-    def fetch_by_name(cls, name):
+    def fetch_by_name(cls, name, assembly=None):
         full_name = SPECIES_NAMES[name.lower()]
         
         if not full_name:
             raise AssemblyNotFound("Assembly for " + name + " not found")
 
+        if assembly:
+            ''' There should be only one '''
+            return cls.objects.get(genome__name=full_name, assembly_name=assembly)
+            
         return cls.objects.filter(genome__name=full_name)
 
     def __str__(self):
@@ -499,7 +517,7 @@ class Gene(Feature):
     loc_end = models.IntegerField(blank=True, null=True)
     loc_strand = models.IntegerField(blank=True, null=True)
     loc_region = models.CharField(max_length=42, blank=True, null=True)
-#    hgnc_id = HGNCField(blank=True, null=True)
+    loc_checksum = ChecksumField(unique=True, max_length=20, blank=True, null=True)
     hgnc = HGNCField('Genenames', models.DO_NOTHING, to_field='external_id', blank=True, null=True)
     gene_checksum = ChecksumField(unique=True, max_length=20, blank=True, null=True)
     session = models.ForeignKey('Session', models.DO_NOTHING, blank=True, null=True)
@@ -520,11 +538,11 @@ class Gene(Feature):
 
     @property
     def has_sequence(self):
-        return SeqFetcher.has_sequence(self.assembly.assembly_name, self.loc_region, self.loc_end)
+        return SeqFetcher.has_sequence(self.assembly.assembly_str, self.loc_region, self.loc_end)
 
     @property
     def seq(self, **kwargs):
-        seq = SeqFetcher.fetch(self.assembly.assembly_name, self.loc_region, self.loc_start, self.loc_end)
+        seq = SeqFetcher.fetch(self.assembly.assembly_str, self.loc_region, self.loc_start, self.loc_end)
 
         return Seq(seq) if seq else Seq('')
 
@@ -663,7 +681,17 @@ class Sequence(models.Model):
 
         return seq
 
+    @classmethod
+    def by_location(cls, assembly, region, location):
+#        if SeqFetcher.has_sequence(assembly.assembly_str, self.loc_region, self.loc_end):
+            pass
 
+#    @property
+#    def seq(self, **kwargs):
+#        seq = SeqFetcher.fetch(self.assembly.assembly_str, self.loc_region, self.loc_start, self.loc_end)
+
+#        return Seq(seq) if seq else Seq('')
+    
     def __str__(self):
         return "{}".format(self.seq_checksum)
 
@@ -952,3 +980,82 @@ class TranslationReleaseTag(Releasetag):
         db_table = 'release_tag'
         unique_together = (('feature', 'feature_type', 'release'),)
 #        proxy = True
+
+class ReleaseDifference(models.Model):
+    stable_id = models.CharField(max_length=20, primary_key=True)
+    gene_count = models.IntegerField
+    gene_set = GeneSetField(max_length=200)
+
+    @property
+    def is_different(self):
+        return len(self.gene_set) > 1 and self.gene_set[0][3] != self.gene_set[1][3]
+
+    def difference(self):
+        if not self.is_different:
+            return {}
+        
+        differences = {'stable_id': self.stable_id}
+        
+        gene1 = Gene.objects.by_stable_id("{}.{}".format(self.stable_id, self.gene_set[0][0]), assembly_id=self.gene_set[0][2]).first()
+        gene2 = Gene.objects.by_stable_id("{}.{}".format(self.stable_id, self.gene_set[1][0]), assembly_id=self.gene_set[1][2]).first()
+
+        gene_differences = {}
+        # Has the version changed
+        if gene1.stable_id_version != gene2.stable_id_version:
+            gene_differences['version'] = {'base': gene1.stable_id_version, 'updated': gene2.stable_id_version}
+
+        # The location has changed
+        if gene1.loc_checksum != gene2.loc_checksum:
+            gene_differences['location'] = {'base': gene1.location, 'updated': gene2.location}
+
+        # We have differences at the gene level
+        if gene_differences:
+            differences['gene'] = gene_differences
+
+        # On to the transcripts
+        gene1_transcripts = gene1.transcripts.order_by('stable_id')
+        gene2_transcripts = gene2.transcripts.order_by('stable_id')
+
+        transcript_pairs = self.pairs(gene1_transcripts, gene2_transcripts)
+
+        for pair in transcript_pairs:
+            print "stable_id {}, set a: {}, set b: {}".format(pair[0],
+                                                              pair[1],
+                                                              pair[2])
+
+        return differences
+
+    @classmethod
+    def compare(cls, release1, release2, assembly1, assembly2=None):
+        if not assembly2:
+            assembly2 = assembly1
+
+        query = ("select stable_id, "
+                 "GROUP_CONCAT(CONCAT(stable_id_version, ',', rs.shortname, ',', rs.assembly_id, ',', gene_checksum) SEPARATOR '#!#!#') as gene_set, count(stable_id) as gene_count from gene left join release_tag r1 on gene.gene_id = r1.feature_id and r1.feature_type = 1 join release_set rs on rs.release_id = r1.release_id and ((rs.shortname = %s and rs.assembly_id = %s) or (rs.shortname = %s and rs.assembly_id = %s)) group by stable_id order by gene_count desc")
+        
+        return cls.objects.raw("SELECT stable_id, GROUP_CONCAT(CONCAT(stable_id_version, ',', rs.shortname, ',', rs.assembly_id, ',', gene_checksum) ORDER BY FIELD(rs.shortname, %s, %s) SEPARATOR '#!#!#') as gene_set, count(stable_id) as gene_count from gene left join release_tag r1 on gene.gene_id = r1.feature_id and r1.feature_type = 1 join release_set rs on rs.release_id = r1.release_id and ((rs.shortname = %s and rs.assembly_id = %s) or (rs.shortname = %s and rs.assembly_id = %s)) group by stable_id order by gene_count desc", [release1, release2, release1, assembly1, release2, assembly2])
+
+    def pairs(self, featureset1, featureset2):
+        feature_hash = {}
+        feature_pairs = []
+        
+        for feature in featureset1:
+            feature_hash[feature.stable_id] = {}
+            feature_hash[feature.stable_id]['a'] = feature
+            
+        for feature in featureset2:
+            if feature.stable_id not in feature_hash:
+                feature_hash[feature.stable_id] = {}
+            feature_hash[feature.stable_id]['b'] = feature
+    
+        for stable_id in feature_hash:
+            a = feature_hash[stable_id]['a'] if 'a' in feature_hash[stable_id] else None
+            b = feature_hash[stable_id]['b'] if 'b' in feature_hash[stable_id] else None
+            feature_pairs.append([stable_id,a,b])
+            
+        return feature_pairs
+            
+    
+    class Meta:
+        managed = False
+        db_table = 'null'

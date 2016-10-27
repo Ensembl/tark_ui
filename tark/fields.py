@@ -1,6 +1,7 @@
 from django.db import models
 from Bio.Seq import Seq
 from Bio.Alphabet import IUPAC
+import pprint
 
 ALPHABETS = {
              'gene': IUPAC.ambiguous_dna,
@@ -37,6 +38,29 @@ class ChecksumField(models.CharField):
             bytes.append( chr( int (value[i:i+2], 16 ) ) )
 
         return ''.join( bytes )
+
+class GeneSetField(models.CharField):
+    description = "Allows retrieval of abstract field type containing a grouping of genes"
+    
+    def from_db_value(self, value, expression, connection, context):
+        if value is None:
+            return value
+        decoded_genes = []
+        genes = value.split('#!#!#')
+
+        for gene in genes:
+            pieces = gene.split(',', 3)
+            if len(pieces) >= 3:
+                pieces[3] = ''.join( [ "%02X" % ord( x ) for x in pieces[3] ] ).strip()
+                
+                decoded_genes.append(pieces)
+        
+#        pprint.pprint(decoded_genes)
+        
+        return decoded_genes
+ 
+    def to_python(self, value):
+        return value
     
 class SequenceField(models.TextField):
     @classmethod

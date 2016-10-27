@@ -6,7 +6,7 @@ import pprint
 class SeqFetcher():
 
     @classmethod
-    def fetch(cls, assembly, region, start, end):
+    def fetch(cls, assembly, region, start, end, strand=1, format='genomic'):
         if cls.has_sequence(assembly, region, end):
             location = "{}:{}-{}".format(region, start, end)
         

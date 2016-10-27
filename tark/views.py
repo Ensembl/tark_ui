@@ -7,7 +7,7 @@ from django.db.models import Q
 from Bio.SeqFeature import FeatureLocation
 
 from tark.models import FEATURE_TYPES, Releaseset, Transcript, Releasetag, Assembly, Tagset, Genenames, Gene, Transcript,\
-    TranscriptReleaseTag, Genome, FeatureQuerySet
+    TranscriptReleaseTag, Genome, FeatureQuerySet, ReleaseDifference
 from .exceptions import BadLocationCoordinates
 from tark.decorators import render, parameter_parser
 from django.shortcuts import render as render_html
@@ -238,6 +238,11 @@ def location_lookup(request, species, seqtype, **kwargs):
 @parameter_parser(allow_methods='POST')
 @render
 def location_lookup_POST(request, species, seqtype, **kwargs):
+    """ Lookup all features of a given type (gene, transcript, exon, translation) in
+        one or more region(s).
+        url: /location/{species}/{feature_type}/
+        method: POST
+    """
 
     results = []
 
@@ -272,6 +277,21 @@ def location_lookup_POST(request, species, seqtype, **kwargs):
 
     return results
 
+def sequence_GET(request, species, assembly):
+    """ Fetch an arbitrary section of sequence.
+    
+    """
+
+    assembly = Assembly.fetch_by_name(species, assembly=assembly)
+    
+    if not assembly:
+        return HttpResponse(status=400)
+    
+    
+
+def sequence_POST(request, species, assembly):
+    pass
+
 # Needs species restriction
 @parameter_parser(allow_methods='GET')
 @render
@@ -302,6 +322,41 @@ def checksum_release_type(request, seqtype, tag, **kwargs):
 #    pprint.pprint(feature_set.all())
     return HttpResponse(feature_set.query)
 
+@parameter_parser(allow_methods='GET')
+@render
+def release_diff(request, species, release1, release2, **kwargs):
+    
+    print "species: {}".format(species)
+    print "release1: {}".format(release1)
+    print "release2: {}".format(release2)
+    assembly1 = Assembly.fetch_by_accession('GCA_000001405.22')    
+    assembly2 = Assembly.fetch_by_accession('GCA_000001405.22')    
+#    assembly2 = Assembly.fetch_by_accession('GCA_000001405.14')    
+    print assembly1
+    releaseset1 = Releaseset.objects.get(shortname=release1, assembly=assembly1)
+    print "releaseset1: {}".format(releaseset1.shortname)
+    releaseset2 = Releaseset.objects.get(shortname=release2, assembly=assembly2)
+    print "releaseset2: {}".format(releaseset2.shortname)
+
+    f = open('/tmp/diff_set.txt', 'w')
+
+    for gene_set in ReleaseDifference.compare(release1, release2, assembly1.assembly_id, assembly2.assembly_id): 
+#        print >> f, "stable_id: {}, count: {}".format(gene_set.stable_id, gene_set.gene_count)
+#        if len(gene_set.gene_set) > 1 and gene_set.gene_set[0][3] != gene_set.gene_set[1][3]:
+        if gene_set.is_different:
+            print >> f, gene_set.stable_id
+            pprint.pprint(gene_set.gene_set, f)
+            print gene_set.stable_id
+            pprint.pprint(gene_set.gene_set)
+            print >> f, "DIFFERENCE"
+            pprint.pprint(gene_set.difference(), f)
+            gene1 = Gene.objects.by_stable_id("{}.{}".format(gene_set.stable_id, gene_set.gene_set[0][0]), assembly_id=gene_set.gene_set[0][2])
+            pprint.pprint(gene1.to_dict(expand=True), f)
+            gene2 = Gene.objects.by_stable_id("{}.{}".format(gene_set.stable_id, gene_set.gene_set[1][0]), assembly_id=gene_set.gene_set[1][2])
+            pprint.pprint(gene2.to_dict(expand=True), f)
+
+    
+
 # A testing function for finding the difference between transcript
 # sets, not meant for production
 @parameter_parser(allow_methods='GET')
@@ -311,7 +366,8 @@ def transcript_diff(request, species, release1, release2, **kwargs):
     print "species: {}".format(species)
     print "release1: {}".format(release1)
     print "release2: {}".format(release2)
-    assembly1 = Assembly.fetch_by_accession('GCA_000001405.20')    
+    assembly1 = Assembly.fetch_by_accession('GCA_000001405.22')    
+#    assembly2 = Assembly.fetch_by_accession('GCA_000001405.22')    
     assembly2 = Assembly.fetch_by_accession('GCA_000001405.14')    
     print assembly1
     releaseset1 = Releaseset.objects.get(shortname=release1, assembly=assembly1)
