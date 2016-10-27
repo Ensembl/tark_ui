@@ -493,8 +493,7 @@ class Exon(Feature):
 
     class Meta:
         managed = False
-        db_table = 'exon'
-
+        db_table = 'exon'    
 
 class Exontranscript(models.Model):
     exon_transcript_id = models.AutoField(primary_key=True)
@@ -530,9 +529,14 @@ class Gene(Feature):
             feature_obj['sequence'] = seq
         
         if kwargs.get('expand', False):
-            children = Transcript.objects.filter(gene_id=self.gene_id).to_dict(**kwargs)
-            if children:
-                feature_obj['transcript'] = children
+            transcript_ary = []
+            for transcript_gene in self.transcripts.all():
+#                print exon_transcript.exon.exon_id
+                transcript_obj = transcript_gene.transcript.to_dict(**kwargs)
+                transcript_ary.append(transcript_obj)
+                        
+            if transcript_ary:
+                feature_obj['transcript'] = transcript_ary
     
         return feature_obj
 
@@ -768,7 +772,6 @@ class Transcript(Feature):
     exon_set_checksum = ChecksumField(max_length=20, blank=True, null=True)
     transcript_checksum = ChecksumField(unique=True, max_length=20, blank=True, null=True)
     seq_checksum = models.ForeignKey(Sequence, models.DO_NOTHING, db_column='seq_checksum', blank=True, null=True)
-    gene = models.ForeignKey(Gene, models.DO_NOTHING, blank=True, null=True, related_name='transcripts')
     session = models.ForeignKey(Session, models.DO_NOTHING, blank=True, null=True)
 
     @property
@@ -862,6 +865,15 @@ class Transcript(Feature):
         managed = False
         db_table = 'transcript'
 
+class Transcriptgene(models.Model):
+    gene_transcript_id = models.AutoField(primary_key=True)
+    gene = models.ForeignKey(Gene, models.DO_NOTHING, blank=True, null=True, related_name='transcripts')
+    transcript = models.ForeignKey('Transcript', models.DO_NOTHING, blank=True, null=True, related_name='genes')
+    session = models.ForeignKey('Session', models.DO_NOTHING, blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'transcript_gene'
 
 class Translation(Feature):
     translation_id = models.AutoField(primary_key=True)

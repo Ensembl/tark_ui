@@ -17,7 +17,6 @@
    },
    {
       "fields" : {
-         "gene_id" : 119473,
          "stable_id" : "ENST00000440781",
          "seq_checksum" : "FD1A86BC11861B31B471E47728AAB7757D14DECA",
          "loc_start" : 44152747,
@@ -324,7 +323,6 @@
    },
    {
       "fields" : {
-         "gene_id" : 119473,
          "stable_id" : "ENST00000550616",
          "seq_checksum" : "628786562584B69C208F5AEA9CEDDCC955050B31",
          "loc_start" : 44152753,
@@ -496,7 +494,6 @@
    },
    {
       "fields" : {
-         "gene_id" : 119473,
          "stable_id" : "ENST00000550615",
          "seq_checksum" : "FF329B975C9165C36473F114D02CDF5FE616BB3D",
          "loc_start" : 44152753,
@@ -776,7 +773,6 @@
    },
    {
       "fields" : {
-         "gene_id" : 119473,
          "stable_id" : "ENST00000547521",
          "seq_checksum" : "90DDD89F0BDDEEB1B5F3E59D2E91513E4EBD9990",
          "loc_start" : 44152754,
@@ -867,7 +863,6 @@
    },
    {
       "fields" : {
-         "gene_id" : 119473,
          "stable_id" : "ENST00000448290",
          "seq_checksum" : "E82283BBF74CF045079763BAB31766F30044C5CE",
          "loc_start" : 44152758,
@@ -1012,7 +1007,6 @@
    },
    {
       "fields" : {
-         "gene_id" : 119473,
          "stable_id" : "ENST00000551736",
          "seq_checksum" : "9C5F49CAFA8653A82AD59B755FDF90106A27FD33",
          "loc_start" : 44152764,
@@ -1103,7 +1097,6 @@
    },
    {
       "fields" : {
-         "gene_id" : 119473,
          "stable_id" : "ENST00000550386",
          "seq_checksum" : "2158072E65BE794F5D7153BA44920A894FFDFF89",
          "loc_start" : 44152764,
@@ -1248,7 +1241,6 @@
    },
    {
       "fields" : {
-         "gene_id" : 119473,
          "stable_id" : "ENST00000547101",
          "seq_checksum" : "A146596B9A8D876D14F4AE1DC62E5B91F19CD504",
          "loc_start" : 44152764,
@@ -1285,7 +1277,6 @@
    },
    {
       "fields" : {
-         "gene_id" : 119473,
          "stable_id" : "ENST00000546780",
          "seq_checksum" : "A368467C271734E21FA0DBEC2242A611EF4F60E5",
          "loc_start" : 44152770,
@@ -1358,7 +1349,6 @@
    },
    {
       "fields" : {
-         "gene_id" : 119473,
          "stable_id" : "ENST00000552309",
          "seq_checksum" : "07EC98DF0D056CC89652B52F4D10363BFD5DA976",
          "loc_start" : 44152770,
@@ -1422,7 +1412,6 @@
    },
    {
       "fields" : {
-         "gene_id" : 119473,
          "stable_id" : "ENST00000550361",
          "seq_checksum" : "44187B2978658EFD40109C9D41A8760797CD155E",
          "loc_start" : 44152839,
@@ -1513,7 +1502,6 @@
    },
    {
       "fields" : {
-         "gene_id" : 119473,
          "stable_id" : "ENST00000547928",
          "seq_checksum" : "AE9106FD58C10C8955F1796A3B3680D27761F48E",
          "loc_start" : 44167598,
@@ -1586,7 +1574,6 @@
    },
    {
       "fields" : {
-         "gene_id" : 119473,
          "stable_id" : "ENST00000431837",
          "seq_checksum" : "BF6F594F9D4A32A59C63FF60E3C9EC40C9750EE6",
          "loc_start" : 44152747,
@@ -1693,7 +1680,6 @@
    },
    {
       "fields" : {
-         "gene_id" : 36751,
          "stable_id" : "ENST00000448290",
          "seq_checksum" : "8D35689961C67A8A374280723D12672E5E74DECB",
          "loc_start" : 43768112,
@@ -2054,7 +2040,6 @@
    },
    {
       "fields" : {
-         "gene_id" : 36751,
          "stable_id" : "ENST00000431837",
          "seq_checksum" : "BF6F594F9D4A32A59C63FF60E3C9EC40C9750EE6",
          "loc_start" : 43758944,
@@ -2388,7 +2373,6 @@
    },
    {
       "fields" : {
-         "gene_id" : 36751,
          "stable_id" : "ENST00000547928",
          "seq_checksum" : "AE9106FD58C10C8955F1796A3B3680D27761F48E",
          "loc_start" : 43773795,
@@ -2461,7 +2445,6 @@
    },
    {
       "fields" : {
-         "gene_id" : 36751,
          "stable_id" : "ENST00000550361",
          "seq_checksum" : "44187B2978658EFD40109C9D41A8760797CD155E",
          "loc_start" : 43759036,
@@ -2606,7 +2589,6 @@
    },
    {
       "fields" : {
-         "gene_id" : 36751,
          "stable_id" : "ENST00000552309",
          "seq_checksum" : "07EC98DF0D056CC89652B52F4D10363BFD5DA976",
          "loc_start" : 43758967,
@@ -2751,7 +2733,6 @@
    },
    {
       "fields" : {
-         "gene_id" : 36751,
          "stable_id" : "ENST00000546780",
          "seq_checksum" : "A368467C271734E21FA0DBEC2242A611EF4F60E5",
          "loc_start" : 43758967,
@@ -2797,7 +2778,6 @@
    },
    {
       "fields" : {
-         "gene_id" : 36751,
          "stable_id" : "ENST00000547101",
          "seq_checksum" : "A146596B9A8D876D14F4AE1DC62E5B91F19CD504",
          "loc_start" : 43758961,
@@ -2996,7 +2976,6 @@
    },
    {
       "fields" : {
-         "gene_id" : 36751,
          "stable_id" : "ENST00000550386",
          "seq_checksum" : "2158072E65BE794F5D7153BA44920A894FFDFF89",
          "loc_start" : 43758961,
@@ -3033,7 +3012,6 @@
    },
    {
       "fields" : {
-         "gene_id" : 36751,
          "stable_id" : "ENST00000551736",
          "seq_checksum" : "9C5F49CAFA8653A82AD59B755FDF90106A27FD33",
          "loc_start" : 43758961,
@@ -3097,7 +3075,6 @@
    },
    {
       "fields" : {
-         "gene_id" : 36751,
          "stable_id" : "ENST00000613694",
          "seq_checksum" : "B8358EDFD0673AA1286E8E57C31096BE5670ED6F",
          "loc_start" : 43758955,
@@ -3188,7 +3165,6 @@
    },
    {
       "fields" : {
-         "gene_id" : 36751,
          "stable_id" : "ENST00000440781",
          "seq_checksum" : "FD1A86BC11861B31B471E47728AAB7757D14DECA",
          "loc_start" : 43758944,
@@ -3252,7 +3228,6 @@
    },
    {
       "fields" : {
-         "gene_id" : 36751,
          "stable_id" : "ENST00000550616",
          "seq_checksum" : "628786562584B69C208F5AEA9CEDDCC955050B31",
          "loc_start" : 43758950,
@@ -3370,7 +3345,6 @@
    },
    {
       "fields" : {
-         "gene_id" : 36751,
          "stable_id" : "ENST00000550615",
          "seq_checksum" : "FF329B975C9165C36473F114D02CDF5FE616BB3D",
          "loc_start" : 43758950,
@@ -3434,7 +3408,6 @@
    },
    {
       "fields" : {
-         "gene_id" : 36751,
          "stable_id" : "ENST00000547521",
          "seq_checksum" : "90DDD89F0BDDEEB1B5F3E59D2E91513E4EBD9990",
          "loc_start" : 43758951,
@@ -3547,7 +3520,6 @@
 	 "stable_id" : "ENST00000256458",
 	 "loc_strand" : 1,
 	 "loc_end" : 10243743,
-	 "gene_id" : 32852,
 	 "loc_start" : 10164865,
 	 "stable_id_version" : 4,
 	 "loc_checksum" : "3279AB567AA6B95526D2E3C2F392B394EA43043E",
