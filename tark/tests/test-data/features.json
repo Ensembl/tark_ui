@@ -3,7 +3,8 @@
       "fields" : {
          "stable_id" : "ENSG00000198001",
          "loc_start" : 44152747,
-         "gene_checksum" : "41190BC099AE1F433D63E6BF816CF6FF44D29A15",
+         "gene_checksum" : "993969B838BD4E2042FB6BA741D122B1957B2EF7",
+	  "loc_checksum" : "0DB1F13E36C773676270B260DCCC48B6E88EC6F2",
          "loc_strand" : 1,
          "loc_region" : "12",
          "session" : 1,
@@ -1666,7 +1667,8 @@
       "fields" : {
          "stable_id" : "ENSG00000198001",
          "loc_start" : 43758944,
-         "gene_checksum" : "AD6FD621F5DECB37BD40B0A4A7BFE11923EE71E8",
+         "gene_checksum" : "A839D26E83A17AF3C7E76A5F863FF2C24F7C151C",
+	 "loc_checksum" : "10B83C1AB7AC0F7C6C8AF4098102AF42794E12A0",
          "loc_strand" : 1,
          "loc_region" : "12",
          "session" : 1,
@@ -3505,6 +3507,7 @@
 	 "loc_strand" : 1,
 	 "loc_end" : 10243743,
 	 "gene_checksum" : "12AF1EFA6003C11B3BEEBFA8913ADA197F7A84F3",
+	 "loc_checksum" : "12AF1EFA6003C11B3BEEBFA8913ADA197F7A84F3",
 	 "loc_start" : 10164865,
 	 "stable_id_version" : 4,
 	 "hgnc_id" : 124

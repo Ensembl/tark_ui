@@ -83,7 +83,7 @@ class FeatureQuerySet(models.query.QuerySet):
         else:
             release_tags = release_tag.objects.filter(release_id=release_set)
             pk_column = self.model._meta.pk.name + '__in'
-            return self.filter(**{pk_column: release_tags})
+            return self.filter(**{pk_column: release_tags}).annotate(_default_release=models.Value(release_set, output_field=models.IntegerField()))
             return self.extra( where=[set_table_name + ".feature_type=%s", 
                                       set_table_name + ".feature_id = " + self.model._meta.db_table + '.' + self.model._meta.pk.name, 
                                       set_table_name + ".release_id='%s'"], 
@@ -99,7 +99,7 @@ class FeatureQuerySet(models.query.QuerySet):
             return self.extra( where=[set_table_name + ".transcript_id = " + self.model._meta.db_table + '.' + self.model._meta.pk.name, 
                                       set_table_name + ".tagset_id='%s'"], 
                               params=[tag_set.tagset_id], 
-                              tables=['tag` as `' + set_table_name] )
+                              tables=['tag` as `' + set_table_name] ).annotate(_default_tag=models.Value(tag_set, output_field=models.IntegerField()))
 
     def build_filters(self, **kwargs):
         filter = {}
@@ -176,7 +176,7 @@ class FeatureManager(models.Manager):
     
     def release(self, release_set):
         # Fetch the id of the feature type
-        feature_id = FEATURE_LOOKUP[self.model.__name__]
+        #feature_id = FEATURE_LOOKUP[self.model.__name__]
         return self.get_queryset().release(release_set)
 #        return self.get_queryset().extra( where=["release_tag.feature_type=%s", 
 #                                                 "release_tag.feature_id = " + self.model._meta.db_table + '.' + self.model._meta.pk.name, 
@@ -528,6 +528,11 @@ class Gene(Feature):
         if seq:
             feature_obj['sequence'] = seq
         
+        # If we have releases, set it in the returned feature object, otherwise the
+        # dictionary entry isn't set
+        # Probably not needed in new functionality
+        feature_obj.setdefault('releases', self.release_tags)
+        
         if kwargs.get('expand', False):
             transcript_ary = []
             for transcript_gene in self.transcripts.all():
@@ -551,8 +556,32 @@ class Gene(Feature):
         return Seq(seq) if seq else Seq('')
 
     @property
+    def default_release(self):
+        release = getattr(self, '_default_release', None)
+        if not release:
+            # If this blows up, something is very wrong, so we'll stop the whole operation rather than
+            # catching the exceptuon, for now
+            release = int(self.releases.aggregate(default_release=models.Max('release__shortname'))['default_release'])
+
+        return release
+
+    @property
+    def release(self):
+        return getattr(self, '_default_release', None)
+
+    @property
+    def tag(self):
+        tag = getattr(self, '_default_tag', None)
+
+        return tag
+
+    @property
     def sequence(self, **kwargs):
         return None
+
+    @property
+    def release_tags(self):
+        return [str(tag.release) for tag in self.releases.all()] or None
 
     @property
     def mapper(self):
@@ -659,6 +688,8 @@ class Releaseset(models.Model):
         except Exception as e:
             raise ReleaseNotFound("Unique release not found, trying specifying one or more of assembly, tag or description")
         
+    def __str__(self):
+        return self.shortname
 
     class Meta:
         managed = False
@@ -931,7 +962,7 @@ class GeneReleaseTagManager(models.Manager):
     
 class GeneReleaseTag(Releasetag):
     objects = GeneReleaseTagManager()
-    feature = models.ForeignKey('Gene', to_field='gene_id', primary_key=True)
+    feature = models.ForeignKey('Gene', to_field='gene_id', primary_key=True, related_name='releases')
 #    feature_type = models.IntegerField()
     release = models.ForeignKey(Releaseset, models.DO_NOTHING, related_name='gene_features')
 #    session = models.ForeignKey('Session', models.DO_NOTHING, blank=True, null=True)
@@ -948,7 +979,7 @@ class TranscriptReleaseTagManager(models.Manager):
     
 class TranscriptReleaseTag(Releasetag):
     objects = TranscriptReleaseTagManager()
-    feature = models.ForeignKey('Transcript', to_field='transcript_id', primary_key=True)
+    feature = models.ForeignKey('Transcript', to_field='transcript_id', primary_key=True, related_name='releases')
 #    feature_type = models.IntegerField()
     release = models.ForeignKey(Releaseset, models.DO_NOTHING, related_name='transcript_features')
 #    session = models.ForeignKey('Session', models.DO_NOTHING, blank=True, null=True)
@@ -965,7 +996,7 @@ class ExonReleaseTagManager(models.Manager):
     
 class ExonReleaseTag(Releasetag):
     objects = ExonReleaseTagManager()
-    feature = models.ForeignKey('Exon', to_field='exon_id', primary_key=True)
+    feature = models.ForeignKey('Exon', to_field='exon_id', primary_key=True, related_name='releases')
 #    feature_type = models.IntegerField()
     release = models.ForeignKey(Releaseset, models.DO_NOTHING, related_name='exon_features')
 #    session = models.ForeignKey('Session', models.DO_NOTHING, blank=True, null=True)
@@ -982,7 +1013,7 @@ class TranslationReleaseTagManager(models.Manager):
     
 class TranslationReleaseTag(Releasetag):
     objects = TranslationReleaseTagManager()
-    feature = models.ForeignKey('Translation', to_field='translation_id', primary_key=True)
+    feature = models.ForeignKey('Translation', to_field='translation_id', primary_key=True, related_name='releases')
 #    feature_type = models.IntegerField()
     release = models.ForeignKey(Releaseset, models.DO_NOTHING, related_name='translation_features')
 #    session = models.ForeignKey('Session', models.DO_NOTHING, blank=True, null=True)
