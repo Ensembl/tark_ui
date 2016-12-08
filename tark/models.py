@@ -304,6 +304,9 @@ class Feature(models.Model):
 
         return self
 
+    def in_release(self, release):
+        return release in [int(r) for r in self.releases.values_list('release__shortname', flat=True)]
+
     @property
     def release_tags(self):
         return [str(tag.release) for tag in self.releases.all()] or None
@@ -851,6 +854,16 @@ class Transcript(Feature):
             return True
         
         return False
+
+    @property
+    def gene(self):
+        release = self.release if self.release else self.default_release().release
+
+        for gene in self.genes.all():
+            if gene.in_release(release):
+                return gene
+            
+        return None
 
     @property
     def cdna_coding_start(self):
