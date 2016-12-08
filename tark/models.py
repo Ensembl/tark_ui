@@ -13,6 +13,7 @@ from Bio.Seq import Seq
 from .fields import ChecksumField, SequenceField, HGNCField, GeneSetField
 from .exceptions import FeatureNotFound, IncompatibleFeatureType, AssemblyNotFound, ReleaseNotFound, FeatureNonCoding
 import hashlib
+import copy
 import pprint
 from .lib.mapper import Mapper
 from .lib.seqfetcher import SeqFetcher
@@ -69,10 +70,19 @@ class FeatureQuerySet(models.query.QuerySet):
             
         return features_ary
 
-    def release(self, release_set, exclude=False):
+    def release(self, release_set=None, exclude=False, **kwargs):
+        print "release_set: {}".format(release_set)
+        # Allow chaining with an empty release
+        if not release_set:
+            return self
+
+        if type(release_set) != Releaseset:
+            release_set = Releaseset.fetch_set(tag=release_set, **kwargs)
+        
         # Get the class for the release_tag for this particular feature type
         release_tag = self.model.releasetag()
         feature_id = FEATURE_LOOKUP[self.model.__name__]
+        # We need to alias the table name in case we're joining with release tags multiple times
         set_table_name = 'release_tag_' + str(release_set.release_id)
         
         if exclude:
@@ -83,7 +93,7 @@ class FeatureQuerySet(models.query.QuerySet):
         else:
             release_tags = release_tag.objects.filter(release_id=release_set)
             pk_column = self.model._meta.pk.name + '__in'
-            return self.filter(**{pk_column: release_tags}).annotate(_default_release=models.Value(release_set, output_field=models.IntegerField()))
+            return self.filter(**{pk_column: release_tags}).annotate(_default_release=models.Value(release_set.shortname, output_field=models.CharField()))
             return self.extra( where=[set_table_name + ".feature_type=%s", 
                                       set_table_name + ".feature_id = " + self.model._meta.db_table + '.' + self.model._meta.pk.name, 
                                       set_table_name + ".release_id='%s'"], 
@@ -126,14 +136,14 @@ class FeatureQuerySet(models.query.QuerySet):
             split_stable_id = stable_id.split('.')
             # Will this be a problem for null version stable_ids?
             if len(split_stable_id) == 2:
-                feature = self.build_filters(**kwargs).filter(stable_id=split_stable_id[0], stable_id_version=split_stable_id[1])
+                feature = self.build_filters(**kwargs).release(kwargs.get('release', None), **kwargs).filter(stable_id=split_stable_id[0], stable_id_version=split_stable_id[1])
                 
                 if feature:
                     return feature
         except Exception as e:
             print e        
 
-        return self.build_filters(**kwargs).filter(stable_id=stable_id)     
+        return self.build_filters(**kwargs).release(kwargs.get('release', None), **kwargs).filter(stable_id=stable_id)     
 
     def by_name(self, name, **kwargs):
         try:
@@ -280,6 +290,24 @@ class Feature(models.Model):
                 
         return feature_obj
 
+    @property
+    def release(self, release=None):
+        return getattr(self, '_default_release', None)
+    
+    def default_release(self, release=None):
+        if release:
+            setattr(self, '_default_release', release)
+
+        elif not hasattr(self, '_default_release'):
+            release = int(self.releases.aggregate(default_release=models.Max('release__shortname'))['default_release'])
+            setattr(self, '_default_release', release)
+
+        return self
+
+    @property
+    def release_tags(self):
+        return [str(tag.release) for tag in self.releases.all()] or None
+    
     @property
     def feature_type(self):
         return type(self).__name__.lower()
@@ -448,13 +476,21 @@ class Exon(Feature):
     exon_checksum = ChecksumField(unique=True, max_length=20, blank=True, null=True)
     seq_checksum = models.ForeignKey('Sequence', models.DO_NOTHING, db_column='seq_checksum', blank=True, null=True)
     session = models.ForeignKey('Session', models.DO_NOTHING, blank=True, null=True)
+    transcripts = models.ManyToManyField('Transcript', through='Exontranscript')
+
+    def to_dict(self, **kwargs):
+        feature_obj = super(Exon, self).to_dict(**kwargs)
+
+        feature_obj['release'] = self.release if self.release else self.default_release().release
+        
+        return feature_obj
 
     @property
     def gene(self):
         # This feels a bit fragile, but there's really no other connection
         # to a gene
-        for exontranscript in self.transcripts.all():
-            return exontranscript.transcript.gene
+        for transcript in self.transcripts.all():
+            return transcript.gene
     
     @property
     def mapper(self):
@@ -497,14 +533,15 @@ class Exon(Feature):
 
 class Exontranscript(models.Model):
     exon_transcript_id = models.AutoField(primary_key=True)
-    transcript = models.ForeignKey('Transcript', models.DO_NOTHING, blank=True, null=True, related_name='exons')
-    exon = models.ForeignKey(Exon, models.DO_NOTHING, blank=True, null=True, related_name='transcripts')
+    transcript = models.ForeignKey('Transcript', models.DO_NOTHING, blank=True, null=True, related_name='exons_old')
+    exon = models.ForeignKey(Exon, models.DO_NOTHING, blank=True, null=True, related_name='transcripts_old')
     exon_order = models.SmallIntegerField(blank=True, null=True)
     session = models.ForeignKey('Session', models.DO_NOTHING, blank=True, null=True)
 
     class Meta:
         managed = False
         db_table = 'exon_transcript'
+        ordering = ('exon_order',)
 
 
 class Gene(Feature):
@@ -520,6 +557,7 @@ class Gene(Feature):
     hgnc = HGNCField('Genenames', models.DO_NOTHING, to_field='external_id', blank=True, null=True)
     gene_checksum = ChecksumField(unique=True, max_length=20, blank=True, null=True)
     session = models.ForeignKey('Session', models.DO_NOTHING, blank=True, null=True)
+    transcripts = models.ManyToManyField('Transcript', through='Transcriptgene')
 
     def to_dict(self, **kwargs):
         feature_obj = super(Gene, self).to_dict(**kwargs)
@@ -527,17 +565,29 @@ class Gene(Feature):
         seq = self.seq if not kwargs.get('skip_sequence', False) else None
         if seq:
             feature_obj['sequence'] = seq
-        
-        # If we have releases, set it in the returned feature object, otherwise the
-        # dictionary entry isn't set
-        # Probably not needed in new functionality
-        feature_obj.setdefault('releases', self.release_tags)
+
+        if self.release:
+            feature_obj['release'] = self.release
+            pprint.pprint(feature_obj)
+            return self.expand_dict(feature_obj, self.release, **kwargs)
+        else:
+            feature_objs = []
+            for release in self.release_tags:
+                release_obj = copy.deepcopy(feature_obj)
+                release_obj['release'] = release
+                feature_objs.append(self.expand_dict(release_obj, release, **kwargs)) 
+
+            return feature_objs
+
+    def expand_dict(self, feature_obj, release, **kwargs):
+        print "release: {}".format(release)
         
         if kwargs.get('expand', False):
             transcript_ary = []
-            for transcript_gene in self.transcripts.all():
+            for transcript in self.transcripts.all():
 #                print exon_transcript.exon.exon_id
-                transcript_obj = transcript_gene.transcript.to_dict(**kwargs)
+                transcript_obj = transcript.default_release(release).to_dict(**kwargs)
+#                transcript_obj = transcript_gene.transcript.default_release(release).to_dict(**kwargs)
                 transcript_ary.append(transcript_obj)
                         
             if transcript_ary:
@@ -556,20 +606,6 @@ class Gene(Feature):
         return Seq(seq) if seq else Seq('')
 
     @property
-    def default_release(self):
-        release = getattr(self, '_default_release', None)
-        if not release:
-            # If this blows up, something is very wrong, so we'll stop the whole operation rather than
-            # catching the exceptuon, for now
-            release = int(self.releases.aggregate(default_release=models.Max('release__shortname'))['default_release'])
-
-        return release
-
-    @property
-    def release(self):
-        return getattr(self, '_default_release', None)
-
-    @property
     def tag(self):
         tag = getattr(self, '_default_tag', None)
 
@@ -579,9 +615,9 @@ class Gene(Feature):
     def sequence(self, **kwargs):
         return None
 
-    @property
-    def release_tags(self):
-        return [str(tag.release) for tag in self.releases.all()] or None
+#     @property
+#     def release_tags(self):
+#         return [str(tag.release) for tag in self.releases.all()] or None
 
     @property
     def mapper(self):
@@ -671,6 +707,7 @@ class Releaseset(models.Model):
 
     @classmethod
     def fetch_set(cls, **kwargs):
+        pprint.pprint(kwargs)
         filter = {}
         if 'assembly' in kwargs:
             assembly = Assembly.fetch_by_accession(kwargs['assembly'])
@@ -682,6 +719,7 @@ class Releaseset(models.Model):
         if 'description' in kwargs:
             filter['description__contains'] = kwargs['description']
    
+        pprint.pprint(filter)
         try:
             return Releaseset.objects.get(**filter)
         
@@ -804,6 +842,8 @@ class Transcript(Feature):
     transcript_checksum = ChecksumField(unique=True, max_length=20, blank=True, null=True)
     seq_checksum = models.ForeignKey(Sequence, models.DO_NOTHING, db_column='seq_checksum', blank=True, null=True)
     session = models.ForeignKey(Session, models.DO_NOTHING, blank=True, null=True)
+    genes = models.ManyToManyField('Gene', through='Transcriptgene')
+    exons = models.ManyToManyField('Exon', through='Exontranscript')
 
     @property
     def is_coding(self):
@@ -850,16 +890,33 @@ class Transcript(Feature):
 
     def to_dict(self, **kwargs):
         feature_obj = super(Transcript, self).to_dict(**kwargs)
-       
+
+        if self.release:
+            feature_obj['release'] = self.release
+            return self.expand_dict(feature_obj, self.release, **kwargs)
+        else:
+            feature_objs = []
+            for release in self.release_tags:
+                release_obj = copy.deepcopy(feature_obj)
+                release_obj['release'] = release
+                feature_objs.append(self.expand_dict(release_obj, release, **kwargs)) 
+
+            return feature_objs
+
+    def expand_dict(self, feature_obj, release, **kwargs):
+        print "release: {}".format(release)
+        
         if kwargs.get('expand', False):
-            children = Translation.objects.filter(transcript_id=self.transcript_id).to_dict(**kwargs)
+            children = Translation.objects.filter(transcript_id=self.transcript_id).annotate(_default_release=models.Value(release, output_field=models.CharField())).to_dict(**kwargs)
             if children:
                 feature_obj['translation'] = children
             
             exons_ary = []
-            for exon_transcript in self.exons.all().order_by('exon_order'):
+#            for exon in self.exons.order_by('exon_order').all():
+            for exon in self.exons.all():
 #                print exon_transcript.exon.exon_id
-                exon_obj = exon_transcript.exon.to_dict(**kwargs)
+                exon_obj = exon.default_release(release).to_dict(**kwargs)
+#                exon_obj = exon_transcript.exon.default_release(release).to_dict(**kwargs)
                 exons_ary.append(exon_obj)
                         
             if exons_ary:
@@ -898,8 +955,8 @@ class Transcript(Feature):
 
 class Transcriptgene(models.Model):
     gene_transcript_id = models.AutoField(primary_key=True)
-    gene = models.ForeignKey(Gene, models.DO_NOTHING, blank=True, null=True, related_name='transcripts')
-    transcript = models.ForeignKey('Transcript', models.DO_NOTHING, blank=True, null=True, related_name='genes')
+    gene = models.ForeignKey(Gene, models.DO_NOTHING, blank=True, null=True, related_name='transcripts_old')
+    transcript = models.ForeignKey('Transcript', models.DO_NOTHING, blank=True, null=True, related_name='genes_old')
     session = models.ForeignKey('Session', models.DO_NOTHING, blank=True, null=True)
 
     class Meta:
@@ -920,6 +977,13 @@ class Translation(Feature):
     translation_checksum = ChecksumField(unique=True, max_length=20, blank=True, null=True)
     seq_checksum = models.ForeignKey(Sequence, models.DO_NOTHING, db_column='seq_checksum', blank=True, null=True)
     session = models.ForeignKey(Session, models.DO_NOTHING, blank=True, null=True)
+
+    def to_dict(self, **kwargs):
+        feature_obj = super(Translation, self).to_dict(**kwargs)
+
+        feature_obj['release'] = self.release if self.release else self.default_release().release
+        
+        return feature_obj
 
     @property
     def mapper(self):
@@ -1038,7 +1102,7 @@ class ReleaseDifference(models.Model):
             return {}
         
         differences = {'stable_id': self.stable_id}
-        
+
         gene1 = Gene.objects.by_stable_id("{}.{}".format(self.stable_id, self.gene_set[0][0]), assembly_id=self.gene_set[0][2]).first()
         gene2 = Gene.objects.by_stable_id("{}.{}".format(self.stable_id, self.gene_set[1][0]), assembly_id=self.gene_set[1][2]).first()
 
