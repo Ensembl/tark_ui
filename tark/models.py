@@ -161,7 +161,6 @@ class FeatureQuerySet(models.query.QuerySet):
         raise FeatureNotFound("Feature {} not found".format(name))
 
     def by_location(self, loc_region, location, **kwargs):
-#        return self.filter(loc_region=loc_region, loc_start__lte=location.start, loc_end__gte=location.end).build_filters(**kwargs)
         return self.filter(Q(loc_region=loc_region) & 
                            ((Q(loc_start__lte=location.start) & Q(loc_end__gte=location.start)) |
                            (Q(loc_start__lte=location.end) & Q(loc_end__gte=location.end)) |
@@ -214,7 +213,6 @@ class FeatureManager(models.Manager):
     def by_stable_ids(self, stable_ids, **kwargs):
         self.stable_ids = stable_ids
         return self
-#        return self.get_queryset().by_stable_ids(stable_ids, **kwargs)
 
 class Feature(models.Model):
     objects = FeatureManager()
@@ -225,6 +223,12 @@ class Feature(models.Model):
         
         return loc
     
+    @property
+    def short_location(self):
+        loc = "{}:{}:{}:{}".format(self.loc_region, self.loc_start, self.loc_end, self.loc_strand)
+
+        return loc
+
     @property
     def length(self):
         return abs(self.loc_end - self.loc_start) + 1
@@ -347,7 +351,56 @@ class Feature(models.Model):
                                              coordinates='cds')
         
         raise IncompatibleFeatureType()
-        
+
+    @classmethod
+    def pairs(self, featureset1, featureset2):
+        feature_hash = {}
+        feature_pairs = []
+        unpaired_locations = {}
+
+        for feature in featureset1:
+            feature_hash[feature.stable_id] = {}
+            feature_hash[feature.stable_id]['a'] = feature
+
+        for feature in featureset2:
+            if feature.stable_id not in feature_hash:
+                feature_hash[feature.stable_id] = {}
+            feature_hash[feature.stable_id]['b'] = feature
+
+        for stable_id in feature_hash:
+            a = feature_hash[stable_id]['a'] if 'a' in feature_hash[stable_id] else None
+            b = feature_hash[stable_id]['b'] if 'b' in feature_hash[stable_id] else None
+
+            if a is None:
+                if b.loc_checksum not in unpaired_locations:
+                    unpaired_locations[b.loc_checksum] = {}
+                if 'b' not in unpaired_locations[b.loc_checksum]:
+                    unpaired_locations[b.loc_checksum]['b'] = []
+                unpaired_locations[b.loc_checksum]['b'].append(b)
+            elif b is None:
+                if a.loc_checksum not in unpaired_locations:
+                    unpaired_locations[a.loc_checksum] = {}
+                if 'a' not in unpaired_locations[a.loc_checksum]:
+                    unpaired_locations[a.loc_checksum]['a'] = []
+                unpaired_locations[a.loc_checksum]['a'].append(a)
+            else:
+                feature_pairs.append([stable_id,a,b])
+
+        # Now we have to go through our unpairs locations and see if
+        # any are a potential stable_id change
+        for location in unpaired_locations:
+            loc_features = unpaired_locations[location]
+
+            if 'a' not in loc_features:
+                for feature in loc_features['b']:
+                    feature_pairs.append([feature.stable_id,None,feature])
+            elif 'b' not in loc_features:
+                for feature in loc_features['a']:
+                    feature_pairs.append([feature.stable_id,feature,None])
+            else:
+                feature_pairs.append(['remapped', loc_features['a'][0].short_location, loc_features['a'], loc_features['b']])
+
+        return feature_pairs
 
     def __contains__(self, item):
         if type(item) == FeatureLocation:
@@ -429,6 +482,10 @@ class Assembly(models.Model):
             
         return cls.objects.filter(genome__name=full_name)
 
+    @classmethod
+    def fetch_by_id(cls, assembly_id):
+        return cls.objects.get(pk=assembly_id)
+
     def __str__(self):
         return "{}".format(self.assembly_name)
 
@@ -479,7 +536,13 @@ class Exon(Feature):
     exon_checksum = ChecksumField(unique=True, max_length=20, blank=True, null=True)
     seq_checksum = models.ForeignKey('Sequence', models.DO_NOTHING, db_column='seq_checksum', blank=True, null=True)
     session = models.ForeignKey('Session', models.DO_NOTHING, blank=True, null=True)
-    transcripts = models.ManyToManyField('Transcript', through='Exontranscript')
+    transcripts_m2m = models.ManyToManyField('Transcript', through='Exontranscript')
+
+    @property
+    def transcripts(self):
+        release = self.release if self.release else self.default_release().release
+        return self.transcripts_m2m.annotate(_default_release=models.Value(release, output_field=models.CharField()))
+
 
     def to_dict(self, **kwargs):
         feature_obj = super(Exon, self).to_dict(**kwargs)
@@ -502,6 +565,32 @@ class Exon(Feature):
     @classmethod
     def releasetag(cls):
         return ExonReleaseTag
+
+    @classmethod
+    def difference(cls, exon1, exon2, recursive=True):
+        differences = {}
+
+        if not exon1:
+            differences['added'] = {'stable_id': exon2.stable_id, 'release': exon2.release}
+            return differences
+
+        if not exon2:
+            differences['missing'] = {'stable_id': exon1.stable_id, 'release': exon1.release}
+            return differences
+
+        # Has the version changed
+        if exon1.stable_id_version != exon2.stable_id_version:
+            differences['version'] = {'base': exon1.stable_id_version, 'updated': exon2.stable_id_version}
+
+        # The location has changed
+        if exon1.loc_checksum != exon2.loc_checksum:
+            differences['location'] = {'base': exon1.location, 'updated': exon2.location}
+
+        # The sequence has changed
+        if exon1.seq_checksum != exon2.seq_checksum:
+            differences['sequence'] = {'base': exon1.sequence, 'updated': exon2.sequence}
+
+        return differences
 
     # Does not support negative indexes for slicing
     
@@ -560,7 +649,12 @@ class Gene(Feature):
     hgnc = HGNCField('Genenames', models.DO_NOTHING, to_field='external_id', blank=True, null=True)
     gene_checksum = ChecksumField(unique=True, max_length=20, blank=True, null=True)
     session = models.ForeignKey('Session', models.DO_NOTHING, blank=True, null=True)
-    transcripts = models.ManyToManyField('Transcript', through='Transcriptgene')
+    transcripts_m2m = models.ManyToManyField('Transcript', through='Transcriptgene')
+
+    @property
+    def transcripts(self):
+        release = self.release if self.release else self.default_release().release
+        return self.transcripts_m2m.annotate(_default_release=models.Value(release, output_field=models.CharField()))
 
     def to_dict(self, **kwargs):
         feature_obj = super(Gene, self).to_dict(**kwargs)
@@ -589,7 +683,7 @@ class Gene(Feature):
             transcript_ary = []
             for transcript in self.transcripts.all():
 #                print exon_transcript.exon.exon_id
-                transcript_obj = transcript.default_release(release).to_dict(**kwargs)
+                transcript_obj = transcript.to_dict(**kwargs)
 #                transcript_obj = transcript_gene.transcript.default_release(release).to_dict(**kwargs)
                 transcript_ary.append(transcript_obj)
                         
@@ -618,9 +712,44 @@ class Gene(Feature):
     def sequence(self, **kwargs):
         return None
 
-#     @property
-#     def release_tags(self):
-#         return [str(tag.release) for tag in self.releases.all()] or None
+    @classmethod
+    def difference(cls, gene1, gene2, recursive=True):
+        differences = {}
+
+        # Has the version changed
+        if gene1.stable_id_version != gene2.stable_id_version:
+            differences['version'] = {'base': gene1.stable_id_version, 'updated': gene2.stable_id_version}
+
+        # The location has changed
+        if gene1.loc_checksum != gene2.loc_checksum:
+            differences['location'] = {'base': gene1.location, 'updated': gene2.location}
+
+        if not recursive:
+            return differences
+
+        # On to the transcripts
+        gene1_transcripts = gene1.transcripts.order_by('stable_id')
+        gene2_transcripts = gene2.transcripts.order_by('stable_id')
+
+        transcript_pairs = cls.pairs(gene1_transcripts, gene2_transcripts)
+        transcript_differences = []
+
+        for pair in transcript_pairs:
+            print "stable_id {}, set a: {}, set b: {}".format(pair[0],
+                                                              pair[1],
+                                                              pair[2])
+            if len(pair) > 3:
+                transcript_differences.append({pair[0]: pair[1:]})
+            else:
+                transcript_difference = Transcript.difference(pair[1],
+                                                              pair[2])
+                if transcript_difference:
+                    transcript_differences.append({pair[0]: transcript_difference})
+
+        if transcript_differences:
+            differences['transcript_differences'] = transcript_differences
+
+        return differences
 
     @property
     def mapper(self):
@@ -715,6 +844,8 @@ class Releaseset(models.Model):
         if 'assembly' in kwargs:
             assembly = Assembly.fetch_by_accession(kwargs['assembly'])
             filter['assembly'] = assembly
+        elif 'assembly_id' in kwargs:
+            filter['assembly'] = Assembly.fetch_by_id(kwargs['assembly_id'])
         
         if 'tag' in kwargs:
             filter['shortname'] = kwargs['tag']
@@ -740,7 +871,6 @@ class Releaseset(models.Model):
 
 class Sequence(models.Model):
     seq_checksum = ChecksumField(primary_key=True, max_length=20)
-#    sequence = models.TextField(blank=True, null=True)
     sequence = SequenceField(blank=True, null=True)
     session = models.ForeignKey('Session', models.DO_NOTHING, blank=True, null=True)
 
@@ -845,8 +975,18 @@ class Transcript(Feature):
     transcript_checksum = ChecksumField(unique=True, max_length=20, blank=True, null=True)
     seq_checksum = models.ForeignKey(Sequence, models.DO_NOTHING, db_column='seq_checksum', blank=True, null=True)
     session = models.ForeignKey(Session, models.DO_NOTHING, blank=True, null=True)
-    genes = models.ManyToManyField('Gene', through='Transcriptgene')
-    exons = models.ManyToManyField('Exon', through='Exontranscript')
+    genes_m2m = models.ManyToManyField('Gene', through='Transcriptgene')
+    exons_m2m = models.ManyToManyField('Exon', through='Exontranscript')
+
+    @property
+    def genes(self):
+        release = self.release if self.release else self.default_release().release
+        return self.genes_m2m.annotate(_default_release=models.Value(release, output_field=models.CharField()))
+
+    @property
+    def exons(self):
+        release = self.release if self.release else self.default_release().release
+        return self.exons_m2m.annotate(_default_release=models.Value(release, output_field=models.CharField()))
 
     @property
     def is_coding(self):
@@ -861,7 +1001,7 @@ class Transcript(Feature):
 
         for gene in self.genes.all():
             if gene.in_release(release):
-                return gene
+                return gene.default_release(release)
             
         return None
 
@@ -883,7 +1023,8 @@ class Transcript(Feature):
     # we're in trouble, we're just returning the first
     @property
     def translation(self):
-        for translation in self.translations.all():
+        release = self.release if self.release else self.default_release().release
+        for translation in self.translations.annotate(_default_release=models.Value(release, output_field=models.CharField())).all():
             return translation
         
         raise FeatureNonCoding()
@@ -925,11 +1066,8 @@ class Transcript(Feature):
                 feature_obj['translation'] = children
             
             exons_ary = []
-#            for exon in self.exons.order_by('exon_order').all():
             for exon in self.exons.all():
-#                print exon_transcript.exon.exon_id
-                exon_obj = exon.default_release(release).to_dict(**kwargs)
-#                exon_obj = exon_transcript.exon.default_release(release).to_dict(**kwargs)
+                exon_obj = exon.to_dict(**kwargs)
                 exons_ary.append(exon_obj)
                         
             if exons_ary:
@@ -943,6 +1081,78 @@ class Transcript(Feature):
     @classmethod
     def releasetag(cls):
         return TranscriptReleaseTag
+
+    @classmethod
+    def difference(cls, transcript1, transcript2, recursive=True):
+        differences = []
+
+        if not transcript1:
+            differences.append({'added': {'stable_id': transcript2.stable_id, 'release': transcript2.release}})
+            return differences
+
+        if not transcript2:
+            differences.append({'missing': {'stable_id': transcript1.stable_id, 'release': transcript1.release}})
+            return differences
+
+        # Has the version changed
+        if transcript1.stable_id_version != transcript2.stable_id_version:
+            differences.append({'version': {'base': transcript1.stable_id_version, 'updated': transcript2.stable_id_version}})
+
+        # The location has changed
+        if transcript1.loc_checksum != transcript2.loc_checksum:
+            differences.append({'location': {'base': transcript1.location, 'updated': transcript2.location}})
+
+        # The sequence has changed
+        if transcript1.seq_checksum != transcript2.seq_checksum:
+            differences.append({'sequence': {'base': transcript1.sequence, 'updated': transcript2.sequence}})
+
+        if not recursive:
+            return differences
+
+        # On to the exons
+        if transcript1.exon_set_checksum != transcript2.exon_set_checksum:
+            transcript1_exons = transcript1.exons.order_by('stable_id')
+            transcript2_exons = transcript2.exons.order_by('stable_id')
+
+            exon_pairs = cls.pairs(transcript1_exons, transcript2_exons)
+            exon_differences = []
+
+            for pair in exon_pairs:
+                print "stable_id {}, set a: {}, set b: {}".format(pair[0],
+                                                                  pair[1],
+                                                                  pair[2])
+                if len(pair) > 3:
+                    exon_differences.append({pair[0]: pair[1:]})
+                else:
+                    exon_difference = Exon.difference(pair[1], pair[2])
+                    if exon_difference:
+                        exon_differences.append({pair[0]: exon_difference})
+
+            if exon_differences:
+                differences.append({'exon_differences': exon_differences})
+
+        # One of them is coding, but are both?
+        # Annoyingly complex logic, but needed because a transcript
+        # could go from coding to non-coding, or vice versa
+        if transcript1.is_coding or transcript2.is_coding:
+            if transcript1.is_coding == transcript2.is_coding:
+                # Both are coding, this is the good situation
+
+                translation_differences = Translation.difference(transcript1.translation,
+                                                                transcript2.translation)
+
+                if translation_differences:
+                    differences.append({'translation_differences': translation_differences})
+
+            elif transcript1.is_coding:
+                translation = transcript1.translation
+                differences.append({'translation_lost': {'stable_id': translation.stable_id, 'release': translation.release}})
+
+            elif transcript2.is_coding:
+                translation = transcript2.translation
+                differences.append({'translation_gained': {'stable_id': translation.stable_id, 'release': translation.release}})
+
+        return differences
 
     # Does not support negative indexes for slicing
     
@@ -1014,6 +1224,24 @@ class Translation(Feature):
     @classmethod
     def releasetag(cls):
         return TranslationReleaseTag
+
+    @classmethod
+    def difference(cls, translation1, translation2):
+        differences = []
+
+        # Has the version changed
+        if translation1.stable_id_version != translation2.stable_id_version:
+            differences.append({'version': {'base': translation1.stable_id_version, 'updated': translation2.stable_id_version}})
+
+        # The location has changed
+        if translation1.loc_checksum != translation2.loc_checksum:
+            differences.append({'location': {'base': translation1.location, 'updated': translation2.location}})
+
+        # The sequence has changed
+        if translation1.seq_checksum != translation2.seq_checksum:
+            differences.append({'sequence': {'base': translation1.sequence, 'updated': translation2.sequence}})
+
+        return differences
 
     class Meta:
         managed = False
@@ -1116,32 +1344,11 @@ class ReleaseDifference(models.Model):
         
         differences = {'stable_id': self.stable_id}
 
-        gene1 = Gene.objects.by_stable_id("{}.{}".format(self.stable_id, self.gene_set[0][0]), assembly_id=self.gene_set[0][2]).first()
-        gene2 = Gene.objects.by_stable_id("{}.{}".format(self.stable_id, self.gene_set[1][0]), assembly_id=self.gene_set[1][2]).first()
+        gene1 = Gene.objects.by_stable_id("{}.{}".format(self.stable_id, self.gene_set[0][0]), assembly_id=self.gene_set[0][2], release=self.gene_set[0][1]).first()
+        gene2 = Gene.objects.by_stable_id("{}.{}".format(self.stable_id, self.gene_set[1][0]), assembly_id=self.gene_set[1][2], release=self.gene_set[1][1]).first()
 
-        gene_differences = {}
-        # Has the version changed
-        if gene1.stable_id_version != gene2.stable_id_version:
-            gene_differences['version'] = {'base': gene1.stable_id_version, 'updated': gene2.stable_id_version}
+        differences.update(Gene.difference(gene1, gene2))
 
-        # The location has changed
-        if gene1.loc_checksum != gene2.loc_checksum:
-            gene_differences['location'] = {'base': gene1.location, 'updated': gene2.location}
-
-        # We have differences at the gene level
-        if gene_differences:
-            differences['gene'] = gene_differences
-
-        # On to the transcripts
-        gene1_transcripts = gene1.transcripts.order_by('stable_id')
-        gene2_transcripts = gene2.transcripts.order_by('stable_id')
-
-        transcript_pairs = self.pairs(gene1_transcripts, gene2_transcripts)
-
-        for pair in transcript_pairs:
-            print "stable_id {}, set a: {}, set b: {}".format(pair[0],
-                                                              pair[1],
-                                                              pair[2])
 
         return differences
 
@@ -1154,27 +1361,6 @@ class ReleaseDifference(models.Model):
                  "GROUP_CONCAT(CONCAT(stable_id_version, ',', rs.shortname, ',', rs.assembly_id, ',', gene_checksum) SEPARATOR '#!#!#') as gene_set, count(stable_id) as gene_count from gene left join release_tag r1 on gene.gene_id = r1.feature_id and r1.feature_type = 1 join release_set rs on rs.release_id = r1.release_id and ((rs.shortname = %s and rs.assembly_id = %s) or (rs.shortname = %s and rs.assembly_id = %s)) group by stable_id order by gene_count desc")
         
         return cls.objects.raw("SELECT stable_id, GROUP_CONCAT(CONCAT(stable_id_version, ',', rs.shortname, ',', rs.assembly_id, ',', gene_checksum) ORDER BY FIELD(rs.shortname, %s, %s) SEPARATOR '#!#!#') as gene_set, count(stable_id) as gene_count from gene left join release_tag r1 on gene.gene_id = r1.feature_id and r1.feature_type = 1 join release_set rs on rs.release_id = r1.release_id and ((rs.shortname = %s and rs.assembly_id = %s) or (rs.shortname = %s and rs.assembly_id = %s)) group by stable_id order by gene_count desc", [release1, release2, release1, assembly1, release2, assembly2])
-
-    def pairs(self, featureset1, featureset2):
-        feature_hash = {}
-        feature_pairs = []
-        
-        for feature in featureset1:
-            feature_hash[feature.stable_id] = {}
-            feature_hash[feature.stable_id]['a'] = feature
-            
-        for feature in featureset2:
-            if feature.stable_id not in feature_hash:
-                feature_hash[feature.stable_id] = {}
-            feature_hash[feature.stable_id]['b'] = feature
-    
-        for stable_id in feature_hash:
-            a = feature_hash[stable_id]['a'] if 'a' in feature_hash[stable_id] else None
-            b = feature_hash[stable_id]['b'] if 'b' in feature_hash[stable_id] else None
-            feature_pairs.append([stable_id,a,b])
-            
-        return feature_pairs
-            
     
     class Meta:
         managed = False

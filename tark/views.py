@@ -323,7 +323,7 @@ def checksum_release_type(request, seqtype, tag, **kwargs):
     return HttpResponse(feature_set.query)
 
 @parameter_parser(allow_methods='GET')
-@render
+#@render
 def release_diff(request, species, release1, release2, **kwargs):
     
     print "species: {}".format(species)
