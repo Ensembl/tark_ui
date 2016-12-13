@@ -718,6 +718,14 @@ class Gene(Feature):
     def difference(cls, gene1, gene2, recursive=True):
         differences = {}
 
+        if not gene1:
+            differences['added'] = {'release': gene2.release}
+            return differences
+
+        if not gene2:
+            differences['missing'] = {'release': gene1.release}
+            return differences
+
         # Has the version changed
         if gene1.stable_id_version != gene2.stable_id_version:
             differences['version'] = {'base': gene1.stable_id_version, 'updated': gene2.stable_id_version}
