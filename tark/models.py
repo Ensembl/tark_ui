@@ -980,6 +980,7 @@ class Transcript(Feature):
     session = models.ForeignKey(Session, models.DO_NOTHING, blank=True, null=True)
     genes_m2m = models.ManyToManyField('Gene', through='Transcriptgene')
     exons_m2m = models.ManyToManyField('Exon', through='Exontranscript')
+    translations_m2m = models.ManyToManyField('Translation', through='Translationtranscript')
 
     @property
     def genes(self):
@@ -991,9 +992,19 @@ class Transcript(Feature):
         release = self.release if self.release else self.default_release().release
         return self.exons_m2m.annotate(_default_release=models.Value(release, output_field=models.CharField()))
 
+    # There should only be one translation, if there's more than one
+    # we're in trouble, we're just returning the first
+    @property
+    def translation(self):
+        release = self.release if self.release else self.default_release().release
+        for translation in self.translations_m2m.annotate(_default_release=models.Value(release, output_field=models.CharField())).all():
+            return translation
+        
+        raise FeatureNonCoding()
+
     @property
     def is_coding(self):
-        if self.translations.exists():
+        if self.translations_m2m.exists():
             return True
         
         return False
@@ -1021,16 +1032,6 @@ class Transcript(Feature):
             self._cdna_coding_end = self.mapper.cdna_coding_end()
             
         return self._cdna_coding_end
-
-    # There should only be one translation, if there's more than one
-    # we're in trouble, we're just returning the first
-    @property
-    def translation(self):
-        release = self.release if self.release else self.default_release().release
-        for translation in self.translations.annotate(_default_release=models.Value(release, output_field=models.CharField())).all():
-            return translation
-        
-        raise FeatureNonCoding()
 
     @property
     def mapper(self):
@@ -1064,9 +1065,11 @@ class Transcript(Feature):
 #        print "release: {}".format(release)
         
         if kwargs.get('expand', False):
-            children = Translation.objects.filter(transcript_id=self.transcript_id).annotate(_default_release=models.Value(release, output_field=models.CharField())).to_dict(**kwargs)
-            if children:
-                feature_obj['translation'] = children
+            if self.is_coding:
+                feature_obj['translation'] = self.translation.to_dict(**kwargs)
+#            children = Translation.objects.filter(transcript_id=self.transcript_id).annotate(_default_release=models.Value(release, output_field=models.CharField())).to_dict(**kwargs)
+#            if children:
+#                feature_obj['translation'] = children
 
             exons_ary = []
             for exon in self.exons.all():
@@ -1196,7 +1199,6 @@ class Translation(Feature):
     stable_id = models.CharField(max_length=64)
     stable_id_version = models.IntegerField()
     assembly = models.ForeignKey(Assembly, models.DO_NOTHING, blank=True, null=True)
-    transcript = models.ForeignKey(Transcript, models.DO_NOTHING, blank=True, null=True, related_name='translations')
     loc_start = models.IntegerField(blank=True, null=True)
     loc_end = models.IntegerField(blank=True, null=True)
     loc_strand = models.IntegerField(blank=True, null=True)
@@ -1205,6 +1207,12 @@ class Translation(Feature):
     translation_checksum = ChecksumField(unique=True, max_length=20, blank=True, null=True)
     seq_checksum = models.ForeignKey(Sequence, models.DO_NOTHING, db_column='seq_checksum', blank=True, null=True)
     session = models.ForeignKey(Session, models.DO_NOTHING, blank=True, null=True)
+    transcripts_m2m = models.ManyToManyField('Transcript', through='Translationtranscript')
+
+    @property
+    def transcripts(self):
+        release = self.release if self.release else self.default_release().release
+        return self.transcripts_m2m.annotate(_default_release=models.Value(release, output_field=models.CharField()))
 
     def to_dict(self, **kwargs):
         feature_obj = super(Translation, self).to_dict(**kwargs)
@@ -1251,6 +1259,16 @@ class Translation(Feature):
     class Meta:
         managed = False
         db_table = 'translation'
+
+class Translationtranscript(models.Model):
+    transcript_translation_id = models.AutoField(primary_key=True)
+    transcript = models.ForeignKey(Transcript, models.DO_NOTHING, blank=True, null=True)
+    translation = models.ForeignKey(Translation, models.DO_NOTHING, blank=True, null=True)
+    session = models.ForeignKey('Session', models.DO_NOTHING, blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'translation_transcript'
 
 class Releasetag(models.Model):
 #    feature_id = models.PositiveIntegerField(primary_key=True)
