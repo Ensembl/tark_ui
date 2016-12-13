@@ -71,7 +71,7 @@ class FeatureQuerySet(models.query.QuerySet):
         return features_ary
 
     def release(self, release_set=None, exclude=False, **kwargs):
-        print "release_set: {}".format(release_set)
+#        print "release_set: {}".format(release_set)
         # Allow chaining with an empty release
         if not release_set:
             return self
@@ -398,7 +398,9 @@ class Feature(models.Model):
                 for feature in loc_features['a']:
                     feature_pairs.append([feature.stable_id,feature,None])
             else:
-                feature_pairs.append(['remapped', loc_features['a'][0].short_location, loc_features['a'], loc_features['b']])
+                feature_pairs.append(['remapped', loc_features['a'][0].short_location,
+                                      [str(f) for f in loc_features['a']],
+                                      [str(f) for f in loc_features['b']]])
 
         return feature_pairs
 
@@ -588,7 +590,7 @@ class Exon(Feature):
 
         # The sequence has changed
         if exon1.seq_checksum != exon2.seq_checksum:
-            differences['sequence'] = {'base': exon1.sequence, 'updated': exon2.sequence}
+            differences['sequence'] = {'base': exon1.seq, 'updated': exon2.seq}
 
         return differences
 
@@ -665,7 +667,6 @@ class Gene(Feature):
 
         if self.release:
             feature_obj['release'] = self.release
-            pprint.pprint(feature_obj)
             return self.expand_dict(feature_obj, self.release, **kwargs)
         else:
             feature_objs = []
@@ -677,7 +678,7 @@ class Gene(Feature):
             return feature_objs
 
     def expand_dict(self, feature_obj, release, **kwargs):
-        print "release: {}".format(release)
+#        print "release: {}".format(release)
         
         if kwargs.get('expand', False):
             transcript_ary = []
@@ -735,9 +736,9 @@ class Gene(Feature):
         transcript_differences = []
 
         for pair in transcript_pairs:
-            print "stable_id {}, set a: {}, set b: {}".format(pair[0],
-                                                              pair[1],
-                                                              pair[2])
+#            print "stable_id {}, set a: {}, set b: {}".format(pair[0],
+#                                                              pair[1],
+#                                                              pair[2])
             if len(pair) > 3:
                 transcript_differences.append({pair[0]: pair[1:]})
             else:
@@ -1051,25 +1052,25 @@ class Transcript(Feature):
         else:
             feature_objs = []
             for release in self.release_tags:
-                release_obj = copy.deepcopy(feature_obj)
+                release_obj = copy.copy(feature_obj)
                 release_obj['release'] = release
                 feature_objs.append(self.expand_dict(release_obj, release, **kwargs)) 
 
-            return feature_objs
+        return feature_objs
 
     def expand_dict(self, feature_obj, release, **kwargs):
-        print "release: {}".format(release)
+#        print "release: {}".format(release)
         
         if kwargs.get('expand', False):
             children = Translation.objects.filter(transcript_id=self.transcript_id).annotate(_default_release=models.Value(release, output_field=models.CharField())).to_dict(**kwargs)
             if children:
                 feature_obj['translation'] = children
-            
+
             exons_ary = []
             for exon in self.exons.all():
                 exon_obj = exon.to_dict(**kwargs)
                 exons_ary.append(exon_obj)
-                        
+
             if exons_ary:
                 feature_obj['exon'] = exons_ary
     
@@ -1104,7 +1105,7 @@ class Transcript(Feature):
 
         # The sequence has changed
         if transcript1.seq_checksum != transcript2.seq_checksum:
-            differences.append({'sequence': {'base': transcript1.sequence, 'updated': transcript2.sequence}})
+            differences.append({'sequence': {'base': transcript1.seq, 'updated': transcript2.seq}})
 
         if not recursive:
             return differences
@@ -1118,9 +1119,9 @@ class Transcript(Feature):
             exon_differences = []
 
             for pair in exon_pairs:
-                print "stable_id {}, set a: {}, set b: {}".format(pair[0],
-                                                                  pair[1],
-                                                                  pair[2])
+#                print "stable_id {}, set a: {}, set b: {}".format(pair[0],
+#                                                                  pair[1],
+#                                                                  pair[2])
                 if len(pair) > 3:
                     exon_differences.append({pair[0]: pair[1:]})
                 else:
@@ -1239,7 +1240,7 @@ class Translation(Feature):
 
         # The sequence has changed
         if translation1.seq_checksum != translation2.seq_checksum:
-            differences.append({'sequence': {'base': translation1.sequence, 'updated': translation2.sequence}})
+            differences.append({'sequence': {'base': translation1.seq, 'updated': translation2.seq}})
 
         return differences
 
@@ -1351,6 +1352,17 @@ class ReleaseDifference(models.Model):
 
 
         return differences
+
+    @classmethod
+    def fetch_differences(cls, release1, release2, assembly1, assembly2=None):
+        if not assembly2:
+            assembly2 = assembly1
+
+        for gene_set in ReleaseDifference.compare(release1, release2, assembly1, assembly2):
+            if not gene_set.is_different:
+                continue
+
+            yield gene_set.difference()
 
     @classmethod
     def compare(cls, release1, release2, assembly1, assembly2=None):

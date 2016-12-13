@@ -323,7 +323,7 @@ def checksum_release_type(request, seqtype, tag, **kwargs):
     return HttpResponse(feature_set.query)
 
 @parameter_parser(allow_methods='GET')
-#@render
+@render
 def release_diff(request, species, release1, release2, **kwargs):
     
     print "species: {}".format(species)
@@ -339,6 +339,8 @@ def release_diff(request, species, release1, release2, **kwargs):
     print "releaseset2: {}".format(releaseset2.shortname)
 
     f = open('/tmp/diff_set.txt', 'w')
+
+    return ReleaseDifference.fetch_differences(release1, release2, assembly1.assembly_id, assembly2.assembly_id)
 
     for gene_set in ReleaseDifference.compare(release1, release2, assembly1.assembly_id, assembly2.assembly_id): 
 #        print >> f, "stable_id: {}, count: {}".format(gene_set.stable_id, gene_set.gene_count)
