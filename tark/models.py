@@ -574,11 +574,11 @@ class Exon(Feature):
         differences = {}
 
         if not exon1:
-            differences['added'] = {'stable_id': exon2.stable_id, 'release': exon2.release}
+            differences['added'] = {'release': exon2.release}
             return differences
 
         if not exon2:
-            differences['missing'] = {'stable_id': exon1.stable_id, 'release': exon1.release}
+            differences['missing'] = {'release': exon1.release}
             return differences
 
         # Has the version changed
