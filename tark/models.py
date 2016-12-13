@@ -398,9 +398,10 @@ class Feature(models.Model):
                 for feature in loc_features['a']:
                     feature_pairs.append([feature.stable_id,feature,None])
             else:
-                feature_pairs.append(['remapped', loc_features['a'][0].short_location,
-                                      [str(f) for f in loc_features['a']],
-                                      [str(f) for f in loc_features['b']]])
+                loc = loc_features['a'][0].short_location
+                feature_pairs.append(['remapped', loc,
+                                      [str(f) for f in loc_features['a']] if len(loc_features['a']) < 1 else str(loc_features['a'][0]),
+                                      [str(f) for f in loc_features['b']] if len(loc_features['b']) < 1 else str(loc_features['b'][0])])
 
         return feature_pairs
 
@@ -745,7 +746,8 @@ class Gene(Feature):
                 transcript_difference = Transcript.difference(pair[1],
                                                               pair[2])
                 if transcript_difference:
-                    transcript_differences.append({pair[0]: transcript_difference})
+                    transcript_difference['stable_id'] = pair[0]
+                    transcript_differences.append(transcript_difference)
 
         if transcript_differences:
             differences['transcript_differences'] = transcript_differences
@@ -1085,27 +1087,27 @@ class Transcript(Feature):
 
     @classmethod
     def difference(cls, transcript1, transcript2, recursive=True):
-        differences = []
+        differences = {}
 
         if not transcript1:
-            differences.append({'added': {'stable_id': transcript2.stable_id, 'release': transcript2.release}})
+            differences['added'] = {'release': transcript2.release}
             return differences
 
         if not transcript2:
-            differences.append({'missing': {'stable_id': transcript1.stable_id, 'release': transcript1.release}})
+            differences['missing'] = {'release': transcript1.release}
             return differences
 
         # Has the version changed
         if transcript1.stable_id_version != transcript2.stable_id_version:
-            differences.append({'version': {'base': transcript1.stable_id_version, 'updated': transcript2.stable_id_version}})
+            differences['version'] = {'base': transcript1.stable_id_version, 'updated': transcript2.stable_id_version}
 
         # The location has changed
         if transcript1.loc_checksum != transcript2.loc_checksum:
-            differences.append({'location': {'base': transcript1.location, 'updated': transcript2.location}})
+            differences['location'] = {'base': transcript1.location, 'updated': transcript2.location}
 
         # The sequence has changed
         if transcript1.seq_checksum != transcript2.seq_checksum:
-            differences.append({'sequence': {'base': transcript1.seq, 'updated': transcript2.seq}})
+            differences['sequence'] = {'base': transcript1.seq, 'updated': transcript2.seq}
 
         if not recursive:
             return differences
@@ -1127,10 +1129,11 @@ class Transcript(Feature):
                 else:
                     exon_difference = Exon.difference(pair[1], pair[2])
                     if exon_difference:
-                        exon_differences.append({pair[0]: exon_difference})
+                        exon_difference['stable_id'] = pair[0]
+                        exon_differences.append(exon_difference)
 
             if exon_differences:
-                differences.append({'exon_differences': exon_differences})
+                differences['exon_differences'] = exon_differences
 
         # One of them is coding, but are both?
         # Annoyingly complex logic, but needed because a transcript
@@ -1143,15 +1146,16 @@ class Transcript(Feature):
                                                                 transcript2.translation)
 
                 if translation_differences:
-                    differences.append({'translation_differences': translation_differences})
+                    translation_differences['stable_id'] = transcript1.translation.stable_id if transcript1.translation else transcript2.translation.stable_id
+                    differences['translation_differences'] = translation_differences
 
             elif transcript1.is_coding:
                 translation = transcript1.translation
-                differences.append({'translation_lost': {'stable_id': translation.stable_id, 'release': translation.release}})
+                differences['translation_lost'] = {'stable_id': translation.stable_id, 'release': translation.release}
 
             elif transcript2.is_coding:
                 translation = transcript2.translation
-                differences.append({'translation_gained': {'stable_id': translation.stable_id, 'release': translation.release}})
+                differences['translation_gained'] = {'stable_id': translation.stable_id, 'release': translation.release}
 
         return differences
 
@@ -1228,19 +1232,19 @@ class Translation(Feature):
 
     @classmethod
     def difference(cls, translation1, translation2):
-        differences = []
+        differences = {}
 
         # Has the version changed
         if translation1.stable_id_version != translation2.stable_id_version:
-            differences.append({'version': {'base': translation1.stable_id_version, 'updated': translation2.stable_id_version}})
+            differences['version'] = {'base': translation1.stable_id_version, 'updated': translation2.stable_id_version}
 
         # The location has changed
         if translation1.loc_checksum != translation2.loc_checksum:
-            differences.append({'location': {'base': translation1.location, 'updated': translation2.location}})
+            differences['location'] = {'base': translation1.location, 'updated': translation2.location}
 
         # The sequence has changed
         if translation1.seq_checksum != translation2.seq_checksum:
-            differences.append({'sequence': {'base': translation1.seq, 'updated': translation2.seq}})
+            differences['sequence'] = {'base': translation1.seq, 'updated': translation2.seq}
 
         return differences
 
