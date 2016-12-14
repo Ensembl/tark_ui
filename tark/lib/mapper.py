@@ -79,10 +79,7 @@ class Mapper():
             raise MissingTranscriptError()
         
         if not hasattr(self, '_exons'):
-            self._exons = []
-            for exon_transcript in self.transcript().exons.all().order_by('exon_order'):
-                exon = exon_transcript.exon
-                self.exons.append(exon)
+            self._exons = list(self.transcript().exons.all())
 
         return self._exons
 

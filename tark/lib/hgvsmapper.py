@@ -49,7 +49,7 @@ def _fetch_by_hgvs_g(variant, assemblies, **kwargs):
             # the hgvs library doesn't support numbers as the "location" in an hgvs string
             region = variant.ac.strip('chr')
             location = FeatureLocation(variant.posedit.pos.start.base, variant.posedit.pos.end.base, strand=1, ref='genomic')
-            genes = Gene.objects.fetch_by_location(region, location, assembly=assembly, **kwargs)
+            genes = Gene.objects.by_location(region, location, assembly=assembly, **kwargs)
         else:
             genes = Gene.objects.by_name(variant.ac, assembly=assembly, **kwargs)
         if not genes:

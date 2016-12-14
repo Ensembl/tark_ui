@@ -309,7 +309,11 @@ class Feature(models.Model):
         return self
 
     def in_release(self, release):
-        return release in [int(r) for r in self.releases.values_list('release__shortname', flat=True)]
+        for r in self.releases.values_list('release__shortname', flat=True):
+            if r == release:
+                return True
+
+        return False
 
     @property
     def release_tags(self):
