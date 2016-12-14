@@ -131,7 +131,7 @@ class FeatureQuerySet(models.query.QuerySet):
             return self
 
     def by_stable_id(self, stable_id, **kwargs):
-        print "trying {}".format(stable_id)
+#        print "trying {}".format(stable_id)
         try:
             split_stable_id = stable_id.split('.')
             # Will this be a problem for null version stable_ids?
@@ -850,7 +850,7 @@ class Releaseset(models.Model):
 
     @classmethod
     def fetch_set(cls, **kwargs):
-        pprint.pprint(kwargs)
+#        pprint.pprint(kwargs)
         filter = {}
         if 'assembly' in kwargs:
             assembly = Assembly.fetch_by_accession(kwargs['assembly'])
@@ -864,7 +864,6 @@ class Releaseset(models.Model):
         if 'description' in kwargs:
             filter['description__contains'] = kwargs['description']
    
-        pprint.pprint(filter)
         try:
             return Releaseset.objects.get(**filter)
         
@@ -1364,10 +1363,14 @@ class ReleaseDifference(models.Model):
     stable_id = models.CharField(max_length=20, primary_key=True)
     gene_count = models.IntegerField
     gene_set = GeneSetField(max_length=200)
+    release1 = models.IntegerField
+    assembly1 = models.IntegerField
+    release2 = models.IntegerField
+    assembly2 = models.IntegerField
 
     @property
     def is_different(self):
-        return len(self.gene_set) > 1 and self.gene_set[0][3] != self.gene_set[1][3]
+        return len(self.gene_set) < 2 or self.gene_set[0][3] != self.gene_set[1][3]
 
     def difference(self):
         if not self.is_different:
@@ -1375,8 +1378,8 @@ class ReleaseDifference(models.Model):
         
         differences = {'stable_id': self.stable_id}
 
-        gene1 = Gene.objects.by_stable_id("{}.{}".format(self.stable_id, self.gene_set[0][0]), assembly_id=self.gene_set[0][2], release=self.gene_set[0][1]).first()
-        gene2 = Gene.objects.by_stable_id("{}.{}".format(self.stable_id, self.gene_set[1][0]), assembly_id=self.gene_set[1][2], release=self.gene_set[1][1]).first()
+        gene1 = Gene.objects.by_stable_id(self.stable_id, assembly_id=self.assembly1, release=self.release1).first()
+        gene2 = Gene.objects.by_stable_id(self.stable_id, assembly_id=self.assembly2, release=self.release2).first()
 
         differences.update(Gene.difference(gene1, gene2))
 
@@ -1402,7 +1405,7 @@ class ReleaseDifference(models.Model):
         query = ("select stable_id, "
                  "GROUP_CONCAT(CONCAT(stable_id_version, ',', rs.shortname, ',', rs.assembly_id, ',', gene_checksum) SEPARATOR '#!#!#') as gene_set, count(stable_id) as gene_count from gene left join release_tag r1 on gene.gene_id = r1.feature_id and r1.feature_type = 1 join release_set rs on rs.release_id = r1.release_id and ((rs.shortname = %s and rs.assembly_id = %s) or (rs.shortname = %s and rs.assembly_id = %s)) group by stable_id order by gene_count desc")
         
-        return cls.objects.raw("SELECT stable_id, GROUP_CONCAT(CONCAT(stable_id_version, ',', rs.shortname, ',', rs.assembly_id, ',', gene_checksum) ORDER BY FIELD(rs.shortname, %s, %s) SEPARATOR '#!#!#') as gene_set, count(stable_id) as gene_count from gene left join release_tag r1 on gene.gene_id = r1.feature_id and r1.feature_type = 1 join release_set rs on rs.release_id = r1.release_id and ((rs.shortname = %s and rs.assembly_id = %s) or (rs.shortname = %s and rs.assembly_id = %s)) group by stable_id order by gene_count desc", [release1, release2, release1, assembly1, release2, assembly2])
+        return cls.objects.raw("SELECT stable_id, GROUP_CONCAT(CONCAT(stable_id_version, ',', rs.shortname, ',', rs.assembly_id, ',', gene_checksum) ORDER BY FIELD(rs.shortname, %s, %s) SEPARATOR '#!#!#') as gene_set, count(stable_id) as gene_count, %s as release1, %s as assembly1, %s as release2, %s as assembly2 from gene left join release_tag r1 on gene.gene_id = r1.feature_id and r1.feature_type = 1 join release_set rs on rs.release_id = r1.release_id and ((rs.shortname = %s and rs.assembly_id = %s) or (rs.shortname = %s and rs.assembly_id = %s)) group by stable_id order by gene_count desc", [release1, release2, release1, assembly1, release2, assembly2, release1, assembly1, release2, assembly2])
     
     class Meta:
         managed = False

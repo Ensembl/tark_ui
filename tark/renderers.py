@@ -72,7 +72,7 @@ class BioJSONEncoder(json.JSONEncoder):
             kwargs = self.object_parameters
         else:
             kwargs = {}
-            pprint.pprint(self.object_parameters)
+#            pprint.pprint(self.object_parameters)
 
         if isinstance(obj, Seq):
             return str(obj)
