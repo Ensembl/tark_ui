@@ -1,0 +1,518 @@
+[
+    {
+	"fields": {
+	    "shortname" : "85",
+	    "description" : "Ensembl release 85",
+	    "release_date" : "2016-12-14",
+	    "release_checksum" : "1247F1BE68A26DADEC48FE08DE552A76E8BE153C",
+	    "assembly" : 1,
+	    "session" : 1
+	},
+	"pk" : 1,
+	"model" : "tark.Releaseset"
+    },
+    {
+	"fields": {
+	    "release" : 1,
+	    "feature_type" : 1,
+	    "session" : 1
+	},
+	"pk" : 119473,
+	"model" : "tark.GeneReleaseTag"
+    },
+    {
+	"fields": {
+	    "release" : 1,
+	    "feature_type" : 1,
+	    "session" : 1
+	},
+	"pk" : 36751,
+	"model" : "tark.GeneReleaseTag"
+    },
+    {
+	"fields": {
+	    "release" : 1,
+	    "feature_type" : 1,
+	    "session" : 1
+	},
+	"pk" : 32852,
+	"model" : "tark.GeneReleaseTag"
+    },
+    {
+	"fields": {
+	    "release" : 1,
+	    "feature_type" : 2,
+	    "session" : 1
+	},
+	"pk" : 372211,
+	"model" : "tark.TranscriptReleaseTag"
+    },
+    {
+	"fields": {
+	    "release" : 1,
+	    "feature_type" : 4,
+	    "session" : 1
+	},
+	"pk" : 170603,
+	"model" : "tark.TranslationReleaseTag"
+    },
+    {
+	"fields": {
+	    "release" : 1,
+	    "feature_type" : 2,
+	    "session" : 1
+	},
+	"pk" : 372212,
+	"model" : "tark.TranscriptReleaseTag"
+    },
+    {
+	"fields": {
+	    "release" : 1,
+	    "feature_type" : 4,
+	    "session" : 1
+	},
+	"pk" : 170604,
+	"model" : "tark.TranslationReleaseTag"
+    },
+    {
+	"fields": {
+	    "release" : 1,
+	    "feature_type" : 1,
+	    "session" : 1
+	},
+	"pk" : 372213,
+	"model" : "tark.TranscriptReleaseTag"
+    },
+    {
+	"fields": {
+	    "release" : 1,
+	    "feature_type" : 4,
+	    "session" : 1
+	},
+	"pk" : 170605,
+	"model" : "tark.TranslationReleaseTag"
+    },
+    {
+	"fields": {
+	    "release" : 1,
+	    "feature_type" : 2,
+	    "session" : 1
+	},
+	"pk" : 372214,
+	"model" : "tark.TranscriptReleaseTag"
+    },
+    {
+	"fields": {
+	    "release" : 1,
+	    "feature_type" : 4,
+	    "session" : 1
+	},
+	"pk" : 170606,
+	"model" : "tark.TranslationReleaseTag"
+    },
+    {
+	"fields": {
+	    "release" : 1,
+	    "feature_type" : 2,
+	    "session" : 1
+	},
+	"pk" : 372215,
+	"model" : "tark.TranscriptReleaseTag"
+    },
+    {
+	"fields": {
+	    "release" : 1,
+	    "feature_type" : 4,
+	    "session" : 1
+	},
+	"pk" : 170607,
+	"model" : "tark.TranslationReleaseTag"
+    },
+    {
+	"fields": {
+	    "release" : 1,
+	    "feature_type" : 2,
+	    "session" : 1
+	},
+	"pk" : 372216,
+	"model" : "tark.TranscriptReleaseTag"
+    },
+    {
+	"fields": {
+	    "release" : 1,
+	    "feature_type" : 4,
+	    "session" : 1
+	},
+	"pk" : 170608,
+	"model" : "tark.TranslationReleaseTag"
+    },
+    {
+	"fields": {
+	    "release" : 1,
+	    "feature_type" : 2,
+	    "session" : 1
+	},
+	"pk" :372217 ,
+	"model" : "tark.TranscriptReleaseTag"
+    },
+    {
+	"fields": {
+	    "release" : 1,
+	    "feature_type" : 4,
+	    "session" : 1
+	},
+	"pk" : 170609,
+	"model" : "tark.TranslationReleaseTag"
+    },
+    {
+	"fields": {
+	    "release" : 1,
+	    "feature_type" : 2,
+	    "session" : 1
+	},
+	"pk" : 372218,
+	"model" : "tark.TranscriptReleaseTag"
+    },
+    {
+	"fields": {
+	    "release" : 1,
+	    "feature_type" : 4,
+	    "session" : 1
+	},
+	"pk" : 170610,
+	"model" : "tark.TranslationReleaseTag"
+    },
+    {
+	"fields": {
+	    "release" : 1,
+	    "feature_type" : 2,
+	    "session" : 1
+	},
+	"pk" : 372219,
+	"model" : "tark.TranscriptReleaseTag"
+    },
+    {
+	"fields": {
+	    "release" : 1,
+	    "feature_type" : 2,
+	    "session" : 1
+	},
+	"pk" : 372220,
+	"model" : "tark.TranscriptReleaseTag"
+    },
+    {
+	"fields": {
+	    "release" : 1,
+	    "feature_type" : 4,
+	    "session" : 1
+	},
+	"pk" : 170611,
+	"model" : "tark.TranslationReleaseTag"
+    },
+    {
+	"fields": {
+	    "release" : 1,
+	    "feature_type" : 2,
+	    "session" : 1
+	},
+	"pk" : 372221,
+	"model" : "tark.TranscriptReleaseTag"
+    },
+    {
+	"fields": {
+	    "release" : 1,
+	    "feature_type" : 4,
+	    "session" : 1
+	},
+	"pk" : 170612,
+	"model" : "tark.TranslationReleaseTag"
+    },
+    {
+	"fields": {
+	    "release" : 1,
+	    "feature_type" : 2,
+	    "session" : 1
+	},
+	"pk" : 372222,
+	"model" : "tark.TranscriptReleaseTag"
+    },
+    {
+	"fields": {
+	    "release" : 1,
+	    "feature_type" : 2,
+	    "session" : 1
+	},
+	"pk" : 372223,
+	"model" : "tark.TranscriptReleaseTag"
+    },
+    {
+	"fields": {
+	    "release" : 1,
+	    "feature_type" : 4,
+	    "session" : 1
+	},
+	"pk" : 170613,
+	"model" : "tark.TranslationReleaseTag"
+    },
+    {
+	"fields": {
+	    "release" : 1,
+	    "feature_type" : 2,
+	    "session" : 1
+	},
+	"pk" : 105416,
+	"model" : "tark.TranscriptReleaseTag"
+    },
+    {
+	"fields": {
+	    "release" : 1,
+	    "feature_type" : 4,
+	    "session" : 1
+	},
+	"pk" : 47202,
+	"model" : "tark.TranslationReleaseTag"
+    },
+    {
+	"fields": {
+	    "release" : 1,
+	    "feature_type" : 2,
+	    "session" : 1
+	},
+	"pk" : 105417,
+	"model" : "tark.TranscriptReleaseTag"
+    },
+    {
+	"fields": {
+	    "release" : 1,
+	    "feature_type" : 4,
+	    "session" : 1
+	},
+	"pk" : 47203,
+	"model" : "tark.TranslationReleaseTag"
+    },
+    {
+	"fields": {
+	    "release" : 1,
+	    "feature_type" : 2,
+	    "session" : 1
+	},
+	"pk" : 105418,
+	"model" : "tark.TranscriptReleaseTag"
+    },
+    {
+	"fields": {
+	    "release" : 1,
+	    "feature_type" : 2,
+	    "session" : 1
+	},
+	"pk" : 105419,
+	"model" : "tark.TranscriptReleaseTag"
+    },
+    {
+	"fields": {
+	    "release" : 1,
+	    "feature_type" : 4,
+	    "session" : 1
+	},
+	"pk" : 47204,
+	"model" : "tark.TranslationReleaseTag"
+    },
+    {
+	"fields": {
+	    "release" : 1,
+	    "feature_type" : 2,
+	    "session" : 1
+	},
+	"pk" : 105420,
+	"model" : "tark.TranscriptReleaseTag"
+    },
+    {
+	"fields": {
+	    "release" : 1,
+	    "feature_type" : 4,
+	    "session" : 1
+	},
+	"pk" : 47205,
+	"model" : "tark.TranslationReleaseTag"
+    },
+    {
+	"fields": {
+	    "release" : 1,
+	    "feature_type" : 2,
+	    "session" : 1
+	},
+	"pk" : 105421,
+	"model" : "tark.TranscriptReleaseTag"
+    },
+    {
+	"fields": {
+	    "release" : 1,
+	    "feature_type" : 2,
+	    "session" : 1
+	},
+	"pk" : 105422,
+	"model" : "tark.TranscriptReleaseTag"
+    },
+    {
+	"fields": {
+	    "release" : 1,
+	    "feature_type" : 4,
+	    "session" : 1
+	},
+	"pk" : 47206,
+	"model" : "tark.TranslationReleaseTag"
+    },
+    {
+	"fields": {
+	    "release" : 1,
+	    "feature_type" : 2,
+	    "session" : 1
+	},
+	"pk" : 105423,
+	"model" : "tark.TranscriptReleaseTag"
+    },
+    {
+	"fields": {
+	    "release" : 1,
+	    "feature_type" : 4,
+	    "session" : 1
+	},
+	"pk" : 47207,
+	"model" : "tark.TranslationReleaseTag"
+    },
+    {
+	"fields": {
+	    "release" : 1,
+	    "feature_type" : 2,
+	    "session" : 1
+	},
+	"pk" : 105424,
+	"model" : "tark.TranscriptReleaseTag"
+    },
+    {
+	"fields": {
+	    "release" : 1,
+	    "feature_type" : 4,
+	    "session" : 1
+	},
+	"pk" : 47208,
+	"model" : "tark.TranslationReleaseTag"
+    },
+    {
+	"fields": {
+	    "release" : 1,
+	    "feature_type" : 2,
+	    "session" : 1
+	},
+	"pk" : 105425,
+	"model" : "tark.TranscriptReleaseTag"
+    },
+    {
+	"fields": {
+	    "release" : 1,
+	    "feature_type" : 4,
+	    "session" : 1
+	},
+	"pk" : 47209,
+	"model" : "tark.TranslationReleaseTag"
+    },
+    {
+	"fields": {
+	    "release" : 1,
+	    "feature_type" : 2,
+	    "session" : 1
+	},
+	"pk" : 105426,
+	"model" : "tark.TranscriptReleaseTag"
+    },
+    {
+	"fields": {
+	    "release" : 1,
+	    "feature_type" : 4,
+	    "session" : 1
+	},
+	"pk" : 47210,
+	"model" : "tark.TranslationReleaseTag"
+    },
+    {
+	"fields": {
+	    "release" : 1,
+	    "feature_type" : 2,
+	    "session" : 1
+	},
+	"pk" : 105427,
+	"model" : "tark.TranscriptReleaseTag"
+    },
+    {
+	"fields": {
+	    "release" : 1,
+	    "feature_type" : 4,
+	    "session" : 1
+	},
+	"pk" : 47211,
+	"model" : "tark.TranslationReleaseTag"
+    },
+    {
+	"fields": {
+	    "release" : 1,
+	    "feature_type" : 2,
+	    "session" : 1
+	},
+	"pk" : 105428,
+	"model" : "tark.TranscriptReleaseTag"
+    },
+    {
+	"fields": {
+	    "release" : 1,
+	    "feature_type" : 4,
+	    "session" : 1
+	},
+	"pk" : 47212,
+	"model" : "tark.TranslationReleaseTag"
+    },
+    {
+	"fields": {
+	    "release" : 1,
+	    "feature_type" : 2,
+	    "session" : 1
+	},
+	"pk" : 105429,
+	"model" : "tark.TranscriptReleaseTag"
+    },
+    {
+	"fields": {
+	    "release" : 1,
+	    "feature_type" : 4,
+	    "session" : 1
+	},
+	"pk" : 47213,
+	"model" : "tark.TranslationReleaseTag"
+    },
+    {
+	"fields": {
+	    "release" : 1,
+	    "feature_type" : 2,
+	    "session" : 1
+	},
+	"pk" : 90119,
+	"model" : "tark.TranscriptReleaseTag"
+    },
+    {
+	"fields": {
+	    "release" : 1,
+	    "feature_type" : 4,
+	    "session" : 1
+	},
+	"pk" : 39647,
+	"model" : "tark.TranslationReleaseTag"
+    },
+    {
+	"fields": {
+	    "release" : 1,
+	    "feature_type" : 3,
+	    "session" : 1
+	},
+	"pk" : 2170533,
+	"model" : "tark.ExonReleaseTag"
+    }
+]
