@@ -1,0 +1,218 @@
+[
+    {
+	"fields": {
+	    "transcript_id" : 372211,
+	    "translation_id" : 170603,
+	    "session" : 1
+	},
+	"pk" : 1,
+	"model" : "tark.Translationtranscript"
+    },
+    {
+	"fields": {
+	    "transcript_id" : 372212,
+	    "translation_id" : 170604,
+	    "session" : 1
+	},
+	"pk" : 1,
+	"model" : "tark.Translationtranscript"
+    },
+    {
+	"fields": {
+	    "transcript_id" : 372213,
+	    "translation_id" : 170605,
+	    "session" : 1
+	},
+	"pk" : 1,
+	"model" : "tark.Translationtranscript"
+    },
+    {
+	"fields": {
+	    "transcript_id" : 372214,
+	    "translation_id" : 170606,
+	    "session" : 1
+	},
+	"pk" : 1,
+	"model" : "tark.Translationtranscript"
+    },
+    {
+	"fields": {
+	    "transcript_id" : 372215,
+	    "translation_id" : 170607,
+	    "session" : 1
+	},
+	"pk" : 1,
+	"model" : "tark.Translationtranscript"
+    },
+    {
+	"fields": {
+	    "transcript_id" : 372216,
+	    "translation_id" : 170608,
+	    "session" : 1
+	},
+	"pk" : 1,
+	"model" : "tark.Translationtranscript"
+    },
+    {
+	"fields": {
+	    "transcript_id" : 372217,
+	    "translation_id" : 170609,
+	    "session" : 1
+	},
+	"pk" : 1,
+	"model" : "tark.Translationtranscript"
+    },
+    {
+	"fields": {
+	    "transcript_id" : 372218,
+	    "translation_id" : 170610,
+	    "session" : 1
+	},
+	"pk" : 1,
+	"model" : "tark.Translationtranscript"
+    },
+    {
+	"fields": {
+	    "transcript_id" : 372220,
+	    "translation_id" : 170611,
+	    "session" : 1
+	},
+	"pk" : 1,
+	"model" : "tark.Translationtranscript"
+    },
+    {
+	"fields": {
+	    "transcript_id" : 372221,
+	    "translation_id" : 170612,
+	    "session" : 1
+	},
+	"pk" : 1,
+	"model" : "tark.Translationtranscript"
+    },
+    {
+	"fields": {
+	    "transcript_id" : 372223,
+	    "translation_id" : 170613,
+	    "session" : 1
+	},
+	"pk" : 1,
+	"model" : "tark.Translationtranscript"
+    },
+    {
+	"fields": {
+	    "transcript_id" : 105416,
+	    "translation_id" : 47202,
+	    "session" : 1
+	},
+	"pk" : 1,
+	"model" : "tark.Translationtranscript"
+    },
+    {
+	"fields": {
+	    "transcript_id" : 105417,
+	    "translation_id" : 47203,
+	    "session" : 1
+	},
+	"pk" : 1,
+	"model" : "tark.Translationtranscript"
+    },
+    {
+	"fields": {
+	    "transcript_id" : 105419,
+	    "translation_id" : 47204,
+	    "session" : 1
+	},
+	"pk" : 1,
+	"model" : "tark.Translationtranscript"
+    },
+    {
+	"fields": {
+	    "transcript_id" : 105420,
+	    "translation_id" : 47205,
+	    "session" : 1
+	},
+	"pk" : 1,
+	"model" : "tark.Translationtranscript"
+    },
+    {
+	"fields": {
+	    "transcript_id" : 105422,
+	    "translation_id" : 47206,
+	    "session" : 1
+	},
+	"pk" : 1,
+	"model" : "tark.Translationtranscript"
+    },
+    {
+	"fields": {
+	    "transcript_id" : 105423,
+	    "translation_id" : 47207,
+	    "session" : 1
+	},
+	"pk" : 1,
+	"model" : "tark.Translationtranscript"
+    },
+    {
+	"fields": {
+	    "transcript_id" : 105424,
+	    "translation_id" : 47208,
+	    "session" : 1
+	},
+	"pk" : 1,
+	"model" : "tark.Translationtranscript"
+    },
+    {
+	"fields": {
+	    "transcript_id" : 105425,
+	    "translation_id" : 47209,
+	    "session" : 1
+	},
+	"pk" : 1,
+	"model" : "tark.Translationtranscript"
+    },
+    {
+	"fields": {
+	    "transcript_id" : 105426,
+	    "translation_id" : 47210,
+	    "session" : 1
+	},
+	"pk" : 1,
+	"model" : "tark.Translationtranscript"
+    },
+    {
+	"fields": {
+	    "transcript_id" : 105427,
+	    "translation_id" : 47211,
+	    "session" : 1
+	},
+	"pk" : 1,
+	"model" : "tark.Translationtranscript"
+    },
+    {
+	"fields": {
+	    "transcript_id" : 105428,
+	    "translation_id" : 47212,
+	    "session" : 1
+	},
+	"pk" : 1,
+	"model" : "tark.Translationtranscript"
+    },
+    {
+	"fields": {
+	    "transcript_id" : 105429,
+	    "translation_id" : 47213,
+	    "session" : 1
+	},
+	"pk" : 1,
+	"model" : "tark.Translationtranscript"
+    },
+    {
+	"fields": {
+	    "transcript_id" : 90119,
+	    "translation_id" : 39647,
+	    "session" : 1
+	},
+	"pk" : 1,
+	"model" : "tark.Translationtranscript"
+    }
+]

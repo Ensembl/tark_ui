@@ -20,6 +20,7 @@ from .lib.seqfetcher import SeqFetcher
 
 from __builtin__ import int, True
 from django.db.models.fields.related import ForeignKey
+from curses import start_color
 
 FEATURE_TYPES = {'gene': 'Gene', 
                  'transcript': 'Transcript', 
@@ -309,6 +310,7 @@ class Feature(models.Model):
         return self
 
     def in_release(self, release):
+        release = str(release)
         for r in self.releases.values_list('release__shortname', flat=True):
             if r == release:
                 return True
@@ -548,15 +550,55 @@ class Exon(Feature):
     @property
     def transcripts(self):
         release = self.release if self.release else self.default_release().release
-        return self.transcripts_m2m.annotate(_default_release=models.Value(release, output_field=models.CharField()))
+
+        return [et.annotated_transcript() for et in self.exontranscript_set.annotate(_default_release=models.Value(release, output_field=models.CharField())).all()]
 
 
     def to_dict(self, **kwargs):
         feature_obj = super(Exon, self).to_dict(**kwargs)
 
         feature_obj['release'] = self.release if self.release else self.default_release().release
+        if getattr(self, 'exon_number', None):
+            feature_obj['exon_number'] = getattr(self, 'exon_number')
+
+        '''
+        We need to ensure if traversing up the tree for expand_parent we don't
+        traverse back down and create an infinite loop. Temporarily pop out
+        the expand and do a to_dict() to we render the structure now, rather than
+        in the decorator.
+        '''
+        expand = kwargs.pop('expand', False)
+        if not kwargs.pop('hide_transcripts', False):
+            feature_obj['transcripts'] = [t.to_dict(**kwargs) if kwargs.get('expand_parent', False) else str(t) for t in self.transcripts]
+        kwargs['expand'] = expand
+
+        feature_obj.update(self.coding_annotation(kwargs.get('coding_start', None),
+                                             kwargs.get('coding_end', None)))
         
         return feature_obj
+
+    def coding_annotation(self, start, end):
+        coding_features = {}
+        if start and end:
+
+            if self.loc_end < start or self.loc_start > end:
+                coding_features['coding'] = False
+            else:
+                coding_features['coding'] = True
+
+            if start in self:
+                if self.loc_strand == -1:
+                    coding_features['coding_end'] = self.loc_end - start + 1
+                else:
+                    coding_features['coding_start'] = start - self.loc_start + 1
+
+            if end in self:
+                if self.loc_strand == -1:
+                    coding_features['coding_start'] = self.loc_end - end + 1
+                else:
+                    coding_features['coding_end'] = end - self.loc_start + 1
+
+        return coding_features
 
     @property
     def gene(self):
@@ -632,10 +674,24 @@ class Exon(Feature):
 
 class Exontranscript(models.Model):
     exon_transcript_id = models.AutoField(primary_key=True)
-    transcript = models.ForeignKey('Transcript', models.DO_NOTHING, blank=True, null=True, related_name='exons_old')
-    exon = models.ForeignKey(Exon, models.DO_NOTHING, blank=True, null=True, related_name='transcripts_old')
+    transcript = models.ForeignKey('Transcript', models.DO_NOTHING, blank=True, null=True)
+    exon = models.ForeignKey(Exon, models.DO_NOTHING, blank=True, null=True)
     exon_order = models.SmallIntegerField(blank=True, null=True)
     session = models.ForeignKey('Session', models.DO_NOTHING, blank=True, null=True)
+
+    def annotated_transcript(self, release=None):
+        t = self.transcript
+        setattr(t, '_default_release', getattr(self, '_default_release', release))
+        setattr(t, 'exon_number', self.exon_order)
+
+        return t
+
+    def annotated_exon(self, release=None):
+        e = self.exon
+        setattr(e, '_default_release', getattr(self, '_default_release', release))
+        setattr(e, 'exon_number', self.exon_order)
+
+        return e
 
     class Meta:
         managed = False
@@ -661,7 +717,7 @@ class Gene(Feature):
     @property
     def transcripts(self):
         release = self.release if self.release else self.default_release().release
-        return self.transcripts_m2m.annotate(_default_release=models.Value(release, output_field=models.CharField()))
+        return [tg.annotated_transcript() for tg in self.transcriptgene_set.annotate(_default_release=models.Value(release, output_field=models.CharField())).all()]
 
     def to_dict(self, **kwargs):
         feature_obj = super(Gene, self).to_dict(**kwargs)
@@ -669,6 +725,9 @@ class Gene(Feature):
         seq = self.seq if not kwargs.get('skip_sequence', False) else None
         if seq:
             feature_obj['sequence'] = seq
+
+        if self.hgnc:
+            feature_obj['hgnc_id'] = self.hgnc.external_id
 
         if self.release:
             feature_obj['release'] = self.release
@@ -687,10 +746,9 @@ class Gene(Feature):
         
         if kwargs.get('expand', False):
             transcript_ary = []
-            for transcript in self.transcripts.all():
-#                print exon_transcript.exon.exon_id
-                transcript_obj = transcript.to_dict(**kwargs)
-#                transcript_obj = transcript_gene.transcript.default_release(release).to_dict(**kwargs)
+            for transcript in self.transcripts:
+                print transcript
+                transcript_obj = transcript.to_dict(hide_gene=True, **kwargs)
                 transcript_ary.append(transcript_obj)
                         
             if transcript_ary:
@@ -996,26 +1054,27 @@ class Transcript(Feature):
     @property
     def genes(self):
         release = self.release if self.release else self.default_release().release
-        return self.genes_m2m.annotate(_default_release=models.Value(release, output_field=models.CharField()))
+        return [tg.annotated_gene() for tg in self.transcriptgene_set.annotate(_default_release=models.Value(release, output_field=models.CharField()))]
 
     @property
     def exons(self):
         release = self.release if self.release else self.default_release().release
-        return self.exons_m2m.annotate(_default_release=models.Value(release, output_field=models.CharField()))
+
+        return [et.annotated_exon() for et in self.exontranscript_set.annotate(_default_release=models.Value(release, output_field=models.CharField()))]
 
     # There should only be one translation, if there's more than one
     # we're in trouble, we're just returning the first
     @property
     def translation(self):
         release = self.release if self.release else self.default_release().release
-        for translation in self.translations_m2m.annotate(_default_release=models.Value(release, output_field=models.CharField())).all():
-            return translation
+        for tt in self.translationtranscript_set.annotate(_default_release=models.Value(release, output_field=models.CharField())):
+            return tt.annotated_translation()
         
         raise FeatureNonCoding()
 
     @property
     def is_coding(self):
-        if self.translations_m2m.exists():
+        if self.translationtranscript_set.exists():
             return True
         
         return False
@@ -1024,7 +1083,7 @@ class Transcript(Feature):
     def gene(self):
         release = self.release if self.release else self.default_release().release
 
-        for gene in self.genes.all():
+        for gene in self.genes:
             if gene.in_release(release):
                 return gene.default_release(release)
             
@@ -1060,6 +1119,24 @@ class Transcript(Feature):
     def to_dict(self, **kwargs):
         feature_obj = super(Transcript, self).to_dict(**kwargs)
 
+        if not kwargs.pop('hide_gene', False):
+            if kwargs.get('expand_parent', False):
+                '''
+                We need to pop the expand out so we don't accidentally create
+                and infinite loop, then put it back in when we're done.
+                We also have to do a to_dict() here so the popped expand is
+                respected when rendering.
+                '''
+                expand = kwargs.pop('expand', False)
+                feature_obj['gene'] = self.gene.to_dict(**kwargs)
+                kwargs['expand'] = expand
+                kwargs['expand_parent'] = False
+            else:
+                feature_obj['gene'] = str(self.gene)
+
+        if getattr(self, 'exon_number', None):
+            feature_obj['exon_number'] = getattr(self, 'exon_number')
+
         if self.release:
             feature_obj['release'] = self.release
             return self.expand_dict(feature_obj, self.release, **kwargs)
@@ -1075,16 +1152,21 @@ class Transcript(Feature):
     def expand_dict(self, feature_obj, release, **kwargs):
 #        print "release: {}".format(release)
         
+        coding_start = None
+        coding_end = None
+
         if kwargs.get('expand', False):
             if self.is_coding:
-                feature_obj['translation'] = self.translation.to_dict(**kwargs)
+                feature_obj['translation'] = self.translation.to_dict(hide_transcripts=True, **kwargs)
+                coding_start = feature_obj['translation']['loc_start']
+                coding_end = feature_obj['translation']['loc_end']
 #            children = Translation.objects.filter(transcript_id=self.transcript_id).annotate(_default_release=models.Value(release, output_field=models.CharField())).to_dict(**kwargs)
 #            if children:
 #                feature_obj['translation'] = children
 
             exons_ary = []
-            for exon in self.exons.all():
-                exon_obj = exon.to_dict(**kwargs)
+            for exon in self.exons:
+                exon_obj = exon.to_dict(hide_transcripts=True, coding_start=coding_start, coding_end=coding_end, **kwargs)
                 exons_ary.append(exon_obj)
 
             if exons_ary:
@@ -1197,9 +1279,21 @@ class Transcript(Feature):
 
 class Transcriptgene(models.Model):
     gene_transcript_id = models.AutoField(primary_key=True)
-    gene = models.ForeignKey(Gene, models.DO_NOTHING, blank=True, null=True, related_name='transcripts_old')
-    transcript = models.ForeignKey('Transcript', models.DO_NOTHING, blank=True, null=True, related_name='genes_old')
+    gene = models.ForeignKey(Gene, models.DO_NOTHING, blank=True, null=True)
+    transcript = models.ForeignKey('Transcript', models.DO_NOTHING, blank=True, null=True)
     session = models.ForeignKey('Session', models.DO_NOTHING, blank=True, null=True)
+
+    def annotated_transcript(self, release=None):
+        t = self.transcript
+        setattr(t, '_default_release', getattr(self, '_default_release', release))
+
+        return t
+
+    def annotated_gene(self, release=None):
+        g = self.gene
+        setattr(g, '_default_release', getattr(self, '_default_release', release))
+
+        return g
 
     class Meta:
         managed = False
@@ -1223,12 +1317,23 @@ class Translation(Feature):
     @property
     def transcripts(self):
         release = self.release if self.release else self.default_release().release
-        return self.transcripts_m2m.annotate(_default_release=models.Value(release, output_field=models.CharField()))
+        return [et.annotated_transcript() for et in self.translationtranscript_set.annotate(_default_release=models.Value(release, output_field=models.CharField())).all()]
 
     def to_dict(self, **kwargs):
         feature_obj = super(Translation, self).to_dict(**kwargs)
 
         feature_obj['release'] = self.release if self.release else self.default_release().release
+
+        '''
+        We need to ensure if traversing up the tree for expand_parent we don't
+        traverse back down and create an infinite loop. Temporarily pop out
+        the expand and do a to_dict() to we render the structure now, rather than
+        in the decorator.
+        '''
+        expand = kwargs.pop('expand', False)
+        if not kwargs.pop('hide_transcripts', False):
+            feature_obj['transcripts'] = [t.to_dict(**kwargs) if kwargs.get('expand_parent', False) else str(t) for t in self.transcripts]
+        kwargs['expand'] = expand
         
         return feature_obj
 
@@ -1276,6 +1381,18 @@ class Translationtranscript(models.Model):
     transcript = models.ForeignKey(Transcript, models.DO_NOTHING, blank=True, null=True)
     translation = models.ForeignKey(Translation, models.DO_NOTHING, blank=True, null=True)
     session = models.ForeignKey('Session', models.DO_NOTHING, blank=True, null=True)
+
+    def annotated_transcript(self, release=None):
+        t = self.transcript
+        setattr(t, '_default_release', getattr(self, '_default_release', release))
+
+        return t
+
+    def annotated_translation(self, release=None):
+        t = self.translation
+        setattr(t, '_default_release', getattr(self, '_default_release', release))
+
+        return t
 
     class Meta:
         managed = False

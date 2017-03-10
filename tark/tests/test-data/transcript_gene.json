@@ -1,0 +1,245 @@
+[
+    {
+	"fields": {
+	    "transcript_id" : 372211,
+	    "gene_id" : 119473,
+	    "session" : 1
+	},
+	"pk" : 1,
+	"model" : "tark.Transcriptgene"
+    },
+    {
+	"fields": {
+	    "transcript_id" : 372212,
+	    "gene_id" : 119473,
+	    "session" : 1
+	},
+	"pk" : 2,
+	"model" : "tark.Transcriptgene"
+    },
+    {
+	"fields": {
+	    "transcript_id" : 372213,
+	    "gene_id" : 119473,
+	    "session" : 1
+	},
+	"pk" : 3,
+	"model" : "tark.Transcriptgene"
+    },
+    {
+	"fields": {
+	    "transcript_id" : 372214,
+	    "gene_id" : 119473,
+	    "session" : 1
+	},
+	"pk" : 4,
+	"model" : "tark.Transcriptgene"
+    },
+    {
+	"fields": {
+	    "transcript_id" : 372215,
+	    "gene_id" : 119473,
+	    "session" : 1
+	},
+	"pk" : 5,
+	"model" : "tark.Transcriptgene"
+    },
+    {
+	"fields": {
+	    "transcript_id" : 372216,
+	    "gene_id" : 119473,
+	    "session" : 1
+	},
+	"pk" : 6,
+	"model" : "tark.Transcriptgene"
+    },
+    {
+	"fields": {
+	    "transcript_id" : 372217,
+	    "gene_id" : 119473,
+	    "session" : 1
+	},
+	"pk" : 7,
+	"model" : "tark.Transcriptgene"
+    },
+    {
+	"fields": {
+	    "transcript_id" : 372218,
+	    "gene_id" : 119473,
+	    "session" : 1
+	},
+	"pk" : 8,
+	"model" : "tark.Transcriptgene"
+    },
+    {
+	"fields": {
+	    "transcript_id" : 372219,
+	    "gene_id" : 119473,
+	    "session" : 1
+	},
+	"pk" : 9,
+	"model" : "tark.Transcriptgene"
+    },
+    {
+	"fields": {
+	    "transcript_id" : 372220,
+	    "gene_id" : 119473,
+	    "session" : 1
+	},
+	"pk" : 10,
+	"model" : "tark.Transcriptgene"
+    },
+    {
+	"fields": {
+	    "transcript_id" : 372221,
+	    "gene_id" : 119473,
+	    "session" : 1
+	},
+	"pk" : 11,
+	"model" : "tark.Transcriptgene"
+    },
+    {
+	"fields": {
+	    "transcript_id" : 372222,
+	    "gene_id" : 119473,
+	    "session" : 1
+	},
+	"pk" : 12,
+	"model" : "tark.Transcriptgene"
+    },
+    {
+	"fields": {
+	    "transcript_id" : 372223,
+	    "gene_id" : 119473,
+	    "session" : 1
+	},
+	"pk" : 13,
+	"model" : "tark.Transcriptgene"
+    },
+    {
+	"fields": {
+	    "transcript_id" : 105416,
+	    "gene_id" : 36751,
+	    "session" : 1
+	},
+	"pk" : 14,
+	"model" : "tark.Transcriptgene"
+    },
+    {
+	"fields": {
+	    "transcript_id" : 105417,
+	    "gene_id" : 36751,
+	    "session" : 1
+	},
+	"pk" : 15,
+	"model" : "tark.Transcriptgene"
+    },
+    {
+	"fields": {
+	    "transcript_id" : 105418,
+	    "gene_id" : 36751,
+	    "session" : 1
+	},
+	"pk" : 16,
+	"model" : "tark.Transcriptgene"
+    },
+    {
+	"fields": {
+	    "transcript_id" : 105419,
+	    "gene_id" : 36751,
+	    "session" : 1
+	},
+	"pk" : 17,
+	"model" : "tark.Transcriptgene"
+    },
+    {
+	"fields": {
+	    "transcript_id" : 105420,
+	    "gene_id" : 36751,
+	    "session" : 1
+	},
+	"pk" : 18,
+	"model" : "tark.Transcriptgene"
+    },
+    {
+	"fields": {
+	    "transcript_id" : 105421,
+	    "gene_id" : 36751,
+	    "session" : 1
+	},
+	"pk" : 19,
+	"model" : "tark.Transcriptgene"
+    },
+    {
+	"fields": {
+	    "transcript_id" : 105422,
+	    "gene_id" : 36751,
+	    "session" : 1
+	},
+	"pk" : 20,
+	"model" : "tark.Transcriptgene"
+    },
+    {
+	"fields": {
+	    "transcript_id" : 105423,
+	    "gene_id" : 36751,
+	    "session" : 1
+	},
+	"pk" : 21,
+	"model" : "tark.Transcriptgene"
+    },
+    {
+	"fields": {
+	    "transcript_id" : 105424,
+	    "gene_id" : 36751,
+	    "session" : 1
+	},
+	"pk" : 22,
+	"model" : "tark.Transcriptgene"
+    },
+    {
+	"fields": {
+	    "transcript_id" : 105425,
+	    "gene_id" : 36751,
+	    "session" : 1
+	},
+	"pk" : 23,
+	"model" : "tark.Transcriptgene"
+    },
+    {
+	"fields": {
+	    "transcript_id" : 105426,
+	    "gene_id" : 36751,
+	    "session" : 1
+	},
+	"pk" : 24,
+	"model" : "tark.Transcriptgene"
+    },
+    {
+	"fields": {
+	    "transcript_id" : 105427,
+	    "gene_id" : 36751,
+	    "session" : 1
+	},
+	"pk" : 25,
+	"model" : "tark.Transcriptgene"
+    },
+    {
+	"fields": {
+	    "transcript_id" : 105428,
+	    "gene_id" : 36751,
+	    "session" : 1
+	},
+	"pk" : 26,
+	"model" : "tark.Transcriptgene"
+    },
+    {
+	"fields": {
+	    "transcript_id" : 105429,
+	    "gene_id" : 36751,
+	    "session" : 1
+	},
+	"pk" : 27,
+	"model" : "tark.Transcriptgene"
+    }
+]
