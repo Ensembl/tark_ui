@@ -2,6 +2,8 @@ from django.db import models
 from Bio.Seq import Seq
 from Bio.Alphabet import IUPAC
 import pprint
+from _ast import alias
+from django.db.models.fields.related_descriptors import ForwardManyToOneDescriptor
 
 ALPHABETS = {
              'gene': IUPAC.ambiguous_dna,
@@ -97,6 +99,24 @@ class SequenceField(models.TextField):
             return [ self.item_field_type.to_python(x) for x in value ]
         
         return self.item_field_type.to_python(value)
+
+class HGNCForwardManyToOneDescription(ForwardManyToOneDescriptor):
+    """
+    We need to address what occurs when a lookup in the gene_name table
+    fails because the HGNC column is NULL. There might be a more eligant
+    way to handle this in django, I just haven't found it. So we're
+    overloading the relationship manager such that when a __get__ is
+    done, if the related column in gene_name fails we return none
+    rather than letting the exception bubble up.
+    """
+    def __get__(self, instance, cls=None):
+        
+        try:
+            rel_obj = super(HGNCForwardManyToOneDescription, self).__get__(instance, cls)
+        except Exception as e:
+            return None
+
+        return rel_obj
     
 class HGNCField(models.ForeignKey):
     """
@@ -106,6 +126,15 @@ class HGNCField(models.ForeignKey):
     conditions when looking up in the gene_names table.
     """
     requires_unique_target = False
-    
+
     def get_extra_descriptor_filter(self, instance):
         return {'primary_id': 1, 'source': 'HGNC'}
+
+    def contribute_to_class(self, cls, name, private_only=False, **kwargs):
+        '''
+        Override the relationship manager used for our HGNCField, see HGNCForwardManyToOneDescription
+        above for more details.
+        '''
+        super(HGNCField, self).contribute_to_class(cls, name, private_only, **kwargs)
+
+        setattr(cls, self.name, HGNCForwardManyToOneDescription(self))
