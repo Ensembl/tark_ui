@@ -32,7 +32,7 @@ class SeqFetcher():
         if not cls.has_archives():
             return None
         
-        url = cls.seq_url() + "?set={}&location={}".format(assembly, location)
+        url = cls.seq_url("region/{}".format(assembly)) + "?location={}".format(location)
 
         r = requests.get(url, headers={ "Accept" : "application/json"})
         
@@ -64,7 +64,7 @@ class SeqFetcher():
         if not cls.has_archives():
             return None
         
-        url = cls.seq_url("locations/{}/".format(assembly)) 
+        url = cls.seq_url("region/{}".format(assembly)) 
 
         r = requests.get(url, headers={ "Accept" : "application/json"})
         
