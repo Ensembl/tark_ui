@@ -32,7 +32,7 @@ def _fetch_by_hgvs_c(variant, assemblies, **kwargs):
         for gene in genes:
             matched_transcripts = []
 
-            for transcript in gene.transcripts.all():
+            for transcript in gene.transcripts:
                 gene.mapper.transcript(transcript)
 
                 
@@ -60,7 +60,7 @@ def _fetch_by_hgvs_g(variant, assemblies, **kwargs):
             matched_transcripts = []
 
             # We're going to do everything in genomic coordinates            
-            for transcript in gene.transcripts.all():
+            for transcript in gene.transcripts:
                 gene.mapper.transcript(transcript)
                 if not location:
                     location = gene.feature_location(variant.posedit.pos.start.base, variant.posedit.pos.end.base)

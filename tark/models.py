@@ -604,7 +604,7 @@ class Exon(Feature):
     def gene(self):
         # This feels a bit fragile, but there's really no other connection
         # to a gene
-        for transcript in self.transcripts.all():
+        for transcript in self.transcripts:
             return transcript.gene
     
     @property
