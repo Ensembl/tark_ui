@@ -624,7 +624,7 @@ class Exon(Feature):
             return differences
 
         if not exon2:
-            differences['missing'] = {'release': exon1.release}
+            differences['removed'] = {'release': exon1.release}
             return differences
 
         # Has the version changed
@@ -785,7 +785,7 @@ class Gene(Feature):
             return differences
 
         if not gene2:
-            differences['missing'] = {'release': gene1.release}
+            differences['removed'] = {'release': gene1.release}
             return differences
 
         # Has the version changed
@@ -800,8 +800,8 @@ class Gene(Feature):
             return differences
 
         # On to the transcripts
-        gene1_transcripts = gene1.transcripts_m2m.order_by('stable_id')
-        gene2_transcripts = gene2.transcripts_m2m.order_by('stable_id')
+        gene1_transcripts = sorted(gene1.transcripts, key=lambda transcript: transcript.stable_id)
+        gene2_transcripts = sorted(gene2.transcripts, key=lambda transcript: transcript.stable_id)
 
         transcript_pairs = cls.pairs(gene1_transcripts, gene2_transcripts)
         transcript_differences = []
@@ -1190,7 +1190,7 @@ class Transcript(Feature):
             return differences
 
         if not transcript2:
-            differences['missing'] = {'release': transcript1.release}
+            differences['removed'] = {'release': transcript1.release}
             return differences
 
         # Has the version changed
@@ -1210,8 +1210,8 @@ class Transcript(Feature):
 
         # On to the exons
         if transcript1.exon_set_checksum != transcript2.exon_set_checksum:
-            transcript1_exons = transcript1.exons_m2m.order_by('stable_id')
-            transcript2_exons = transcript2.exons_m2m.order_by('stable_id')
+            transcript1_exons = sorted(transcript1.exons, key=lambda exon: exon.stable_id)
+            transcript2_exons = sorted(transcript2.exons, key=lambda exon: exon.stable_id)
 
             exon_pairs = cls.pairs(transcript1_exons, transcript2_exons)
             exon_differences = []

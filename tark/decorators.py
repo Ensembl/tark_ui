@@ -4,6 +4,9 @@ from tark.renderers import renderer, ALLOW_CONTENT_TYPE
 import pprint
 from tark.exceptions import FilterNotFound, AssemblyNotFound,\
     ReleaseNotFound
+from __builtin__ import True
+
+BOOL_PARAMETERS = ['filter_pk', 'expand_parent', 'expand', 'skip_sequence']
 
 def render(function=None, default_content_type='application/json'):
     def decorator(view_func):
@@ -62,6 +65,13 @@ def parameter_parser(function=None, allow_methods=('GET', 'POST')):
 
             get_params = request.GET.dict()
             kwargs.update(get_params)
+
+            for param in kwargs:
+                if param in BOOL_PARAMETERS:
+                    if kwargs[param] == '1' or kwargs[param] == 'True' or kwargs[param] == 'true':
+                        kwargs[param] = True
+                    elif kwargs[param] == '0' or kwargs[param] == 'False' or kwargs[param] == 'false':
+                        kwargs[param] = False
                             
             response = view_func(request, *args, **kwargs)
             
