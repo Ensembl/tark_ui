@@ -800,8 +800,8 @@ class Gene(Feature):
             return differences
 
         # On to the transcripts
-        gene1_transcripts = gene1.transcripts.order_by('stable_id')
-        gene2_transcripts = gene2.transcripts.order_by('stable_id')
+        gene1_transcripts = gene1.transcripts_m2m.order_by('stable_id')
+        gene2_transcripts = gene2.transcripts_m2m.order_by('stable_id')
 
         transcript_pairs = cls.pairs(gene1_transcripts, gene2_transcripts)
         transcript_differences = []
@@ -1210,8 +1210,8 @@ class Transcript(Feature):
 
         # On to the exons
         if transcript1.exon_set_checksum != transcript2.exon_set_checksum:
-            transcript1_exons = transcript1.exons.order_by('stable_id')
-            transcript2_exons = transcript2.exons.order_by('stable_id')
+            transcript1_exons = transcript1.exons_m2m.order_by('stable_id')
+            transcript2_exons = transcript2.exons_m2m.order_by('stable_id')
 
             exon_pairs = cls.pairs(transcript1_exons, transcript2_exons)
             exon_differences = []
