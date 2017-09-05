@@ -1,20 +1,11 @@
-# Example YAML to get you started quickly.
-# Be aware that YAML has indentation based scoping.
-# Code completion support is available so start typing for available options.
 swagger: '2.0'
-
-# This is your document metadata
 info:
-  version: "1.0.0"
+  version: 1.0.0
   title: Transcript Archive (TArK)
   description: |
     REST API for EBI-EMBL Transcript Archive
-
-################################################################################
-#                  Host, Base Path, Schemes and Content Types                  #
-################################################################################
-host: localhost:8000
-basePath: /tark
+host: betatark.ensembl.org
+basePath: /
 schemes:
   - http
   - https
@@ -22,29 +13,13 @@ produces:
   - application/json
 consumes:
   - application/json
-
-################################################################################
-#                                   Parameters                                 #
-################################################################################
 parameters:
-  feature-type:
-    name: feature
-    in: path
-    description: Type of feature 
-    type: string
-    enum: 
-      - gene
-      - transcript
-      - exon
-      - translation
-    required: true
   identifier:
     name: id
     in: query
-    description: Feature identifier, Ensembl stable id or Refseq accession
+    description: 'Feature identifier, Ensembl stable id or Refseq accession'
     type: string
     required: true
-
   release-path:
     name: release
     in: path
@@ -57,32 +32,30 @@ parameters:
     description: An TArK tag
     type: string
     required: true
-
   species-path:
     name: species
     in: path
     description: Ensembl species name or alias
     type: string
+    default: human
     required: true
-
   assembly-path:
     name: assembly
     in: path
     description: Species assembly
     type: string
+    default: GRCh38
     required: true
-    
   hgvs-path:
     name: hgvs
     in: path
     description: HGVS string
     type: string
     required: true
-
   ids:
     name: id
     in: body
-    description: Feature identifier, Ensembl stable id or Refseq accession
+    description: 'Feature identifier, Ensembl stable id or Refseq accession'
     schema:
       required:
         - id
@@ -92,11 +65,10 @@ parameters:
           items:
             type: number
     required: true
-    
   location-body:
     name: location
     in: body
-    description: Genomic location (region, start, end)
+    description: 'Genomic location (region, start, end)'
     schema:
       required:
         - locations
@@ -104,14 +76,13 @@ parameters:
         locations:
           type: array
           items:
-            $ref: "#/definitions/location"
-                
-
+            $ref: '#/definitions/location'
   gene-name:
     name: name
     in: query
     description: Gene name to retrieve
     type: string
+    default: IRAK4
     required: true
   gene-names:
     name: names
@@ -126,11 +97,10 @@ parameters:
           items:
             type: string
     required: true
-
   expand:
     name: expand
     in: query
-    description: Expand the feature to show child features, if they exist
+    description: 'Expand the feature to show child features, if they exist'
     type: boolean
     default: false
     required: false
@@ -151,67 +121,76 @@ parameters:
   feature-query:
     name: feature-type
     in: query
-    description: Type of feature 
+    description: Type of feature
     type: string
-    enum: 
+    enum:
       - gene
       - transcript
       - exon
       - translation
     required: false
-    
   assembly:
     name: assembly
     in: query
     description: Species assembly
     type: string
     required: false
-    
+  location-string:
+    name: location
+    in: query
+    description: Genomic region location string
+    type: string
+    default: 'X:10000-20000'
+    required: true
   location-region:
     name: region
     in: query
     description: Location region
     type: string
+    default: '12'
     required: true
   location-start:
     name: start
     in: query
     description: Location start coordinate
     type: number
+    default: 43750000
     required: true
   location-end:
     name: end
     in: query
     description: Location end coordinate
     type: number
+    default: 43790000
     required: true
-    
   assembly1:
     name: assembly1
     in: query
     description: Assembly of the first set
     type: string
+    default: GRCh38
     required: true
   assembly2:
     name: assembly2
     in: query
     description: Assembly of the second set
     type: string
+    default: GRCh38
     required: true
-    
   release1:
     name: release1
-    in: query
+    in: path
     description: Release tag of the first group
     type: string
+    default: '90'
     required: true
   release2:
     name: release2
-    in: query
+    in: path
     description: Release tag of the second group
     type: string
+    default: '89'
     required: true
-
 paths:
   /genome/:
     get:
@@ -220,14 +199,13 @@ paths:
       description: |
         List all available species in the database
       responses:
-        200:
+        '200':
           description: Success
           schema:
-              type: array
-              items:
-                $ref: '#/definitions/genome'
-
-  /assembly/{species}/:
+            type: array
+            items:
+              $ref: '#/definitions/genome'
+  '/assembly/{species}/':
     parameters:
       - $ref: '#/parameters/species-path'
     get:
@@ -236,13 +214,12 @@ paths:
       description: |
         Show all assemblies for a given species
       responses:
-        200:
+        '200':
           description: Success
           schema:
-              type: array
-              items:
-                $ref: '#/definitions/assembly'
-                
+            type: array
+            items:
+              $ref: '#/definitions/assembly'
   /lookup/gene/:
     parameters:
       - $ref: '#/parameters/assembly'
@@ -259,11 +236,10 @@ paths:
         Gets `Sequence` objects for genes.
         Returns one or more gene objects
       responses:
-        # Response code
-        200:
+        '200':
           description: Success
           schema:
-              $ref: '#/definitions/gene_obj'
+            $ref: '#/definitions/gene_obj'
     post:
       parameters:
         - $ref: '#/parameters/ids'
@@ -274,12 +250,10 @@ paths:
         Gets `Sequence` objects for genes.
         Returns one or more gene objects
       responses:
-        # Response code
-        200:
+        '200':
           description: Success
           schema:
-              $ref: '#/definitions/gene_obj'
-
+            $ref: '#/definitions/gene_obj'
   /lookup/transcript/:
     parameters:
       - $ref: '#/parameters/assembly'
@@ -296,11 +270,10 @@ paths:
         Gets `Sequence` objects for transcript.
         Returns one or more transcript objects
       responses:
-        # Response code
-        200:
+        '200':
           description: Success
           schema:
-              $ref: '#/definitions/transcript_obj'
+            $ref: '#/definitions/transcript_obj'
     post:
       parameters:
         - $ref: '#/parameters/ids'
@@ -311,12 +284,10 @@ paths:
         Gets `Sequence` objects for transcript.
         Returns one or more sequence objects
       responses:
-        # Response code
-        200:
+        '200':
           description: Success
           schema:
-              $ref: '#/definitions/transcript_obj'
-
+            $ref: '#/definitions/transcript_obj'
   /lookup/exon/:
     parameters:
       - $ref: '#/parameters/assembly'
@@ -333,11 +304,10 @@ paths:
         Gets `Sequence` objects for exon.
         Returns one or more exon objects
       responses:
-        # Response code
-        200:
+        '200':
           description: Success
           schema:
-              $ref: '#/definitions/exon_obj'
+            $ref: '#/definitions/exon_obj'
     post:
       parameters:
         - $ref: '#/parameters/ids'
@@ -348,12 +318,10 @@ paths:
         Gets `Sequence` objects for exon.
         Returns one or more exon objects
       responses:
-        # Response code
-        200:
+        '200':
           description: Success
           schema:
-              $ref: '#/definitions/exon_obj'
-
+            $ref: '#/definitions/exon_obj'
   /lookup/translation/:
     parameters:
       - $ref: '#/parameters/assembly'
@@ -370,11 +338,10 @@ paths:
         Gets `Sequence` objects for translation.
         Returns one or more translation objects
       responses:
-        # Response code
-        200:
+        '200':
           description: Success
           schema:
-              $ref: '#/definitions/translation_obj'
+            $ref: '#/definitions/translation_obj'
     post:
       parameters:
         - $ref: '#/parameters/ids'
@@ -385,12 +352,11 @@ paths:
         Gets `Sequence` objects for translation.
         Returns one or more translation objects
       responses:
-        # Response code
-        200:
+        '200':
           description: Success
           schema:
-              $ref: '#/definitions/translation_obj'
-  /lookup/gene/name/:
+            $ref: '#/definitions/translation_obj'
+  /lookup/name/gene/:
     parameters:
       - $ref: '#/parameters/assembly'
       - $ref: '#/parameters/expand'
@@ -403,10 +369,10 @@ paths:
       description: |
         Lookup a gene name and return the gene objects
       responses:
-        200:
+        '200':
           description: Success
           schema:
-              $ref: '#/definitions/gene_obj'
+            $ref: '#/definitions/gene_obj'
     post:
       parameters:
         - $ref: '#/parameters/gene-names'
@@ -415,12 +381,11 @@ paths:
       description: |
         Lookup a gene(s) and return the gene objects
       responses:
-        200:
+        '200':
           description: Success
           schema:
-              $ref: '#/definitions/gene_obj'
-
-  /lookup/transcript/name/:
+            $ref: '#/definitions/gene_obj'
+  /lookup/name/transcript/:
     parameters:
       - $ref: '#/parameters/assembly'
       - $ref: '#/parameters/expand'
@@ -433,10 +398,10 @@ paths:
       description: |
         Lookup a gene name and return the transcript objects
       responses:
-        200:
+        '200':
           description: Success
           schema:
-              $ref: '#/definitions/transcript_obj'
+            $ref: '#/definitions/transcript_obj'
     post:
       parameters:
         - $ref: '#/parameters/gene-names'
@@ -445,12 +410,11 @@ paths:
       description: |
         Lookup a gene(s) and return the transcript objects
       responses:
-        200:
+        '200':
           description: Success
           schema:
-              $ref: '#/definitions/transcript_obj'
-              
-  /lookup/hgvs/{species}/{hgvs}/:
+            $ref: '#/definitions/transcript_obj'
+  '/lookup/hgvs/{species}/{hgvs}/':
     parameters:
       - $ref: '#/parameters/species-path'
       - $ref: '#/parameters/hgvs-path'
@@ -460,14 +424,13 @@ paths:
         - application/json
       description: |
         Retrieve all transcripts matching the HGVS string
+        Currently only handles g. level strings.
       responses:
-        200:
+        '200':
           description: Success
           schema:
-              $ref: '#/definitions/transcript_obj'
-          
-
-  /checksum/release/{release}/:
+            $ref: '#/definitions/transcript_obj'
+  '/checksum/release/{release}/':
     parameters:
       - $ref: '#/parameters/release-path'
       - $ref: '#/parameters/feature-query'
@@ -478,11 +441,11 @@ paths:
         Computes the checksum for a release, with
         optional parameters for sub-release level checksums
       responses:
-        200:
+        '200':
           description: Success
           schema:
             $ref: '#/definitions/checksum'
-  /checksum/tag/{tag}/:
+  '/checksum/tag/{tag}/':
     parameters:
       - $ref: '#/parameters/tag-path'
       - $ref: '#/parameters/feature-query'
@@ -493,12 +456,11 @@ paths:
         Computes the checksum for a tag, with
         optional parameters for sub-release level checksums
       responses:
-        200:
+        '200':
           description: Success
           schema:
             $ref: '#/definitions/checksum'
-
-  /location/{species}/gene/:
+  '/location/{species}/gene/':
     parameters:
       - $ref: '#/parameters/species-path'
       - $ref: '#/parameters/expand'
@@ -514,12 +476,12 @@ paths:
       description: |
         Find all gene objects within a region
       responses:
-        200:
+        '200':
           description: Success
           schema:
-              type: array
-              items:
-                $ref: '#/definitions/gene_obj'
+            type: array
+            items:
+              $ref: '#/definitions/gene_obj'
     post:
       parameters:
         - $ref: '#/parameters/location-body'
@@ -528,14 +490,13 @@ paths:
       description: |
         Find all gene objects within a region
       responses:
-        200:
+        '200':
           description: Success
           schema:
-              type: array
-              items:
-                $ref: '#/definitions/gene_obj'
-
-  /location/{species}/transcript/:
+            type: array
+            items:
+              $ref: '#/definitions/gene_obj'
+  '/location/{species}/transcript/':
     parameters:
       - $ref: '#/parameters/species-path'
       - $ref: '#/parameters/expand'
@@ -551,12 +512,12 @@ paths:
       description: |
         Find all transcript objects within a region
       responses:
-        200:
+        '200':
           description: Success
           schema:
-              type: array
-              items:
-                $ref: '#/definitions/transcript_obj'
+            type: array
+            items:
+              $ref: '#/definitions/transcript_obj'
     post:
       parameters:
         - $ref: '#/parameters/location-body'
@@ -565,14 +526,13 @@ paths:
       description: |
         Find all transcript objects within a region
       responses:
-        200:
+        '200':
           description: Success
           schema:
-              type: array
-              items:
-                $ref: '#/definitions/transcript_obj'
-
-  /location/{species}/exon/:
+            type: array
+            items:
+              $ref: '#/definitions/transcript_obj'
+  '/location/{species}/exon/':
     parameters:
       - $ref: '#/parameters/species-path'
       - $ref: '#/parameters/expand'
@@ -588,12 +548,12 @@ paths:
       description: |
         Find all exon objects within a region
       responses:
-        200:
+        '200':
           description: Success
           schema:
-              type: array
-              items:
-                $ref: '#/definitions/exon_obj'
+            type: array
+            items:
+              $ref: '#/definitions/exon_obj'
     post:
       parameters:
         - $ref: '#/parameters/location-body'
@@ -602,14 +562,13 @@ paths:
       description: |
         Find all exon objects within a region
       responses:
-        200:
+        '200':
           description: Success
           schema:
-              type: array
-              items:
-                $ref: '#/definitions/exon_obj'
-
-  /location/{species}/translation/:
+            type: array
+            items:
+              $ref: '#/definitions/exon_obj'
+  '/location/{species}/translation/':
     parameters:
       - $ref: '#/parameters/species-path'
       - $ref: '#/parameters/expand'
@@ -625,12 +584,12 @@ paths:
       description: |
         Find all translation objects within a region
       responses:
-        200:
+        '200':
           description: Success
           schema:
-              type: array
-              items:
-                $ref: '#/definitions/translation_obj'
+            type: array
+            items:
+              $ref: '#/definitions/translation_obj'
     post:
       parameters:
         - $ref: '#/parameters/location-body'
@@ -639,32 +598,31 @@ paths:
       description: |
         Find all translation objects within a region
       responses:
-        200:
+        '200':
           description: Success
           schema:
-              type: array
-              items:
-                $ref: '#/definitions/translation_obj'
-  /sequence/{assembly}/genomic/:
+            type: array
+            items:
+              $ref: '#/definitions/translation_obj'
+  '/sequence/region/{assembly}/':
     parameters:
       - $ref: '#/parameters/assembly-path'
     get:
       parameters:
-        - $ref: '#/parameters/location-region'
-        - $ref: '#/parameters/location-start'
-        - $ref: '#/parameters/location-end'
+        - $ref: '#/parameters/location-string'
       produces:
         - application/json
         - text/x-fasta
+        - text/plain
       description: |
         Fetch a sequence region, if available
       responses:
-        200:
+        '200':
           description: Success
           schema:
-              type: array
-              items:
-                $ref: '#/definitions/sequence'
+            type: array
+            items:
+              $ref: '#/definitions/sequence'
     post:
       parameters:
         - $ref: '#/parameters/location-body'
@@ -674,14 +632,13 @@ paths:
       description: |
         Fetch one or more sequence regions, if available
       responses:
-        200:
+        '200':
           description: Success
           schema:
-              type: array
-              items:
-                $ref: '#/definitions/sequence'
-
-  /diff/{species}/release/:
+            type: array
+            items:
+              $ref: '#/definitions/sequence'
+  '/diff/{species}/{release1}/{release2}/':
     parameters:
       - $ref: '#/parameters/species-path'
       - $ref: '#/parameters/release1'
@@ -694,10 +651,10 @@ paths:
       description: |
         Find the differences between two release sets.
         For each set, a release and assembly are required.
+        WARNING: Produces a very large resultset.
       responses:
-        200:
+        '200':
           description: Success
-
 definitions:
   gene_obj:
     type: object
@@ -727,7 +684,7 @@ definitions:
       transcript:
         type: array
         items:
-          $ref: "#/definitions/transcript_obj"
+          $ref: '#/definitions/transcript_obj'
   transcript_obj:
     type: object
     properties:
@@ -760,11 +717,11 @@ definitions:
       exon:
         type: array
         items:
-          $ref: "#/definitions/exon_obj"
+          $ref: '#/definitions/exon_obj'
       translation:
         type: array
         items:
-          $ref: "#/definitions/translation_obj"
+          $ref: '#/definitions/translation_obj'
   exon_obj:
     type: object
     properties:
@@ -822,7 +779,6 @@ definitions:
     properties:
       checksum:
         type: string
-
   location:
     type: object
     properties:
@@ -834,7 +790,6 @@ definitions:
         type: number
       end:
         type: number
-        
   sequence:
     type: object
     properties:
@@ -842,7 +797,6 @@ definitions:
         type: string
       sequence:
         type: string
-
   assembly:
     type: object
     properties:
@@ -854,7 +808,6 @@ definitions:
         type: string
       version:
         type: number
-  
   genome:
     type: object
     properties:
