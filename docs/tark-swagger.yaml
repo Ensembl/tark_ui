@@ -51,6 +51,7 @@ parameters:
     in: path
     description: HGVS string
     type: string
+    default: IRAK4:g.9159_9160delGA
     required: true
   ids:
     name: id
