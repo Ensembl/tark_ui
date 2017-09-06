@@ -42,7 +42,7 @@ parameters:
   assembly-path:
     name: assembly
     in: path
-    description: 'Species assembly (GRCh37, GRCh38...)'
+    description: 'Species assembly (GCA_000001405.14, GCA_000001405.22...)'
     type: string
     default: GRCh38
     required: true
@@ -136,7 +136,7 @@ parameters:
   assembly:
     name: assembly
     in: query
-    description: 'Species assembly (GRCh37, GRCh38...)'
+    description: 'Species assembly (GCA_000001405.14, GCA_000001405.22...)'
     type: string
     required: false
   location-string:
