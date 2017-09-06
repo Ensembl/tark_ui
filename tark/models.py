@@ -34,7 +34,9 @@ FEATURE_LOOKUP = {'Gene': 1,
                   'Translation': 4,
                   'Operon': 5}
 
-SPECIES_NAMES = {'human': 'homo_sapiens'}
+# This eventually needs to be spun off to use the Genome Registry
+SPECIES_NAMES = {'human': 'homo_sapiens',
+                 'homo_sapiens': 'homo_sapiens'}
 
 class FeatureQuerySet(models.query.QuerySet):
     def dict_iterator(self, **kwargs):          
