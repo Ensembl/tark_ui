@@ -4,8 +4,8 @@ info:
   title: Transcript Archive (TArK)
   description: |
     REST API for EBI-EMBL Transcript Archive
-host: betatark.ensembl.org
-basePath: /
+host: 'localhost:8000'
+basePath: /tark/
 schemes:
   - http
   - https
@@ -42,7 +42,7 @@ parameters:
   assembly-path:
     name: assembly
     in: path
-    description: Species assembly
+    description: 'Species assembly (GRCh37, GRCh38...)'
     type: string
     default: GRCh38
     required: true
@@ -51,7 +51,7 @@ parameters:
     in: path
     description: HGVS string
     type: string
-    default: IRAK4:g.9159_9160delGA
+    default: 'IRAK4:g.9159_9160delGA'
     required: true
   ids:
     name: id
@@ -67,9 +67,9 @@ parameters:
             type: number
     required: true
   location-body:
-    name: location
+    name: locations
     in: body
-    description: 'Genomic location (region, start, end)'
+    description: 'Genomic location (1:2000-3000, X:40000-50000:-1) and set (GRCh38, etc)'
     schema:
       required:
         - locations
@@ -77,7 +77,10 @@ parameters:
         locations:
           type: array
           items:
-            $ref: '#/definitions/location'
+            type: string
+        set:
+          type: string
+          default: GRCh38
   gene-name:
     name: name
     in: query
@@ -91,9 +94,9 @@ parameters:
     description: Gene name(s) to retrieve
     schema:
       required:
-        - names
+        - name
       properties:
-        names:
+        name:
           type: array
           items:
             type: string
@@ -133,13 +136,13 @@ parameters:
   assembly:
     name: assembly
     in: query
-    description: Species assembly
+    description: 'Species assembly (GRCh37, GRCh38...)'
     type: string
     required: false
   location-string:
     name: location
     in: query
-    description: Genomic region location string
+    description: 'Genomic region string (1:2000-3000, X:40000-50000:-1)'
     type: string
     default: 'X:10000-20000'
     required: true
@@ -232,7 +235,7 @@ paths:
         - $ref: '#/parameters/identifier'
       produces:
         - application/json
-        - text/fasta
+        - text/x-fasta
       description: |
         Gets `Sequence` objects for genes.
         Returns one or more gene objects
@@ -246,7 +249,7 @@ paths:
         - $ref: '#/parameters/ids'
       produces:
         - application/json
-        - text/fasta
+        - text/x-fasta
       description: |
         Gets `Sequence` objects for genes.
         Returns one or more gene objects
@@ -266,7 +269,7 @@ paths:
         - $ref: '#/parameters/identifier'
       produces:
         - application/json
-        - text/fasta
+        - text/x-fasta
       description: |
         Gets `Sequence` objects for transcript.
         Returns one or more transcript objects
@@ -280,7 +283,7 @@ paths:
         - $ref: '#/parameters/ids'
       produces:
         - application/json
-        - text/fasta
+        - text/x-fasta
       description: |
         Gets `Sequence` objects for transcript.
         Returns one or more sequence objects
@@ -300,7 +303,7 @@ paths:
         - $ref: '#/parameters/identifier'
       produces:
         - application/json
-        - text/fasta
+        - text/x-fasta
       description: |
         Gets `Sequence` objects for exon.
         Returns one or more exon objects
@@ -314,7 +317,7 @@ paths:
         - $ref: '#/parameters/ids'
       produces:
         - application/json
-        - text/fasta
+        - text/x-fasta
       description: |
         Gets `Sequence` objects for exon.
         Returns one or more exon objects
@@ -334,7 +337,7 @@ paths:
         - $ref: '#/parameters/identifier'
       produces:
         - application/json
-        - text/fasta
+        - text/x-fasta
       description: |
         Gets `Sequence` objects for translation.
         Returns one or more translation objects
@@ -348,7 +351,7 @@ paths:
         - $ref: '#/parameters/ids'
       produces:
         - application/json
-        - text/fasta
+        - text/x-fasta
       description: |
         Gets `Sequence` objects for translation.
         Returns one or more translation objects
@@ -415,52 +418,6 @@ paths:
           description: Success
           schema:
             $ref: '#/definitions/transcript_obj'
-  '/lookup/hgvs/{species}/{hgvs}/':
-    parameters:
-      - $ref: '#/parameters/species-path'
-      - $ref: '#/parameters/hgvs-path'
-      - $ref: '#/parameters/assembly'
-    get:
-      produces:
-        - application/json
-      description: |
-        Retrieve all transcripts matching the HGVS string
-        Currently only handles g. level strings.
-      responses:
-        '200':
-          description: Success
-          schema:
-            $ref: '#/definitions/transcript_obj'
-  '/checksum/release/{release}/':
-    parameters:
-      - $ref: '#/parameters/release-path'
-      - $ref: '#/parameters/feature-query'
-    get:
-      produces:
-        - application/json
-      description: |
-        Computes the checksum for a release, with
-        optional parameters for sub-release level checksums
-      responses:
-        '200':
-          description: Success
-          schema:
-            $ref: '#/definitions/checksum'
-  '/checksum/tag/{tag}/':
-    parameters:
-      - $ref: '#/parameters/tag-path'
-      - $ref: '#/parameters/feature-query'
-    get:
-      produces:
-        - application/json
-      description: |
-        Computes the checksum for a tag, with
-        optional parameters for sub-release level checksums
-      responses:
-        '200':
-          description: Success
-          schema:
-            $ref: '#/definitions/checksum'
   '/location/{species}/gene/':
     parameters:
       - $ref: '#/parameters/species-path'
@@ -656,6 +613,22 @@ paths:
       responses:
         '200':
           description: Success
+  '/lookup/hgvs/{species}/{hgvs}/':
+    parameters:
+      - $ref: '#/parameters/species-path'
+      - $ref: '#/parameters/hgvs-path'
+      - $ref: '#/parameters/assembly'
+    get:
+      produces:
+        - application/json
+      description: |
+        Retrieve all transcripts matching the HGVS string
+        Currently only handles g. level strings.
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: '#/definitions/transcript_obj'
 definitions:
   gene_obj:
     type: object

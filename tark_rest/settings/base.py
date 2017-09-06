@@ -50,6 +50,7 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django_accept_header.middleware.AcceptMiddleware',
+#    'tark.middleware.CorsHeader'
 ]
 
 ROOT_URLCONF = 'tark_rest.urls'
