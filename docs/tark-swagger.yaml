@@ -295,7 +295,6 @@ paths:
   /lookup/exon/:
     parameters:
       - $ref: '#/parameters/assembly'
-      - $ref: '#/parameters/expand'
       - $ref: '#/parameters/skip_sequence'
       - $ref: '#/parameters/filter_pk'
     get:
@@ -329,7 +328,6 @@ paths:
   /lookup/translation/:
     parameters:
       - $ref: '#/parameters/assembly'
-      - $ref: '#/parameters/expand'
       - $ref: '#/parameters/skip_sequence'
       - $ref: '#/parameters/filter_pk'
     get:
@@ -617,7 +615,6 @@ paths:
     parameters:
       - $ref: '#/parameters/species-path'
       - $ref: '#/parameters/hgvs-path'
-      - $ref: '#/parameters/assembly'
     get:
       produces:
         - application/json
