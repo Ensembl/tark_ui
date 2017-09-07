@@ -1,6 +1,6 @@
 swagger: '2.0'
 info:
-  version: 1.0.0
+  version: 0.0.1
   title: Transcript Archive (TArK)
   description: |
     REST API for EBI-EMBL Transcript Archive
