@@ -25,7 +25,7 @@ TEST_RUNNER = 'tark.tests.utils.ManagedModelTestRunner'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
